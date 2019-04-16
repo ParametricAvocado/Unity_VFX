@@ -10,8 +10,16 @@
     }
     SubShader
     {
-		Tags { "RenderType" = "Transparent" "IgnoreProjector" = "True" "PreviewType" = "Plane" "PerformanceChecks" = "False" }
+		Tags 
+		{
+			"RenderType" = "Transparent"
+			"Queue" = "Transparent"
+			"IgnoreProjector" = "True"
+			"PreviewType" = "Plane"
+			"PerformanceChecks" = "False"
+		}
 
+		Zwrite off
 		
         CGPROGRAM
         #pragma surface surf Transluscent nolightmap nometa keepalpha vertex:vert alpha:blend
