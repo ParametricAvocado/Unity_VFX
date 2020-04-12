@@ -39,6 +39,16 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: M_WaterTank_Water
     second: {fileID: 2100000, guid: 8cdc12331fbba774aac33a9d55dc82d1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_WindTurbine_Base
+    second: {fileID: 2100000, guid: 8fa41f8150453b242971ad879c24be67, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_WindTurbine_Detail
+    second: {fileID: 2100000, guid: 6b0266a11d4b0a244a3aa8098f730f63, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0
