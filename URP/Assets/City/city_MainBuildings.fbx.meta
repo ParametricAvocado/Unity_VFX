@@ -12,6 +12,31 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: M_FireStation_1
+    second: {fileID: 2100000, guid: 3890ec2eecce5a248a740a9c64112505, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_FireStation_2
+    second: {fileID: 2100000, guid: abb1a01c30faf8c4ebcd31f3d12afa15, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_FireStation_Windows
+    second: {fileID: 2100000, guid: dc4d44772812b7f448f740411568e7b0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Fire_Badge_1
+    second: {fileID: 2100000, guid: e1bc10f5cd209754cbc682a4760d6ec0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Fire_Badge_2
+    second: {fileID: 2100000, guid: d3af951dc80538e4e856db9893dd6d47, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: M_HouseBase
     second: {fileID: 2100000, guid: 6b58205f7da6bb140a79c07045eebab3, type: 2}
   - first:
@@ -32,6 +57,36 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: M_Police_1
+    second: {fileID: 2100000, guid: d9389b8c97a3b384ab4b3473cbb1ce35, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Police_2
+    second: {fileID: 2100000, guid: 7400219815adb37479a387448208d139, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Police_Badge
+    second: {fileID: 2100000, guid: 427dd51b062061f479b814f4fb1ca1e1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Police_Flag
+    second: {fileID: 2100000, guid: fc6e4159ed217cb44b392305dacdf150, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Police_Glasses
+    second: {fileID: 2100000, guid: 9a539da41c7bc0a42833cb8622545b5c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Police_Windows
+    second: {fileID: 2100000, guid: a36523456c42bdf49aa358de6fafec32, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: M_WaterTankBody
     second: {fileID: 2100000, guid: 511dcda27e968454e997a3fc5ee1906e, type: 2}
   - first:
@@ -49,6 +104,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: M_WindTurbine_Detail
     second: {fileID: 2100000, guid: 6b0266a11d4b0a244a3aa8098f730f63, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Metal
+    second: {fileID: 2100000, guid: 52cbea45e4992b742a9115f90a2da283, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0
