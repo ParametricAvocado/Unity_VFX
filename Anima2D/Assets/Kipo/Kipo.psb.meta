@@ -1,0 +1,553 @@
+fileFormatVersion: 2
+guid: c3bbae54c023ea840bc45ef80d5213d9
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: b2a9591990af98743ba3ff7cf1000886, type: 3}
+  textureImporterSettings:
+    alphaSource: 1
+    mipMapMode: 0
+    enableMipMap: 1
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+    convertToNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    isReadable: 0
+    streamingMipmaps: 1
+    streamingMipmapsPriority: 0
+    nPOTScale: 1
+    sRGBTexture: 1
+    spriteMode: 2
+    spriteExtrude: 1
+    spriteMeshType: 1
+    alignment: 0
+    spritePivot: {x: 0.5, y: 0.5}
+    spritePixelsToUnits: 100
+    spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+    spriteGenerateFallbackPhysicsShape: 0
+    generateCubemap: 6
+    cubemapConvolution: 0
+    seamlessCubemap: 0
+    alphaIsTransparency: 1
+    spriteTessellationDetail: -1
+    textureType: 8
+    textureShape: 1
+    singleChannelComponent: 0
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 0
+    wrapV: 0
+    wrapW: 0
+    normalMap: 0
+    textureFormat: 0
+    maxTextureSize: 0
+    lightmap: 0
+    compressionQuality: 0
+    linearTexture: 0
+    grayScaleToAlpha: 0
+    rGBM: 0
+    cubemapConvolutionSteps: 0
+    cubemapConvolutionExponent: 0
+    maxTextureSizeSet: 0
+    compressionQualitySet: 0
+    textureFormatSet: 0
+    applyGammaDecoding: 0
+  spriteImportData:
+  - name: 
+    originalName: 
+    pivot: {x: 0, y: 0}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    spriteID: 
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: 0, y: 0}
+  mosaicSpriteImportData: []
+  rigSpriteImportData:
+  - name: Glow
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 276
+      y: 775
+      width: 113
+      height: 62
+    spriteID: 713183c205e9a0046a075a864cb41710
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: -5, y: 100}
+  - name: Shadow
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 4
+      y: 1801
+      width: 295
+      height: 235
+    spriteID: 614124b7f00e7e449a5321b0cce3124a
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: -185, y: 1181}
+  - name: Nose
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 512
+      y: 1699
+      width: 21
+      height: 19
+    spriteID: 11f0d00cad02ea243b572f5fbb3eadad
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: 195, y: 1030}
+  - name: Pupils
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 276
+      y: 845
+      width: 87
+      height: 50
+    spriteID: 4ada9073aa67b2748854883d802144eb
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: -31, y: 164}
+  - name: Shadow_1
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 374
+      y: 1622
+      width: 133
+      height: 69
+    spriteID: 247d12654501e2d46b6193ac05047c5c
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: 89, y: 946}
+  - name: Mouth
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 474
+      y: 1489
+      width: 44
+      height: 19
+    spriteID: 20a96f3baf4c4ea418dc95ceae597e8a
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: 147, y: 843}
+  - name: Brows
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 374
+      y: 1699
+      width: 130
+      height: 60
+    spriteID: 9ccd22099ffcdd14c970b10cd5caaa7d
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: 93, y: 994}
+  - name: Shadow_2
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 307
+      y: 1801
+      width: 184
+      height: 225
+    spriteID: 681c3b942143bfc40ab8ba27933cebf2
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: 29, y: 1208}
+  - name: Shadow_3
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 374
+      y: 1489
+      width: 92
+      height: 125
+    spriteID: f79addd1425912f46b5a6eb6446ea7e6
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: 8, y: 934}
+  - name: Shadow_4
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 374
+      y: 1360
+      width: 134
+      height: 121
+    spriteID: 59de0eb9d661b4045aa5fe0a6aa0bafa
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: -39, y: 746}
+  - name: Shadow_5
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 499
+      y: 1801
+      width: 37
+      height: 141
+    spriteID: ce7a6552bbef4524690d7bf5368f91f3
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: 239, y: 1185}
+  - name: Gradient
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 4
+      y: 775
+      width: 264
+      height: 577
+    spriteID: cd7e84b7002922444a1af2a10246fccb
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: -233, y: 775}
+  - name: Gradient copy 2
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 297
+      y: 1360
+      width: 69
+      height: 431
+    spriteID: adca9e5ecc9759c4b8448ffeb36c1cf0
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: -138, y: 1319}
+  - name: Gradient copy
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 4
+      y: 1360
+      width: 285
+      height: 433
+    spriteID: ee6699cde0af236418d42034b0537d78
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: -24, y: 1031}
+  - name: Kipo BG
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    rect:
+      serializedVersion: 2
+      x: 4
+      y: 4
+      width: 538
+      height: 763
+    spriteID: aa6aa160f736379468e6a88e313dc912
+    internalID: 0
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    parentGroupIndex: -1
+    uvTransform: {x: 4, y: -148}
+  platformSettings: []
+  mosaicLayers: 1
+  documentPivot: {x: 0, y: 0}
+  documentAlignment: 7
+  importHiddenLayers: 0
+  importedTextureWidth: 1024
+  importedTextureHeight: 2048
+  documentSize: {x: 547, y: 915}
+  paperDollMode: 0
+  keepDupilcateSpriteName: 0
+  spriteCategoryList:
+    categories: []
+  textureActualWidth: 1024
+  textureActualHeight: 2048
+  spritePackingTag: 
+  resliceFromLayer: 0
+  characterMode: 1
+  mosaicPSDLayers: []
+  rigPSDLayers:
+  - name: Glow
+    spriteName: Glow
+    isGroup: 0
+    parentIndex: -1
+    spriteID: 713183c205e9a0046a075a864cb41710
+    layerID: 716
+    mosaicPosition: {x: 276, y: 775}
+  - name: Shadow
+    spriteName: Shadow
+    isGroup: 0
+    parentIndex: -1
+    spriteID: 614124b7f00e7e449a5321b0cce3124a
+    layerID: 715
+    mosaicPosition: {x: 4, y: 1801}
+  - name: Nose
+    spriteName: Nose
+    isGroup: 0
+    parentIndex: -1
+    spriteID: 11f0d00cad02ea243b572f5fbb3eadad
+    layerID: 713
+    mosaicPosition: {x: 512, y: 1699}
+  - name: Pupils
+    spriteName: Pupils
+    isGroup: 0
+    parentIndex: -1
+    spriteID: 4ada9073aa67b2748854883d802144eb
+    layerID: 712
+    mosaicPosition: {x: 276, y: 845}
+  - name: Shadow
+    spriteName: Shadow_1
+    isGroup: 0
+    parentIndex: -1
+    spriteID: 247d12654501e2d46b6193ac05047c5c
+    layerID: 711
+    mosaicPosition: {x: 374, y: 1622}
+  - name: Mouth
+    spriteName: Mouth
+    isGroup: 0
+    parentIndex: -1
+    spriteID: 20a96f3baf4c4ea418dc95ceae597e8a
+    layerID: 709
+    mosaicPosition: {x: 474, y: 1489}
+  - name: Brows
+    spriteName: Brows
+    isGroup: 0
+    parentIndex: -1
+    spriteID: 9ccd22099ffcdd14c970b10cd5caaa7d
+    layerID: 708
+    mosaicPosition: {x: 374, y: 1699}
+  - name: Shadow
+    spriteName: Shadow_2
+    isGroup: 0
+    parentIndex: -1
+    spriteID: 681c3b942143bfc40ab8ba27933cebf2
+    layerID: 707
+    mosaicPosition: {x: 307, y: 1801}
+  - name: Shadow
+    spriteName: Shadow_3
+    isGroup: 0
+    parentIndex: -1
+    spriteID: f79addd1425912f46b5a6eb6446ea7e6
+    layerID: 705
+    mosaicPosition: {x: 374, y: 1489}
+  - name: Shadow
+    spriteName: Shadow_4
+    isGroup: 0
+    parentIndex: -1
+    spriteID: 59de0eb9d661b4045aa5fe0a6aa0bafa
+    layerID: 703
+    mosaicPosition: {x: 374, y: 1360}
+  - name: Shadow
+    spriteName: Shadow_5
+    isGroup: 0
+    parentIndex: -1
+    spriteID: ce7a6552bbef4524690d7bf5368f91f3
+    layerID: 701
+    mosaicPosition: {x: 499, y: 1801}
+  - name: Gradient
+    spriteName: Gradient
+    isGroup: 0
+    parentIndex: -1
+    spriteID: cd7e84b7002922444a1af2a10246fccb
+    layerID: 718
+    mosaicPosition: {x: 4, y: 775}
+  - name: Gradient copy 2
+    spriteName: Gradient copy 2
+    isGroup: 0
+    parentIndex: -1
+    spriteID: adca9e5ecc9759c4b8448ffeb36c1cf0
+    layerID: 721
+    mosaicPosition: {x: 297, y: 1360}
+  - name: Gradient copy
+    spriteName: Gradient copy
+    isGroup: 0
+    parentIndex: -1
+    spriteID: ee6699cde0af236418d42034b0537d78
+    layerID: 720
+    mosaicPosition: {x: 4, y: 1360}
+  - name: Kipo BG
+    spriteName: Kipo BG
+    isGroup: 0
+    parentIndex: -1
+    spriteID: aa6aa160f736379468e6a88e313dc912
+    layerID: 692
+    mosaicPosition: {x: 4, y: 4}
+  characterData:
+    bones: []
+    parts: []
+    dimension: {x: 0, y: 0}
+    characterGroups: []
+  generateGOHierarchy: 0
+  textureAssetName: Kipo Texture
+  prefabAssetName: Kipo Prefab
+  spriteLibAssetName: Kipo Sprite Lib
+  secondarySpriteTextures: []
