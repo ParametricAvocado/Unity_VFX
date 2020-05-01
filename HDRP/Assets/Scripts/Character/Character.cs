@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Character : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class Character : MonoBehaviour
     [SerializeField]
     private CharacterInput m_CharacterInput;
 
-    [SerializeField]
+	[SerializeField]
     private Animator m_Animator;
     [SerializeField]
     private CharacterAnimation m_CharacterAnimation;

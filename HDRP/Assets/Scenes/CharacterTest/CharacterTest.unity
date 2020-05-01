@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.26977447, g: 0.35564205, b: 0.52787566, a: 1}
+  m_IndirectSpecularColor: {r: 0.18881156, g: 0.26620907, b: 0.42211193, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -54,7 +54,7 @@ LightmapSettings:
     m_EnableBakedLightmaps: 1
     m_EnableRealtimeLightmaps: 1
   m_LightmapEditorSettings:
-    serializedVersion: 10
+    serializedVersion: 12
     m_Resolution: 2
     m_BakeResolution: 40
     m_AtlasSize: 1024
@@ -62,6 +62,7 @@ LightmapSettings:
     m_AOMaxDistance: 1
     m_CompAOExponent: 1
     m_CompAOExponentDirect: 0
+    m_ExtractAmbientOcclusion: 0
     m_Padding: 2
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
@@ -76,10 +77,16 @@ LightmapSettings:
     m_PVRDirectSampleCount: 32
     m_PVRSampleCount: 500
     m_PVRBounces: 2
+    m_PVREnvironmentSampleCount: 500
+    m_PVREnvironmentReferencePointCount: 2048
+    m_PVRFilteringMode: 2
+    m_PVRDenoiserTypeDirect: 0
+    m_PVRDenoiserTypeIndirect: 0
+    m_PVRDenoiserTypeAO: 0
     m_PVRFilterTypeDirect: 0
     m_PVRFilterTypeIndirect: 0
     m_PVRFilterTypeAO: 0
-    m_PVRFilteringMode: 1
+    m_PVREnvironmentMIS: 0
     m_PVRCulling: 1
     m_PVRFilteringGaussRadiusDirect: 1
     m_PVRFilteringGaussRadiusIndirect: 5
@@ -87,7 +94,9 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaDirect: 0.5
     m_PVRFilteringAtrousPositionSigmaIndirect: 2
     m_PVRFilteringAtrousPositionSigmaAO: 1
-    m_ShowResolutionOverlay: 1
+    m_ExportTrainingData: 0
+    m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -152,9 +161,10 @@ Camera:
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
   m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
-  m_GateFitMode: 2
   m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -189,7 +199,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 911154492}
-  m_LocalRotation: {x: 0.12719244, y: -5.1322057e-23, z: 6.5812295e-24, w: 0.9918781}
+  m_LocalRotation: {x: 0.12719244, y: -0.00000003413326, z: 0.000000004377043, w: 0.9918781}
   m_LocalPosition: {x: 0, y: 3, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -213,6 +223,7 @@ MonoBehaviour:
   m_IgnoreTimeScale: 0
   m_WorldUpOverride: {fileID: 0}
   m_UpdateMethod: 0
+  m_BlendUpdateMethod: 1
   m_DefaultBlend:
     m_Style: 1
     m_Time: 2
@@ -226,13 +237,9 @@ MonoBehaviour:
   m_CameraCutEvent:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Cinemachine.CinemachineBrain+BrainEvent, Cinemachine, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   m_CameraActivatedEvent:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Cinemachine.CinemachineBrain+VcamActivatedEvent, Cinemachine, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &911154497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245,62 +252,177 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23c1ce4fb46143f46bc5cb5224c934f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Version: 1
+  m_Version: 7
+  m_ObsoleteRenderingPath: 0
+  m_ObsoleteFrameSettings:
+    overrides: 0
+    enableShadow: 0
+    enableContactShadows: 0
+    enableShadowMask: 0
+    enableSSR: 0
+    enableSSAO: 0
+    enableSubsurfaceScattering: 0
+    enableTransmission: 0
+    enableAtmosphericScattering: 0
+    enableVolumetrics: 0
+    enableReprojectionForVolumetrics: 0
+    enableLightLayers: 0
+    enableExposureControl: 1
+    diffuseGlobalDimmer: 0
+    specularGlobalDimmer: 0
+    shaderLitMode: 0
+    enableDepthPrepassWithDeferredRendering: 0
+    enableTransparentPrepass: 0
+    enableMotionVectors: 0
+    enableObjectMotionVectors: 0
+    enableDecals: 0
+    enableRoughRefraction: 0
+    enableTransparentPostpass: 0
+    enableDistortion: 0
+    enablePostprocess: 0
+    enableOpaqueObjects: 0
+    enableTransparentObjects: 0
+    enableRealtimePlanarReflection: 0
+    enableMSAA: 0
+    enableAsyncCompute: 0
+    runLightListAsync: 0
+    runSSRAsync: 0
+    runSSAOAsync: 0
+    runContactShadowsAsync: 0
+    runVolumeVoxelizationAsync: 0
+    lightLoopSettings:
+      overrides: 0
+      enableDeferredTileAndCluster: 0
+      enableComputeLightEvaluation: 0
+      enableComputeLightVariants: 0
+      enableComputeMaterialVariants: 0
+      enableFptlForForwardOpaque: 0
+      enableBigTilePrepass: 0
+      isFptlEnabled: 0
   clearColorMode: 0
   backgroundColorHDR: {r: 0.025, g: 0.07, b: 0.19, a: 0}
   clearDepth: 1
-  renderingPath: 0
   volumeLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
   volumeAnchorOverride: {fileID: 0}
-  aperture: 8
-  shutterSpeed: 0.005
-  iso: 400
-  m_FrameSettings:
-    overrides: 0
-    enableShadow: 1
-    enableContactShadows: 1
-    enableShadowMask: 1
-    enableSSR: 0
-    enableSSAO: 1
-    enableSubsurfaceScattering: 1
-    enableTransmission: 1
-    enableAtmosphericScattering: 1
-    enableVolumetrics: 1
-    enableReprojectionForVolumetrics: 1
-    enableLightLayers: 1
-    diffuseGlobalDimmer: 1
-    specularGlobalDimmer: 1
-    shaderLitMode: 1
-    enableDepthPrepassWithDeferredRendering: 0
-    enableTransparentPrepass: 1
-    enableMotionVectors: 1
-    enableObjectMotionVectors: 1
-    enableDecals: 1
-    enableRoughRefraction: 1
-    enableTransparentPostpass: 1
-    enableDistortion: 1
-    enablePostprocess: 1
-    enableOpaqueObjects: 1
-    enableTransparentObjects: 1
-    enableRealtimePlanarReflection: 1
-    enableMSAA: 0
-    enableAsyncCompute: 1
-    runLightListAsync: 1
-    runSSRAsync: 1
-    runSSAOAsync: 1
-    runContactShadowsAsync: 1
-    runVolumeVoxelizationAsync: 1
-    lightLoopSettings:
-      overrides: 0
-      enableTileAndCluster: 1
-      enableComputeLightEvaluation: 1
-      enableComputeLightVariants: 1
-      enableComputeMaterialVariants: 1
-      enableFptlForForwardOpaque: 1
-      enableBigTilePrepass: 1
-      isFptlEnabled: 1
+  antialiasing: 0
+  SMAAQuality: 2
+  dithering: 0
+  stopNaNs: 0
+  taaSharpenStrength: 0.6
+  physicalParameters:
+    m_Iso: 200
+    m_ShutterSpeed: 0.005
+    m_Aperture: 16
+    m_BladeCount: 5
+    m_Curvature: {x: 2, y: 11}
+    m_BarrelClipping: 0.25
+    m_Anamorphism: 0
+  flipYMode: 0
+  fullscreenPassthrough: 0
+  allowDynamicResolution: 0
+  customRenderingSettings: 0
+  invertFaceCulling: 0
+  probeLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  hasPersistentHistory: 0
+  m_RenderingPathCustomFrameSettings:
+    bitDatas:
+      data1: 70280688959309
+      data2: 4539628424926265344
+    lodBias: 1
+    lodBiasMode: 0
+    lodBiasQualityLevel: 0
+    maximumLODLevel: 0
+    maximumLODLevelMode: 0
+    maximumLODLevelQualityLevel: 0
+    materialQuality: 0
+  renderingPathCustomFrameSettingsOverrideMask:
+    mask:
+      data1: 0
+      data2: 0
+  defaultFrameSettings: 0
+--- !u!114 &1040765474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3df29e7cc05fbec4aa43e06ea875565d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  active: 1
+  m_AdvancedMode: 0
+  rotation:
+    m_OverrideState: 0
+    m_Value: 0
+    min: 0
+    max: 360
+  skyIntensityMode:
+    m_OverrideState: 0
+    m_Value: 0
+  exposure:
+    m_OverrideState: 0
+    m_Value: 2
+  multiplier:
+    m_OverrideState: 0
+    m_Value: 1
+    min: 0
+  upperHemisphereLuxValue:
+    m_OverrideState: 0
+    m_Value: 1
+    min: 0
+  upperHemisphereLuxColor:
+    m_OverrideState: 0
+    m_Value: {x: 0, y: 0, z: 0}
+  desiredLuxValue:
+    m_OverrideState: 0
+    m_Value: 20000
+  updateMode:
+    m_OverrideState: 0
+    m_Value: 0
+  updatePeriod:
+    m_OverrideState: 0
+    m_Value: 0
+    min: 0
+  includeSunInBaking:
+    m_OverrideState: 0
+    m_Value: 0
+  sunSize:
+    m_OverrideState: 0
+    m_Value: 0.04
+    min: 0
+    max: 1
+  sunSizeConvergence:
+    m_OverrideState: 0
+    m_Value: 5
+    min: 1
+    max: 10
+  atmosphereThickness:
+    m_OverrideState: 0
+    m_Value: 1
+    min: 0
+    max: 5
+  skyTint:
+    m_OverrideState: 0
+    m_Value: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    hdr: 0
+    showAlpha: 1
+    showEyeDropper: 1
+  groundColor:
+    m_OverrideState: 0
+    m_Value: {r: 0.369, g: 0.349, b: 0.341, a: 1}
+    hdr: 0
+    showAlpha: 1
+    showEyeDropper: 1
+  enableSunDisk:
+    m_OverrideState: 0
+    m_Value: 1
 --- !u!1 &1189261062
 GameObject:
   m_ObjectHideFlags: 0
@@ -332,7 +454,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Profile: {fileID: 11400000, guid: 76cc99257b647e74783cd7581ac73528, type: 2}
-  m_BakingSkyUniqueID: 2
+  m_StaticLightingSkyUniqueID: 2
+  m_SkySettings: {fileID: 1040765474}
+  m_SkySettingsFromProfile: {fileID: 114771995703010442, guid: 76cc99257b647e74783cd7581ac73528,
+    type: 2}
 --- !u!114 &1189261064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -371,8 +496,8 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh19496
-  serializedVersion: 9
+  m_Name: pb_Mesh19234
+  serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
     firstByte: 0
@@ -392,6 +517,9 @@ Mesh:
   m_BindPose: []
   m_BoneNameHashes: 
   m_RootBoneNameHash: 0
+  m_BonesAABB: []
+  m_VariableBoneCountWeights:
+    m_Data: 
   m_MeshCompression: 0
   m_IsReadable: 1
   m_KeepVertices: 0
@@ -399,7 +527,7 @@ Mesh:
   m_IndexFormat: 0
   m_IndexBuffer: 00000100020001000300020001000400030004000500030004000600050006000700050006000800070008000900070008000a0009000a000b0009000a000c000b000c000d000b000c000e000d000e000f000d000e0010000f00100011000f0010001200110012001300110012001400130014001500130014001600150016001700150016001800170018001900170018001a0019001a001b0019001a001c001b001c001d001b001c001e001d001e001f001d001e0020001f00200021001f00200022002100220023002100220024002300240025002300240026002500260027002500260028002700280029002700020003002a0003002b002a00030005002b0005002c002b00050007002c0007002d002c00070009002d0009002e002d0009000b002e000b002f002e000b000d002f000d0030002f000d000f0030000f00310030000f001100310011003200310011001300320013003300320013001500330015003400330015001700340017003500340017001900350019003600350019001b0036001b00370036001b001d0037001d00380037001d001f0038001f00390038001f002100390021003a003900210023003a0023003b003a00230025003b0025003c003b00250027003c0027003d003c00270029003d0029003e003d002a002b003f002b0040003f002b002c0040002c00410040002c002d0041002d00420041002d002e0042002e00430042002e002f0043002f00440043002f003000440030004500440030003100450031004600450031003200460032004700460032003300470033004800470033003400480034004900480034003500490035004a004900350036004a0036004b004a00360037004b0037004c004b00370038004c0038004d004c00380039004d0039004e004d0039003a004e003a004f004e003a003b004f003b0050004f003b003c0050003c00510050003c003d0051003d00520051003d003e0052003e00530052003f004000540040005500540040004100550041005600550041004200560042005700560042004300570043005800570043004400580044005900580044004500590045005a005900450046005a0046005b005a00460047005b0047005c005b00470048005c0048005d005c00480049005d0049005e005d0049004a005e004a005f005e004a004b005f004b0060005f004b004c0060004c00610060004c004d0061004d00620061004d004e0062004e00630062004e004f0063004f00640063004f005000640050006500640050005100650051006600650051005200660052006700660052005300670053006800670054005500690055006a006900550056006a0056006b006a00560057006b0057006c006b00570058006c0058006d006c00580059006d0059006e006d0059005a006e005a006f006e005a005b006f005b0070006f005b005c0070005c00710070005c005d0071005d00720071005d005e0072005e00730072005e005f0073005f00740073005f006000740060007500740060006100750061007600750061006200760062007700760062006300770063007800770063006400780064007900780064006500790065007a007900650066007a0066007b007a00660067007b0067007c007b00670068007c0068007d007c0069006a007e006a007f007e006a006b007f006b0080007f006b006c0080006c00810080006c006d0081006d00820081006d006e0082006e00830082006e006f0083006f00840083006f007000840070008500840070007100850071008600850071007200860072008700860072007300870073008800870073007400880074008900880074007500890075008a008900750076008a0076008b008a00760077008b0077008c008b00770078008c0078008d008c00780079008d0079008e008d0079007a008e007a008f008e007a007b008f007b0090008f007b007c0090007c00910090007c007d0091007d00920091007e007f0093007f00940093007f008000940080009500940080008100950081009600950081008200960082009700960082008300970083009800970083008400980084009900980084008500990085009a009900850086009a0086009b009a00860087009b0087009c009b00870088009c0088009d009c00880089009d0089009e009d0089008a009e008a009f009e008a008b009f008b00a0009f008b008c00a0008c00a100a0008c008d00a1008d00a200a1008d008e00a2008e00a300a2008e008f00a3008f00a400a3008f009000a4009000a500a40090009100a5009100a600a50091009200a6009200a700a60093009400a8009400a900a80094009500a9009500aa00a90095009600aa009600ab00aa0096009700ab009700ac00ab00ad00ae00af00ae00b000af00ae00b100b000b100b200b00099009a00b3009a00b400b3009a009b00b4009b00b500b4009b009c00b5009c00b600b5009c009d00b6009d00b700b6009d009e00b7009e00b800b7009e009f00b8009f00b900b8009f00a000b900a000ba00b900a000a100ba00a100bb00ba00a100a200bb00a200bc00bb00a200a300bc00a300bd00bc00a300a400bd00a400be00bd00a400a500be00a500bf00be00a500a600bf00a600c000bf00a600a700c000a700c100c000a800a900c200a900c300c200a900aa00c300aa00c400c300aa00ab00c400ab00c500c400ab00ac00c500ac00c600c500af00b000c700b000c800c700b000b200c800b200c900c800b300b400ca00b400cb00ca00b400b500cb00b500cc00cb00b500b600cc00b600cd00cc00b600b700cd00b700ce00cd00b700b800ce00b800cf00ce00b800b900cf00b900d000cf00b900ba00d000ba00d100d000ba00bb00d100bb00d200d100bb00bc00d200bc00d300d200bc00bd00d300bd00d400d300bd00be00d400be00d500d400be00bf00d500bf00d600d500bf00c000d600c000d700d600c000c100d700c100d800d700c200c300d900c300da00d900c300c400da00c400db00da00c400c500db00c500dc00db00c500c600dc00c600dd00dc00c600de00dd00de00df00dd00de00ca00df00ca00e000df00ca00cb00e000cb00e100e000cb00cc00e100cc00e200e100cc00cd00e200cd00e300e200cd00ce00e300ce00e400e300ce00cf00e400cf00e500e400cf00d000e500d000e600e500d000d100e600d100e700e600d100d200e700d200e800e700d200d300e800d300e900e800d300d400e900d400ea00e900d400d500ea00d500eb00ea00d500d600eb00d600ec00eb00d600d700ec00d700ed00ec00d700d800ed00d800ee00ed00d900da00ef00da00f000ef00da00db00f000db00f100f000db00dc00f100dc00f200f100dc00dd00f200dd00f300f200dd00df00f300df00f400f300df00e000f400e000f500f400e000e100f500e100f600f500e100e200f600e200f700f600e200e300f700e300f800f700e300e400f800e400f900f800e400e500f900e500fa00f900e500e600fa00e600fb00fa00e600e700fb00e700fc00fb00e700e800fc00e800fd00fc00e800e900fd00e900fe00fd00e900ea00fe00ea00ff00fe00ea00eb00ff00eb000001ff00eb00ec000001ec0001010001ec00ed000101ed0002010101ed00ee000201ee0003010201ef00f0000401f00005010401f000f1000501f10006010501f100f2000601f20007010601f200f3000701f30008010701f300f4000801f40009010801f400f5000901f5000a010901f500f6000a01f6000b010a01f600f7000b01f7000c010b01f700f8000c01f8000d010c01f800f9000d01f9000e010d01f900fa000e01fa000f010e01fa00fb000f01fb0010010f01fb00fc001001fc0011011001fc00fd001101fd0012011101fd00fe001201fe0013011201fe00ff001301ff0014011301ff000001140100011501140100010101150101011601150101010201160102011701160102010301170103011801170104010501190105011a011901050106011a0106011b011a01060107011b0107011c011b01070108011c0108011d011c01080109011d0109011e011d0109010a011e010a011f011e010a010b011f010b0120011f010b010c0120010c01210120010c010d0121010d01220121010d010e0122010e01230122010e010f0123010f01240123010f011001240110012501240110011101250111012601250111011201260112012701260112011301270113012801270113011401280114012901280114011501290115012a012901150116012a0116012b012a01160117012b0117012c012b01170118012c0118012d012c0119011a012e011a012f012e011a011b012f011b0130012f011b011c0130011c01310130011c011d0131011d01320131011d011e0132011e01330132011e011f0133011f01340133011f012001340120013501340120012101350121013601350121012201360122013701360122012301370123013801370123012401380124013901380124012501390125013a013901250126013a0126013b013a01260127013b0127013c013b01270128013c0128013d013c01280129013d0129013e013d0129012a013e012a013f013e012a012b013f012b0140013f012b012c0140012c01410140012c012d0141012d01420141012e012f0143012f01440143012f0130014401300145014401300131014501310146014501310132014601320147014601480149014a0149014b014a0149014c014b014c014d014b01340135014e0135014f014e01350136014f01360150014f0136013701500137015101500137013801510138015201510138013901520139015301520139013a0153013a01540153013a013b0154013b01550154013b013c0155013c01560155013c013d0156013d01570156013d013e0157013e01580157013e013f0158013f01590158013f014001590140015a015901400141015a0141015b015a01410142015b0142015c015b01430144015d0144015e015d01440145015e0145015f015e01450146015f01460160015f014601470160014701610160014a014b0162014b01630162014b014d0163014d01640163016501660167016601680167014f015001690150016a0169016b016c016d016c016e016d016c016f016e016f0170016e0152015301710153017201710153015401720154017301720154015501730155017401730155015601740156017501740156015701750157017601750157015801760158017701760158015901770159017801770159015a0178015a01790178015a015b0179015b017a0179015b015c017a015c017b017a015d015e017c015e017d017c015e015f017d015f017e017d015f0160017e0160017f017e01600161017f01610180017f0161018101800181018201800183016701840167018501840167016801850168018601850169016a0187016a01880187016d016e0189016e018a0189016e0170018a0170018b018a01710172018c0172018d018c01720173018d0173018e018d01730174018e0174018f018e01740175018f01750190018f0175017601900176019101900176017701910177019201910177017801920178019301920178017901930179019401930179017a0194017a01950194017a017b0195017b01960195017c017d0197017d01980197017d017e0198017e01990198017e017f0199017f019a0199017f0180019a0180019b019a01800182019b0182019c019b0182019d019c019d019e019c019d0187019e0187019f019e01870188019f018801a0019f018801a101a001a101a201a001a1018c01a2018c01a301a2018c018d01a3018d01a401a3018d018e01a4018e01a501a4018e018f01a5018f01a601a5018f019001a6019001a701a60190019101a7019101a801a70191019201a8019201a901a80192019301a9019301aa01a90193019401aa019401ab01aa0194019501ab019501ac01ab0195019601ac019601ad01ac0197019801ae019801af01ae0198019901af019901b001af0199019a01b0019a01b101b0019a019b01b1019b01b201b1019b019c01b2019c01b301b2019c019e01b3019e01b401b3019e019f01b4019f01b501b4019f01a001b501a001b601b501a001a201b601a201b701b601a201a301b701a301b801b701a301a401b801a401b901b801a401a501b901a501ba01b901a501a601ba01a601bb01ba01a601a701bb01a701bc01bb01a701a801bc01a801bd01bc01a801a901bd01a901be01bd01a901aa01be01aa01bf01be01aa01ab01bf01ab01c001bf01ab01ac01c001ac01c101c001ac01ad01c101ad01c201c101ae01af01c301af01c401c301af01b001c401b001c501c401b001b101c501b101c601c501b101b201c601b201c701c601b201b301c701b301c801c701b301b401c801b401c901c801b401b501c901b501ca01c901b501b601ca01b601cb01ca01b601b701cb01b701cc01cb01b701b801cc01b801cd01cc01b801b901cd01b901ce01cd01b901ba01ce01ba01cf01ce01ba01bb01cf01bb01d001cf01bb01bc01d001bc01d101d001bc01bd01d101bd01d201d101bd01be01d201be01d301d201be01bf01d301bf01d401d301bf01c001d401c001d501d401c001c101d501c101d601d501c101c201d601c201d701d601d801d901da01d901db01da01dc01dd01de01dd01df01de01e001e101e201e101e301e201e401dc01e501dc01de01e501d901e601db01e601e701db01e801e901ea01e901eb01ea01e101ec01e301ec01ed01e301ee01e801ef01e801ea01ef01f001f101f201f101f301f201f401f501f601f501f701f601f801f901fa01f901fb01fa01fc01fd01fe01fd01ff01fe01f9010002fb0100020102fb010202fc010302fc01fe010302040205020602050207020602080209020a0209020b020a020c020d020e020d020f020e02100204021102040206021102f5011202f70112021302f7011402150216021502170216021602170218021702190218020e020f021a020f021b021a0217021c0219021c021d0219021e020e021f020e021a021f02f601f7012002f70121022002f7011302210213022202210223022402250224022602250249014801c8004801c700c8001602180227021802280227024c014901c9004901c800c900290223022a02230225022a02220213022b0213022c022b022d022e022f022e0230022f023102320233023202340233023502360237023602270237023802310239023102330239022e023a0230023a023b0230023c023d022c023d023e022c023f02350240023502370240023d0241023e02410242023e022f023002430230024402430237022702450227022802450230023b0244023b02460244022c023e022b023e0247022b024002370248023702450248023e0242024702420249024702
   m_VertexData:
-    serializedVersion: 2
+    serializedVersion: 3
     m_VertexCount: 586
     m_Channels:
     - stream: 0
@@ -520,7 +648,7 @@ Mesh:
   m_BakedTriangleCollisionMesh: 
   m_MeshMetrics[0]: 1
   m_MeshMetrics[1]: 1
-  m_MeshOptimized: 0
+  m_MeshOptimizationFlags: -1
   m_StreamData:
     offset: 0
     size: 0
@@ -536,7 +664,6 @@ GameObject:
   - component: {fileID: 1791481481}
   - component: {fileID: 1791481480}
   - component: {fileID: 1791481479}
-  - component: {fileID: 1791481478}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -544,51 +671,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1791481478
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1791481477}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6c2871f720b2af4e9210febdac74517, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Version: 1
-  shadowResolution: 512
-  shadowDimmer: 1
-  volumetricShadowDimmer: 1
-  shadowFadeDistance: 10000
-  contactShadows: 0
-  viewBiasMin: 0.2
-  viewBiasMax: 100
-  viewBiasScale: 1
-  normalBiasMin: 0.5
-  normalBiasMax: 0.5
-  normalBiasScale: 1
-  sampleBiasScale: 0
-  edgeLeakFixup: 1
-  edgeToleranceNormal: 1
-  edgeTolerance: 1
-  shadowCascadeCount: 4
-  shadowCascadeRatios:
-  - 0.05
-  - 0.2
-  - 0.3
-  shadowCascadeBorders:
-  - 0.2
-  - 0.2
-  - 0.2
-  - 0.2
-  shadowAlgorithm: 0
-  shadowVariant: 0
-  shadowPrecision: 0
-  shadowData:
-    format: 0
-    data: 
-  shadowDatas: []
 --- !u!114 &1791481479
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -601,43 +683,100 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a68c43fe1f2a47cfa234b5eeaa98012, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 3
-  m_Version: 3
-  directionalIntensity: 3.1415927
-  punctualIntensity: 600
-  areaIntensity: 200
-  enableSpotReflector: 0
-  luxAtDistance: 1
+  m_Version: 9
+  m_ObsoleteShadowResolutionTier: 1
+  m_ObsoleteUseShadowQualitySettings: 0
+  m_ObsoleteCustomShadowResolution: 512
+  m_ObsoleteContactShadows: 0
+  m_PointlightHDType: 0
+  m_SpotLightShape: 0
+  m_AreaLightShape: 0
+  m_Intensity: 3.1415927
+  m_EnableSpotReflector: 0
+  m_LuxAtDistance: 1
   m_InnerSpotPercent: 0
-  lightDimmer: 1
+  m_LightDimmer: 1
   m_VolumetricDimmer: 1
-  lightUnit: 2
-  sunDiskSize: 1
-  sunHaloSize: 0.1
-  fadeDistance: 10000
-  affectDiffuse: 1
-  affectSpecular: 1
-  nonLightmappedOnly: 0
-  lightTypeExtent: 0
-  spotLightShape: 0
-  shapeWidth: 0.5
-  shapeHeight: 0.5
-  aspectRatio: 1
-  shapeRadius: 0
-  maxSmoothness: 0.99
-  applyRangeAttenuation: 1
+  m_LightUnit: 2
+  m_FadeDistance: 10000
+  m_AffectDiffuse: 1
+  m_AffectSpecular: 1
+  m_NonLightmappedOnly: 0
+  m_ShapeWidth: 0.5
+  m_ShapeHeight: 0.5
+  m_AspectRatio: 1
+  m_ShapeRadius: 0
+  m_SoftnessScale: 1
+  m_UseCustomSpotLightShadowCone: 0
+  m_CustomSpotLightShadowCone: 30
+  m_MaxSmoothness: 0.99
+  m_ApplyRangeAttenuation: 1
+  m_DisplayAreaLightEmissiveMesh: 0
+  m_AreaLightCookie: {fileID: 0}
+  m_AreaLightShadowCone: 120
+  m_UseScreenSpaceShadows: 0
+  m_InteractsWithSky: 1
+  m_AngularDiameter: 0.5
+  m_FlareSize: 2
+  m_FlareTint: {r: 1, g: 1, b: 1, a: 1}
+  m_FlareFalloff: 4
+  m_SurfaceTexture: {fileID: 0}
+  m_SurfaceTint: {r: 1, g: 1, b: 1, a: 1}
+  m_Distance: 1.5e+11
+  m_UseRayTracedShadows: 0
+  m_NumRayTracingSamples: 4
+  m_FilterTracedShadow: 1
+  m_FilterSizeTraced: 16
+  m_SunLightConeAngle: 0.5
+  m_LightShadowRadius: 0.5
+  m_EvsmExponent: 15
+  m_EvsmLightLeakBias: 0
+  m_EvsmVarianceBias: 0.00001
+  m_EvsmBlurPasses: 0
+  m_LightlayersMask: 1
+  m_LinkShadowLayers: 1
+  m_ShadowNearPlane: 0.1
+  m_BlockerSampleCount: 24
+  m_FilterSampleCount: 16
+  m_MinFilterSize: 0.01
+  m_KernelSize: 5
+  m_LightAngle: 1
+  m_MaxDepthBias: 0.001
+  m_ShadowResolution:
+    m_Override: 512
+    m_UseOverride: 1
+    m_Level: 1
+  m_ShadowDimmer: 1
+  m_VolumetricShadowDimmer: 1
+  m_ShadowFadeDistance: 10000
+  m_UseContactShadow:
+    m_Override: 0
+    m_UseOverride: 1
+    m_Level: 0
+  m_RayTracedContactShadow: 0
+  m_ShadowTint: {r: 0, g: 0, b: 0, a: 1}
+  m_PenumbraTint: 0
+  m_NormalBias: 0.75
+  m_SlopeBias: 0.5
+  m_ShadowUpdateMode: 0
+  m_BarnDoorAngle: 90
+  m_BarnDoorLength: 0.05
+  m_ShadowCascadeRatios:
+  - 0.05
+  - 0.2
+  - 0.3
+  m_ShadowCascadeBorders:
+  - 0.2
+  - 0.2
+  - 0.2
+  - 0.2
+  m_ShadowAlgorithm: 0
+  m_ShadowVariant: 0
+  m_ShadowPrecision: 0
   useOldInspector: 0
   useVolumetric: 1
   featuresFoldout: 1
   showAdditionalSettings: 0
-  displayLightIntensity: 3.1415927
-  displayAreaLightEmissiveMesh: 0
-  lightLayers: 1
-  shadowNearPlane: 0.1
-  shadowSoftness: 0.5
-  blockerSampleCount: 24
-  filterSampleCount: 16
-  minFilterSize: 0.00001
 --- !u!108 &1791481480
 Light:
   m_ObjectHideFlags: 0
@@ -646,12 +785,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1791481477}
   m_Enabled: 1
-  serializedVersion: 8
+  serializedVersion: 10
   m_Type: 1
+  m_Shape: 0
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
   m_Intensity: 3.1415927
   m_Range: 10
   m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
@@ -661,6 +802,24 @@ Light:
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
   m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
@@ -668,12 +827,15 @@ Light:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  m_RenderingLayerMask: 1
   m_Lightmapping: 4
   m_LightShadowCasterMode: 2
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!4 &1791481481
@@ -14190,6 +14352,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -14201,6 +14364,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -14242,6 +14406,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3892771605664150163, guid: 8795d218a70e5b84e91cf1e952e275b7,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.000000017066633
+      objectReference: {fileID: 0}
+    - target: {fileID: 3892771605664150163, guid: 8795d218a70e5b84e91cf1e952e275b7,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.000000002188523
+      objectReference: {fileID: 0}
+    - target: {fileID: 3892771605664150163, guid: 8795d218a70e5b84e91cf1e952e275b7,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.12719242
+      objectReference: {fileID: 0}
     - target: {fileID: 3892771607190608726, guid: 8795d218a70e5b84e91cf1e952e275b7,
         type: 3}
       propertyPath: m_Name
@@ -14302,20 +14481,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3892771605664150163, guid: 8795d218a70e5b84e91cf1e952e275b7,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -1.9112274e-16
-      objectReference: {fileID: 0}
     - target: {fileID: 3892771607464525284, guid: 8795d218a70e5b84e91cf1e952e275b7,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.000000019122325
+      value: 0.000000019122323
       objectReference: {fileID: 0}
     - target: {fileID: 3892771607464525284, guid: 8795d218a70e5b84e91cf1e952e275b7,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.0000000021002804
+      value: -0.0000000021002806
+      objectReference: {fileID: 0}
+    - target: {fileID: 3892771607464525284, guid: 8795d218a70e5b84e91cf1e952e275b7,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.10917739
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8795d218a70e5b84e91cf1e952e275b7, type: 3}

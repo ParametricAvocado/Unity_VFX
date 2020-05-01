@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-
 public class UnityLegacyInput : CharacterInput
 {
     [SerializeField]
@@ -10,9 +9,11 @@ public class UnityLegacyInput : CharacterInput
     [SerializeField]
     private string m_JumpButton = "Jump";
     [SerializeField]
-    private string m_CrouchButton = string.Empty;
+    private string m_CrouchButton = "Crouch";
+	[SerializeField]
+	private string m_SprintButton = "Sprint";
 
-    [SerializeField]
+	[SerializeField]
     private string m_Action0Button = string.Empty;
     [SerializeField]
     private string m_Action1Button = string.Empty;
@@ -35,7 +36,10 @@ public class UnityLegacyInput : CharacterInput
         if (!string.IsNullOrEmpty(m_CrouchButton))
             Crouch = Input.GetButton(m_CrouchButton);
 
-        if (!string.IsNullOrEmpty(m_Action0Button))
+		if (!string.IsNullOrEmpty(m_SprintButton))
+			Sprint = Input.GetButton(m_SprintButton);
+
+		if (!string.IsNullOrEmpty(m_Action0Button))
             Action0 = Input.GetButton(m_Action0Button);
 
         if (!string.IsNullOrEmpty(m_Action1Button))
