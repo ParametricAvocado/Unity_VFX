@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="4b6707dd-7755-478b-b167-c048a79d9a47" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../HDRP/Assets/Scenes/Magic Smoke/SmokeFX.vfx" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/Assets/Scenes/Magic Smoke/SmokeFX.vfx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../HDRP/Logs/Packages-Update.log" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/Logs/Packages-Update.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../HDRP/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../HDRP/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../HDRP/ProjectSettings/EditorSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/ProjectSettings/EditorSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../HDRP/ProjectSettings/GraphicsSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/ProjectSettings/GraphicsSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../HDRP/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/ProjectSettings/ProjectVersion.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../HDRP/ProjectSettings/VFXManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/ProjectSettings/VFXManager.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Single Pass Instanced VR/Logs/Packages-Update.log" beforeDir="false" afterPath="$PROJECT_DIR$/../Single Pass Instanced VR/Logs/Packages-Update.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Single Pass Instanced VR/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../Single Pass Instanced VR/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Single Pass Instanced VR/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../Single Pass Instanced VR/ProjectSettings/ProjectVersion.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Base.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Detail.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Base.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Detail.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Base.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Detail.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Eyes.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Eyes.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_1.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_2.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_Windows.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_Windows.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_1.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_2.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseBase.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseBase.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseRoof.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseRoof.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseWindow.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseWindow.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Mouth.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Mouth.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_1.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_2.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Badge.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Badge.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Glasses.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Glasses.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Windows.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Windows.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Railing.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Railing.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WaterTankBody.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WaterTankBody.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Base.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Detail.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/Metal.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/Metal.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/M_Fire.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/M_Fire.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/M_Floor.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/M_Floor.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/M_Tears.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/M_Tears.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeBark.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeBark.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeLeaves.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeLeaves.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Scene/CityTest.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Scene/CityTest.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Shaders/AreaOverlay.shadergraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Shaders/AreaOverlay.shadergraph" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/CustomLit.shadergraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/CustomLighting/CustomLit.shadergraph" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/GetMainLight.shadersubgraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/CustomLighting/GetMainLight.shadersubgraph" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Settings/UniversalRP-HighQuality.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/UniversalRP-HighQuality.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/Packages-Update.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/Packages-Update.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/QualitySettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/QualitySettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/URPProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/URPProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UWP Project.zip" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Assets/CopyTransform.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <changedPaths>
+      <option value="$PROJECT_DIR$/Assets/CopyTransform.cs" />
+    </changedPaths>
+  </component>
+  <component name="ProjectId" id="1mJMDkz42K4NJ3YKmg7IbFIbeKP" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="do_not_show_solution_notification" value="true" />
+  </component>
+  <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
+    <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+</project>
