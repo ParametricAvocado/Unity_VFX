@@ -1,0 +1,1011 @@
+fileFormatVersion: 2
+guid: fa99d4387e2fd564eb653346e0515ada
+ModelImporter:
+  serializedVersion: 20101
+  internalIDToNameTable:
+  - first:
+      74: -5552720547654417780
+    second: Staff|bevelAction
+  - first:
+      74: -7210924525941145635
+    second: Staff|BladeAction
+  - first:
+      74: -9091532039290240203
+    second: Staff|Camera RootAction
+  - first:
+      74: 8887596152429018166
+    second: Staff|Camera TargetAction
+  - first:
+      74: -5757920667431330615
+    second: Staff|DaggerAction.001
+  - first:
+      74: 3325977358767692378
+    second: Staff|Extension1_MeshAction
+  - first:
+      74: 8412937559299426342
+    second: Staff|Extension2Action.001
+  - first:
+      74: 5624806506573552590
+    second: Staff|Grip2Action
+  - first:
+      74: 3342214754386178030
+    second: Staff|GripAction.001
+  - first:
+      74: 457084804187669579
+    second: Staff|LightAction
+  - first:
+      74: -3450928608897680883
+    second: Staff|OrbEyeBigAction.001
+  - first:
+      74: -3160828106263526734
+    second: Staff|OrbOffsetAction
+  - first:
+      74: 8747574023564889705
+    second: Staff|StaffAction
+  - first:
+      74: 1560202820936782711
+    second: Staff|StaffEndAction
+  - first:
+      74: -239229737691736000
+    second: Staff|taperAction
+  - first:
+      74: 6484360425890066296
+    second: Grip|bevelAction
+  - first:
+      74: 7170372308823340610
+    second: Grip|BladeAction
+  - first:
+      74: 2531122141276900805
+    second: Grip|Camera RootAction
+  - first:
+      74: -2259091757442099313
+    second: Grip|Camera TargetAction
+  - first:
+      74: 8931541348189851170
+    second: Grip|DaggerAction.001
+  - first:
+      74: 2471745254136929535
+    second: Grip|Extension1_MeshAction
+  - first:
+      74: -7531080630695758161
+    second: Grip|Extension2Action.001
+  - first:
+      74: 2295454068189876305
+    second: Grip|Grip2Action
+  - first:
+      74: 1616403837313404818
+    second: Grip|GripAction.001
+  - first:
+      74: -5217523692769125571
+    second: Grip|LightAction
+  - first:
+      74: -3042865135564281108
+    second: Grip|OrbEyeBigAction.001
+  - first:
+      74: -6325096858029748730
+    second: Grip|OrbOffsetAction
+  - first:
+      74: -2102214679205076280
+    second: Grip|StaffAction
+  - first:
+      74: 6068157923079193720
+    second: Grip|StaffEndAction
+  - first:
+      74: 3153492485270034395
+    second: Grip|taperAction
+  - first:
+      74: -454633090324284624
+    second: StaffEnd|bevelAction
+  - first:
+      74: -986643521773360072
+    second: StaffEnd|BladeAction
+  - first:
+      74: 1890156923378148875
+    second: StaffEnd|Camera RootAction
+  - first:
+      74: -8555084866567066838
+    second: StaffEnd|Camera TargetAction
+  - first:
+      74: -5935053638883630795
+    second: StaffEnd|DaggerAction.001
+  - first:
+      74: -8181720410146384884
+    second: StaffEnd|Extension1_MeshAction
+  - first:
+      74: 813932802863029638
+    second: StaffEnd|Extension2Action.001
+  - first:
+      74: 2038534802635172966
+    second: StaffEnd|Grip2Action
+  - first:
+      74: -799145385917421578
+    second: StaffEnd|GripAction.001
+  - first:
+      74: -2273052105158506139
+    second: StaffEnd|LightAction
+  - first:
+      74: 2347220675587119712
+    second: StaffEnd|OrbEyeBigAction.001
+  - first:
+      74: 4985451076548525354
+    second: StaffEnd|OrbOffsetAction
+  - first:
+      74: -6910252557824042282
+    second: StaffEnd|StaffAction
+  - first:
+      74: 5714120604714749416
+    second: StaffEnd|StaffEndAction
+  - first:
+      74: 871851339627162941
+    second: StaffEnd|taperAction
+  - first:
+      74: -5813589559191828019
+    second: Grip2|bevelAction
+  - first:
+      74: 7024780780503644316
+    second: Grip2|BladeAction
+  - first:
+      74: 8271607902911937117
+    second: Grip2|Camera RootAction
+  - first:
+      74: -419316543654656529
+    second: Grip2|Camera TargetAction
+  - first:
+      74: 3604495653787655808
+    second: Grip2|DaggerAction.001
+  - first:
+      74: -7537756477406952921
+    second: Grip2|Extension1_MeshAction
+  - first:
+      74: -5216976017877384767
+    second: Grip2|Extension2Action.001
+  - first:
+      74: 616268949225792109
+    second: Grip2|Grip2Action
+  - first:
+      74: 7161509008805155081
+    second: Grip2|GripAction.001
+  - first:
+      74: -3429777355942182230
+    second: Grip2|LightAction
+  - first:
+      74: -342645402801098144
+    second: Grip2|OrbEyeBigAction.001
+  - first:
+      74: -1155709417004624902
+    second: Grip2|OrbOffsetAction
+  - first:
+      74: -9010081365245938599
+    second: Grip2|StaffAction
+  - first:
+      74: -3560786912318579007
+    second: Grip2|StaffEndAction
+  - first:
+      74: 2901374760594053014
+    second: Grip2|taperAction
+  - first:
+      74: 443495058479177242
+    second: Extension1_Mesh|bevelAction
+  - first:
+      74: 6825785940280635557
+    second: Extension1_Mesh|BladeAction
+  - first:
+      74: 5385896753690977771
+    second: Extension1_Mesh|Camera RootAction
+  - first:
+      74: -3387785307997459140
+    second: Extension1_Mesh|Camera TargetAction
+  - first:
+      74: -4953076623256878692
+    second: Extension1_Mesh|DaggerAction.001
+  - first:
+      74: -3120338724414280234
+    second: Extension1_Mesh|Extension1_MeshAction
+  - first:
+      74: 212684908184882154
+    second: Extension1_Mesh|Extension2Action.001
+  - first:
+      74: -5569133653430561789
+    second: Extension1_Mesh|Grip2Action
+  - first:
+      74: 104052263310628047
+    second: Extension1_Mesh|GripAction.001
+  - first:
+      74: -4876088745687355685
+    second: Extension1_Mesh|LightAction
+  - first:
+      74: -6635167323292900674
+    second: Extension1_Mesh|OrbEyeBigAction.001
+  - first:
+      74: 164792189102861322
+    second: Extension1_Mesh|OrbOffsetAction
+  - first:
+      74: -3729865902907683042
+    second: Extension1_Mesh|StaffAction
+  - first:
+      74: 8274426839089865014
+    second: Extension1_Mesh|StaffEndAction
+  - first:
+      74: 6689850077418818234
+    second: Extension1_Mesh|taperAction
+  - first:
+      74: -5702748607681512533
+    second: Extension2|bevelAction
+  - first:
+      74: -7214756133546228557
+    second: Extension2|BladeAction
+  - first:
+      74: -548372941816429783
+    second: Extension2|Camera RootAction
+  - first:
+      74: 3756471820234291347
+    second: Extension2|Camera TargetAction
+  - first:
+      74: -3089594112140087270
+    second: Extension2|DaggerAction.001
+  - first:
+      74: 6213177729795772610
+    second: Extension2|Extension1_MeshAction
+  - first:
+      74: -4923500173479541744
+    second: Extension2|Extension2Action.001
+  - first:
+      74: 4030223086975099888
+    second: Extension2|Grip2Action
+  - first:
+      74: -4199208461174164961
+    second: Extension2|GripAction.001
+  - first:
+      74: 1334450283453997717
+    second: Extension2|LightAction
+  - first:
+      74: -3275828682236915088
+    second: Extension2|OrbEyeBigAction.001
+  - first:
+      74: 1615993090794807195
+    second: Extension2|OrbOffsetAction
+  - first:
+      74: -2919948550551634856
+    second: Extension2|StaffAction
+  - first:
+      74: -6293549062518957723
+    second: Extension2|StaffEndAction
+  - first:
+      74: -6774035846728176705
+    second: Extension2|taperAction
+  - first:
+      74: -2560530409380870392
+    second: OrbEyeBig|bevelAction
+  - first:
+      74: -9045792546181746624
+    second: OrbEyeBig|BladeAction
+  - first:
+      74: 2558371735283769147
+    second: OrbEyeBig|Camera RootAction
+  - first:
+      74: 8969387175729191352
+    second: OrbEyeBig|Camera TargetAction
+  - first:
+      74: 7158813285624395025
+    second: OrbEyeBig|DaggerAction.001
+  - first:
+      74: -1763297378510348843
+    second: OrbEyeBig|Extension1_MeshAction
+  - first:
+      74: -6410768384277636866
+    second: OrbEyeBig|Extension2Action.001
+  - first:
+      74: 5857344830836224539
+    second: OrbEyeBig|Grip2Action
+  - first:
+      74: -7418715952520323688
+    second: OrbEyeBig|GripAction.001
+  - first:
+      74: -7415372550266384433
+    second: OrbEyeBig|LightAction
+  - first:
+      74: -4570728243333657027
+    second: OrbEyeBig|OrbEyeBigAction.001
+  - first:
+      74: -5228980495492329209
+    second: OrbEyeBig|OrbOffsetAction
+  - first:
+      74: -1558249585895021276
+    second: OrbEyeBig|StaffAction
+  - first:
+      74: -1582623012994720714
+    second: OrbEyeBig|StaffEndAction
+  - first:
+      74: -1073459143668050070
+    second: OrbEyeBig|taperAction
+  - first:
+      74: 7979513670684281063
+    second: Dagger|bevelAction
+  - first:
+      74: 3455305824822725906
+    second: Dagger|BladeAction
+  - first:
+      74: 6165883628411272233
+    second: Dagger|Camera RootAction
+  - first:
+      74: -1379047491461171470
+    second: Dagger|Camera TargetAction
+  - first:
+      74: 4733705104010143708
+    second: Dagger|DaggerAction.001
+  - first:
+      74: 4114634416100520143
+    second: Dagger|Extension1_MeshAction
+  - first:
+      74: 3352698815308346024
+    second: Dagger|Extension2Action.001
+  - first:
+      74: 2123553204752045918
+    second: Dagger|Grip2Action
+  - first:
+      74: -7060348067396779233
+    second: Dagger|GripAction.001
+  - first:
+      74: -3875345354023273716
+    second: Dagger|LightAction
+  - first:
+      74: -3914273830149715034
+    second: Dagger|OrbEyeBigAction.001
+  - first:
+      74: 5645270448820040392
+    second: Dagger|OrbOffsetAction
+  - first:
+      74: -7345898277020292479
+    second: Dagger|StaffAction
+  - first:
+      74: 2521084801914797877
+    second: Dagger|StaffEndAction
+  - first:
+      74: -4162715641449812422
+    second: Dagger|taperAction
+  - first:
+      74: 6686681421957972246
+    second: EquinoxFoldedBinded Static|bevelAction
+  - first:
+      74: 3365403783868665108
+    second: EquinoxFoldedBinded Static|BladeAction
+  - first:
+      74: -4932215540478135294
+    second: EquinoxFoldedBinded Static|Camera RootAction
+  - first:
+      74: 2669031897254259058
+    second: EquinoxFoldedBinded Static|Camera TargetAction
+  - first:
+      74: -7734889402729558487
+    second: EquinoxFoldedBinded Static|DaggerAction.001
+  - first:
+      74: -2411368626280167763
+    second: EquinoxFoldedBinded Static|Extension1_MeshAction
+  - first:
+      74: -1861154051658255982
+    second: EquinoxFoldedBinded Static|Extension2Action.001
+  - first:
+      74: 388706630960450724
+    second: EquinoxFoldedBinded Static|Grip2Action
+  - first:
+      74: 8704021511500310934
+    second: EquinoxFoldedBinded Static|GripAction.001
+  - first:
+      74: -7537842439215354419
+    second: EquinoxFoldedBinded Static|LightAction
+  - first:
+      74: 6298007847430113817
+    second: EquinoxFoldedBinded Static|OrbEyeBigAction.001
+  - first:
+      74: -5045455535139773501
+    second: EquinoxFoldedBinded Static|OrbOffsetAction
+  - first:
+      74: 2424125160328424242
+    second: EquinoxFoldedBinded Static|StaffAction
+  - first:
+      74: 6993387324853037003
+    second: EquinoxFoldedBinded Static|StaffEndAction
+  - first:
+      74: 7661162129956154782
+    second: EquinoxFoldedBinded Static|taperAction
+  - first:
+      74: -5417163531412917648
+    second: EquinoxFoldedStatic|bevelAction
+  - first:
+      74: 7552986751747994743
+    second: EquinoxFoldedStatic|BladeAction
+  - first:
+      74: -4824012638125963039
+    second: EquinoxFoldedStatic|Camera RootAction
+  - first:
+      74: -4711034818263024157
+    second: EquinoxFoldedStatic|Camera TargetAction
+  - first:
+      74: -6147047648628307861
+    second: EquinoxFoldedStatic|DaggerAction.001
+  - first:
+      74: 4372983415892908254
+    second: EquinoxFoldedStatic|Extension1_MeshAction
+  - first:
+      74: -1429269235972115832
+    second: EquinoxFoldedStatic|Extension2Action.001
+  - first:
+      74: 9139631613403578066
+    second: EquinoxFoldedStatic|Grip2Action
+  - first:
+      74: 3680106980149408204
+    second: EquinoxFoldedStatic|GripAction.001
+  - first:
+      74: 2561945265025068973
+    second: EquinoxFoldedStatic|LightAction
+  - first:
+      74: -7202407422815597573
+    second: EquinoxFoldedStatic|OrbEyeBigAction.001
+  - first:
+      74: 1129101130752339299
+    second: EquinoxFoldedStatic|OrbOffsetAction
+  - first:
+      74: -1964823534693353233
+    second: EquinoxFoldedStatic|StaffAction
+  - first:
+      74: 181422221400192676
+    second: EquinoxFoldedStatic|StaffEndAction
+  - first:
+      74: -7844662377499938378
+    second: EquinoxFoldedStatic|taperAction
+  - first:
+      74: -358614197859808409
+    second: Static Hull|bevelAction
+  - first:
+      74: -2581262609479682710
+    second: Static Hull|BladeAction
+  - first:
+      74: 6953535300320357953
+    second: Static Hull|Camera RootAction
+  - first:
+      74: 6099606219439500684
+    second: Static Hull|Camera TargetAction
+  - first:
+      74: 3684273366969213598
+    second: Static Hull|DaggerAction.001
+  - first:
+      74: 9058485456873845362
+    second: Static Hull|Extension1_MeshAction
+  - first:
+      74: -2149254243229939273
+    second: Static Hull|Extension2Action.001
+  - first:
+      74: -9099811403138661520
+    second: Static Hull|Grip2Action
+  - first:
+      74: -3317524779847652119
+    second: Static Hull|GripAction.001
+  - first:
+      74: -8242372919932255489
+    second: Static Hull|LightAction
+  - first:
+      74: 6641966156051953728
+    second: Static Hull|OrbEyeBigAction.001
+  - first:
+      74: -114490408209263713
+    second: Static Hull|OrbOffsetAction
+  - first:
+      74: 2681723115364741317
+    second: Static Hull|StaffAction
+  - first:
+      74: 2136726891493065144
+    second: Static Hull|StaffEndAction
+  - first:
+      74: 2329998192681370970
+    second: Static Hull|taperAction
+  - first:
+      74: 8321225199915676198
+    second: EquinoxFoldedBinded Static.012|bevelAction
+  - first:
+      74: 8499457958880107660
+    second: EquinoxFoldedBinded Static.012|BladeAction
+  - first:
+      74: 2386844506537917567
+    second: EquinoxFoldedBinded Static.012|Camera RootAction
+  - first:
+      74: 7538242697951289148
+    second: EquinoxFoldedBinded Static.012|Camera TargetAction
+  - first:
+      74: 501396061760328286
+    second: EquinoxFoldedBinded Static.012|DaggerAction.001
+  - first:
+      74: 2941710880244812565
+    second: EquinoxFoldedBinded Static.012|Extension1_MeshAction
+  - first:
+      74: -6200339028711939858
+    second: EquinoxFoldedBinded Static.012|Extension2Action.001
+  - first:
+      74: -6557970511043538186
+    second: EquinoxFoldedBinded Static.012|Grip2Action
+  - first:
+      74: -5651064819991291703
+    second: EquinoxFoldedBinded Static.012|GripAction.001
+  - first:
+      74: -9161308392305531816
+    second: EquinoxFoldedBinded Static.012|LightAction
+  - first:
+      74: 8562795269796543371
+    second: EquinoxFoldedBinded Static.012|OrbEyeBigAction.001
+  - first:
+      74: 7441445587562568360
+    second: EquinoxFoldedBinded Static.012|OrbOffsetAction
+  - first:
+      74: 6260415691113867257
+    second: EquinoxFoldedBinded Static.012|StaffAction
+  - first:
+      74: 8851718111745029163
+    second: EquinoxFoldedBinded Static.012|StaffEndAction
+  - first:
+      74: 9112405719271188741
+    second: EquinoxFoldedBinded Static.012|taperAction
+  - first:
+      74: -4852956915407156769
+    second: EquinoxFoldedBinded Static FINAL|bevelAction
+  - first:
+      74: 8181631884925046364
+    second: EquinoxFoldedBinded Static FINAL|BladeAction
+  - first:
+      74: 677586641087447188
+    second: EquinoxFoldedBinded Static FINAL|Camera RootAction
+  - first:
+      74: 6328010985206219428
+    second: EquinoxFoldedBinded Static FINAL|Camera TargetAction
+  - first:
+      74: -3964316685298346748
+    second: EquinoxFoldedBinded Static FINAL|DaggerAction.001
+  - first:
+      74: -2103784546541058696
+    second: EquinoxFoldedBinded Static FINAL|Extension1_MeshAction
+  - first:
+      74: 3864801563612961283
+    second: EquinoxFoldedBinded Static FINAL|Extension2Action.001
+  - first:
+      74: -2613537360320492360
+    second: EquinoxFoldedBinded Static FINAL|Grip2Action
+  - first:
+      74: 6852248433192791594
+    second: EquinoxFoldedBinded Static FINAL|GripAction.001
+  - first:
+      74: 1458580743596216249
+    second: EquinoxFoldedBinded Static FINAL|LightAction
+  - first:
+      74: 3017177829454125538
+    second: EquinoxFoldedBinded Static FINAL|OrbEyeBigAction.001
+  - first:
+      74: 8051235657800099980
+    second: EquinoxFoldedBinded Static FINAL|OrbOffsetAction
+  - first:
+      74: -1113342063755731462
+    second: EquinoxFoldedBinded Static FINAL|StaffAction
+  - first:
+      74: 1333421731535029663
+    second: EquinoxFoldedBinded Static FINAL|StaffEndAction
+  - first:
+      74: -6617995952434915128
+    second: EquinoxFoldedBinded Static FINAL|taperAction
+  - first:
+      74: -660309395678812729
+    second: EquinoxFoldedBinded Static.002|bevelAction
+  - first:
+      74: 3062284720163273534
+    second: EquinoxFoldedBinded Static.002|BladeAction
+  - first:
+      74: 2422293115227052228
+    second: EquinoxFoldedBinded Static.002|Camera RootAction
+  - first:
+      74: -6673387728199147521
+    second: EquinoxFoldedBinded Static.002|Camera TargetAction
+  - first:
+      74: 4995572312177807196
+    second: EquinoxFoldedBinded Static.002|DaggerAction.001
+  - first:
+      74: 3418201127539976619
+    second: EquinoxFoldedBinded Static.002|Extension1_MeshAction
+  - first:
+      74: -4166172878326310282
+    second: EquinoxFoldedBinded Static.002|Extension2Action.001
+  - first:
+      74: -8551980369575303560
+    second: EquinoxFoldedBinded Static.002|Grip2Action
+  - first:
+      74: 374152704640334256
+    second: EquinoxFoldedBinded Static.002|GripAction.001
+  - first:
+      74: -9164289496263289553
+    second: EquinoxFoldedBinded Static.002|LightAction
+  - first:
+      74: 4345744765688563482
+    second: EquinoxFoldedBinded Static.002|OrbEyeBigAction.001
+  - first:
+      74: 8813041264217174234
+    second: EquinoxFoldedBinded Static.002|OrbOffsetAction
+  - first:
+      74: 678866250718110281
+    second: EquinoxFoldedBinded Static.002|StaffAction
+  - first:
+      74: -8178136373497705229
+    second: EquinoxFoldedBinded Static.002|StaffEndAction
+  - first:
+      74: -22385058294643197
+    second: EquinoxFoldedBinded Static.002|taperAction
+  - first:
+      74: -1861361502728658243
+    second: EquinoxFoldedBinded Static.003|bevelAction
+  - first:
+      74: 170308095870113368
+    second: EquinoxFoldedBinded Static.003|BladeAction
+  - first:
+      74: -7081854717743903961
+    second: EquinoxFoldedBinded Static.003|Camera RootAction
+  - first:
+      74: 7828210214787128384
+    second: EquinoxFoldedBinded Static.003|Camera TargetAction
+  - first:
+      74: 3339251836448304635
+    second: EquinoxFoldedBinded Static.003|DaggerAction.001
+  - first:
+      74: -5447766054971830377
+    second: EquinoxFoldedBinded Static.003|Extension1_MeshAction
+  - first:
+      74: -3045871584671704913
+    second: EquinoxFoldedBinded Static.003|Extension2Action.001
+  - first:
+      74: 7692479504461735486
+    second: EquinoxFoldedBinded Static.003|Grip2Action
+  - first:
+      74: -5148670315115411836
+    second: EquinoxFoldedBinded Static.003|GripAction.001
+  - first:
+      74: -1057313463257636434
+    second: EquinoxFoldedBinded Static.003|LightAction
+  - first:
+      74: 6546433110977679258
+    second: EquinoxFoldedBinded Static.003|OrbEyeBigAction.001
+  - first:
+      74: -6471997380740867112
+    second: EquinoxFoldedBinded Static.003|OrbOffsetAction
+  - first:
+      74: -6106782670239578997
+    second: EquinoxFoldedBinded Static.003|StaffAction
+  - first:
+      74: 1008820225687308791
+    second: EquinoxFoldedBinded Static.003|StaffEndAction
+  - first:
+      74: 7180205832625302379
+    second: EquinoxFoldedBinded Static.003|taperAction
+  - first:
+      74: 4607178743588495275
+    second: EquinoxUnfolded Static FINAL|bevelAction
+  - first:
+      74: 8819458459369249117
+    second: EquinoxUnfolded Static FINAL|BladeAction
+  - first:
+      74: 4000111782722758064
+    second: EquinoxUnfolded Static FINAL|Camera RootAction
+  - first:
+      74: -2440437671178829364
+    second: EquinoxUnfolded Static FINAL|Camera TargetAction
+  - first:
+      74: 7282939456526875685
+    second: EquinoxUnfolded Static FINAL|DaggerAction.001
+  - first:
+      74: 587651868456568119
+    second: EquinoxUnfolded Static FINAL|Extension1_MeshAction
+  - first:
+      74: -4463866725960673491
+    second: EquinoxUnfolded Static FINAL|Extension2Action.001
+  - first:
+      74: 6325595284505915466
+    second: EquinoxUnfolded Static FINAL|Grip2Action
+  - first:
+      74: 3121683261729337544
+    second: EquinoxUnfolded Static FINAL|GripAction.001
+  - first:
+      74: -1897614332095343490
+    second: EquinoxUnfolded Static FINAL|LightAction
+  - first:
+      74: 7685927410371495571
+    second: EquinoxUnfolded Static FINAL|OrbEyeBigAction.001
+  - first:
+      74: -3445135316531255175
+    second: EquinoxUnfolded Static FINAL|OrbOffsetAction
+  - first:
+      74: 6166492176964021707
+    second: EquinoxUnfolded Static FINAL|StaffAction
+  - first:
+      74: -3319923330921797903
+    second: EquinoxUnfolded Static FINAL|StaffEndAction
+  - first:
+      74: 7513610974459462776
+    second: EquinoxUnfolded Static FINAL|taperAction
+  - first:
+      74: -5307921664340341990
+    second: EquinoxFolded Static FINAL|bevelAction
+  - first:
+      74: 5831741668939770762
+    second: EquinoxFolded Static FINAL|BladeAction
+  - first:
+      74: -1851202038237434327
+    second: EquinoxFolded Static FINAL|Camera RootAction
+  - first:
+      74: 5698386646101660268
+    second: EquinoxFolded Static FINAL|Camera TargetAction
+  - first:
+      74: 1687946010640853047
+    second: EquinoxFolded Static FINAL|DaggerAction.001
+  - first:
+      74: 7452701962106431966
+    second: EquinoxFolded Static FINAL|Extension1_MeshAction
+  - first:
+      74: -3255472102271642388
+    second: EquinoxFolded Static FINAL|Extension2Action.001
+  - first:
+      74: -7886052713029241824
+    second: EquinoxFolded Static FINAL|Grip2Action
+  - first:
+      74: -4914415389760894349
+    second: EquinoxFolded Static FINAL|GripAction.001
+  - first:
+      74: -4518664697092277491
+    second: EquinoxFolded Static FINAL|LightAction
+  - first:
+      74: -5929534442511782949
+    second: EquinoxFolded Static FINAL|OrbEyeBigAction.001
+  - first:
+      74: 2972715632031252738
+    second: EquinoxFolded Static FINAL|OrbOffsetAction
+  - first:
+      74: -7114028788478927223
+    second: EquinoxFolded Static FINAL|StaffAction
+  - first:
+      74: 558944504543343675
+    second: EquinoxFolded Static FINAL|StaffEndAction
+  - first:
+      74: 8746827195079497882
+    second: EquinoxFolded Static FINAL|taperAction
+  - first:
+      74: -8055835906574664399
+    second: EquinoxUnfolded Blades Static FINAL|bevelAction
+  - first:
+      74: 8653931027811894392
+    second: EquinoxUnfolded Blades Static FINAL|BladeAction
+  - first:
+      74: 3189452983215759972
+    second: EquinoxUnfolded Blades Static FINAL|Camera RootAction
+  - first:
+      74: -5843401187416877216
+    second: EquinoxUnfolded Blades Static FINAL|Camera TargetAction
+  - first:
+      74: -359969568400161427
+    second: EquinoxUnfolded Blades Static FINAL|DaggerAction.001
+  - first:
+      74: -6295141954198709827
+    second: EquinoxUnfolded Blades Static FINAL|Extension1_MeshAction
+  - first:
+      74: -5636537349728834004
+    second: EquinoxUnfolded Blades Static FINAL|Extension2Action.001
+  - first:
+      74: -8274598916257034010
+    second: EquinoxUnfolded Blades Static FINAL|Grip2Action
+  - first:
+      74: -9151851825497555298
+    second: EquinoxUnfolded Blades Static FINAL|GripAction.001
+  - first:
+      74: 1266689405136780387
+    second: EquinoxUnfolded Blades Static FINAL|LightAction
+  - first:
+      74: 7473917893524052107
+    second: EquinoxUnfolded Blades Static FINAL|OrbEyeBigAction.001
+  - first:
+      74: -5218283671835630037
+    second: EquinoxUnfolded Blades Static FINAL|OrbOffsetAction
+  - first:
+      74: 3055586212930216795
+    second: EquinoxUnfolded Blades Static FINAL|StaffAction
+  - first:
+      74: 2818995018847821036
+    second: EquinoxUnfolded Blades Static FINAL|StaffEndAction
+  - first:
+      74: -1195294894842704215
+    second: EquinoxUnfolded Blades Static FINAL|taperAction
+  - first:
+      74: -1961375045786389464
+    second: Equinox Handguard|bevelAction
+  - first:
+      74: 6481095524950671520
+    second: Equinox Handguard|BladeAction
+  - first:
+      74: -230141237151101683
+    second: Equinox Handguard|Camera RootAction
+  - first:
+      74: -6860805391048915308
+    second: Equinox Handguard|Camera TargetAction
+  - first:
+      74: -7368105673700375476
+    second: Equinox Handguard|DaggerAction.001
+  - first:
+      74: 6775350847311079004
+    second: Equinox Handguard|Extension1_MeshAction
+  - first:
+      74: 3858930394576735403
+    second: Equinox Handguard|Extension2Action.001
+  - first:
+      74: -5660307719557264357
+    second: Equinox Handguard|Grip2Action
+  - first:
+      74: -6817201086551942846
+    second: Equinox Handguard|GripAction.001
+  - first:
+      74: -6751518220480581729
+    second: Equinox Handguard|LightAction
+  - first:
+      74: -2720825102190384982
+    second: Equinox Handguard|OrbEyeBigAction.001
+  - first:
+      74: -3533040489108586095
+    second: Equinox Handguard|OrbOffsetAction
+  - first:
+      74: 3498483266699354263
+    second: Equinox Handguard|StaffAction
+  - first:
+      74: -3612472613057967329
+    second: Equinox Handguard|StaffEndAction
+  - first:
+      74: -952278984192016033
+    second: Equinox Handguard|taperAction
+  - first:
+      74: 8618239265998381868
+    second: EquinoxUnfolded Export|bevelAction
+  - first:
+      74: 5898593716139241345
+    second: EquinoxUnfolded Export|BladeAction
+  - first:
+      74: -1768427648732730895
+    second: EquinoxUnfolded Export|Camera RootAction
+  - first:
+      74: 2540234581667846923
+    second: EquinoxUnfolded Export|Camera TargetAction
+  - first:
+      74: 2090529141332088875
+    second: EquinoxUnfolded Export|DaggerAction.001
+  - first:
+      74: -2237252921039235618
+    second: EquinoxUnfolded Export|Extension1_MeshAction
+  - first:
+      74: -3650145485403118826
+    second: EquinoxUnfolded Export|Extension2Action.001
+  - first:
+      74: -6625620231820091868
+    second: EquinoxUnfolded Export|Grip2Action
+  - first:
+      74: 8129552209136549407
+    second: EquinoxUnfolded Export|GripAction.001
+  - first:
+      74: 1647723550078442908
+    second: EquinoxUnfolded Export|LightAction
+  - first:
+      74: -369926303865278570
+    second: EquinoxUnfolded Export|OrbEyeBigAction.001
+  - first:
+      74: -5055702674223331312
+    second: EquinoxUnfolded Export|OrbOffsetAction
+  - first:
+      74: 9049193037977230564
+    second: EquinoxUnfolded Export|StaffAction
+  - first:
+      74: -5764725316795207504
+    second: EquinoxUnfolded Export|StaffEndAction
+  - first:
+      74: 52260576243592148
+    second: EquinoxUnfolded Export|taperAction
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Blade
+    second: {fileID: 2100000, guid: d0d697c72c608fb4e8775f3c4fe4510b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Devona
+    second: {fileID: 2100000, guid: fe280a16056d9214fa1dccdc7010ec8e, type: 2}
+  materials:
+    materialImportMode: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

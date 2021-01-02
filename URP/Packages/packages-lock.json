@@ -9,6 +9,13 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.cinemachine": {
+      "version": "2.6.3",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.collections": {
       "version": "0.14.0-preview.16",
       "depth": 1,
@@ -21,9 +28,18 @@
     },
     "com.unity.ext.nunit": {
       "version": "1.0.5",
-      "depth": 4,
+      "depth": 2,
       "source": "registry",
       "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.ide.rider": {
+      "version": "1.2.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.1"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
@@ -35,6 +51,13 @@
     },
     "com.unity.ide.vscode": {
       "version": "1.2.3",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.inputsystem": {
+      "version": "1.0.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
@@ -69,6 +92,13 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
+    },
+    "com.unity.quicksearch": {
+      "version": "1.5.4",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
     },
     "com.unity.render-pipelines.core": {
       "version": "8.3.1",
@@ -108,7 +138,7 @@
     },
     "com.unity.test-framework": {
       "version": "1.1.19",
-      "depth": 3,
+      "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.ext.nunit": "1.0.5",

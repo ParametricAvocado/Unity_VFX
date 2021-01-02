@@ -2,61 +2,86 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4b6707dd-7755-478b-b167-c048a79d9a47" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../HDRP/Assets/Scenes/Magic Smoke/SmokeFX.vfx" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/Assets/Scenes/Magic Smoke/SmokeFX.vfx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../HDRP/Logs/Packages-Update.log" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/Logs/Packages-Update.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../HDRP/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../HDRP/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../HDRP/ProjectSettings/EditorSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/ProjectSettings/EditorSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../HDRP/ProjectSettings/GraphicsSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/ProjectSettings/GraphicsSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../HDRP/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/ProjectSettings/ProjectVersion.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../HDRP/ProjectSettings/VFXManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/ProjectSettings/VFXManager.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Single Pass Instanced VR/Logs/Packages-Update.log" beforeDir="false" afterPath="$PROJECT_DIR$/../Single Pass Instanced VR/Logs/Packages-Update.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Single Pass Instanced VR/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../Single Pass Instanced VR/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Single Pass Instanced VR/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../Single Pass Instanced VR/ProjectSettings/ProjectVersion.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Base.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Detail.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Base.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Detail.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Base.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Detail.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Eyes.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Eyes.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_1.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_2.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_Windows.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_Windows.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_1.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_2.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseBase.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseBase.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseRoof.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseRoof.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseWindow.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseWindow.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Mouth.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Mouth.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_1.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_2.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Badge.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Badge.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Glasses.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Glasses.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Windows.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Windows.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Railing.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Railing.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WaterTankBody.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WaterTankBody.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Base.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Detail.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/Metal.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/Metal.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/M_Fire.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/M_Fire.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/M_Floor.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/M_Floor.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/M_Tears.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/M_Tears.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeBark.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeBark.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeLeaves.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeLeaves.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Scene/CityTest.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Scene/CityTest.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/City/Shaders/AreaOverlay.shadergraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Shaders/AreaOverlay.shadergraph" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/CustomLit.shadergraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/CustomLighting/CustomLit.shadergraph" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/GetMainLight.shadersubgraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/CustomLighting/GetMainLight.shadersubgraph" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/UniversalRP-HighQuality.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/UniversalRP-HighQuality.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logs/Packages-Update.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/Packages-Update.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNodeTransition.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNodeTransition.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../HDRP/Assets/Scenes/CharacterTest/CharacterTest/SkyVolume Profile.asset" beforeDir="false" afterPath="$PROJECT_DIR$/../HDRP/Assets/Scenes/CharacterTest/CharacterTest/SkyVolume Profile.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/contentModel.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/indexLayout.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test.unity" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test.unity.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test/GlobalPostProcessing Profile.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test/GlobalPostProcessing Profile.asset.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test/LightingData.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test/LightingData.asset.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test/ReflectionProbe-0.exr" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test/ReflectionProbe-0.exr.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting testSettings.lighting" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting testSettings.lighting.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test_Profiles.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test_Profiles/GlobalPostProcessing Profile.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/Custom lighting test_Profiles/GlobalPostProcessing Profile.asset.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/BoneCloth_DevonaHair.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/BoneCloth_DevonaHair.json.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Devona.controller" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Devona.controller.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Devona.fbx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Devona.fbx.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/DevonaAnimationTest.controller" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/DevonaAnimationTest.controller.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Equinox.fbx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Equinox.fbx.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Hair Physics Test.anim" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Hair Physics Test.anim.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/M_Blades.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/M_Blades.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/M_Devona.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/M_Devona.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/M_Eyes.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/M_Eyes.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/M_FloorCheckers.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/M_FloorCheckers.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/M_Skybox.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/M_Skybox.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/T_Eye.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/T_Eye.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/T_Palette.psd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/T_Palette.psd.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_B_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_B_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_FLY_Fall down_End_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_FLY_Fall down_End_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_FLY_Fall down_Loop_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_FLY_Fall down_Loop_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_FLY_Fall down_Start_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_FLY_Fall down_Start_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_F_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_F_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_L_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_L_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_R_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Hit_R_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Idle_1_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Idle_1_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Idle_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Idle_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Jump_All_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Jump_All_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Jump_End_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_Jump_End_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack02_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack02_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack03_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack03_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack04_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack04_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack05_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack05_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack06_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack06_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack07_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack07_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack08_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack08_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack09_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack09_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack10_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack10_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack11_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack11_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack12_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack12_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_dash01_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_dash01_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_death_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_death_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Material/Mat_UnityModelBody1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Material/Mat_UnityModelBody1.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Material/Mat_UnityModelBody2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Material/Mat_UnityModelBody2.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/WM_Master_Unity.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/WM_Master_Unity.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Weapon/Materials/Mat_WeaponTwinSword.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Weapon/Materials/Mat_WeaponTwinSword.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Weapon/Materials/Material #2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Weapon/Materials/Material #2.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Scene/Material/Mat_Floor.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Scene/Material/Mat_Floor.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/QualitySettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/QualitySettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/URPProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/URPProjectSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UWP Project.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/PackageManagerSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/PackageManagerSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,20 +93,33 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/CopyTransform.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/7F90ED7B-2CD3-4BC5-95F5-E9D084F29FE3/93/e18926bc/Animator.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
       <option value="$PROJECT_DIR$/Assets/CopyTransform.cs" />
+      <option value="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNodeTransition.cs" />
+      <option value="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" />
+      <option value="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNode.cs" />
+      <option value="$PROJECT_DIR$/Assets/Devona Test/Source/ComboTree.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1mJMDkz42K4NJ3YKmg7IbFIbeKP" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="DebuggerViewTab_PTCS_FirstProportionKey" value="0.34994584" />
+    <property name="DebuggerViewTab_PTCS_LastProportionKey" value="0.0" />
+    <property name="Discover.Launch.Via.Unity" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="do_not_show_solution_notification" value="true" />
@@ -96,10 +134,10 @@
       </option>
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="13268">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" />
+      <option name="pid" value="13268" />
       <option name="selectedOptions">
         <list />
       </option>
@@ -108,7 +146,7 @@
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
-  <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="EditMode" />
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>

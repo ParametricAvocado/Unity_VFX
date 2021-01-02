@@ -17,6 +17,15 @@
         <e p="CustomLighting" t="Include">
           <e p="CustomLighting.hlsl" t="Include" />
         </e>
+        <e p="Devona Test" t="Include">
+          <e p="Source" t="Include">
+            <e p="CharacterController.cs" t="Include" />
+            <e p="ComboNode.cs" t="Include" />
+            <e p="ComboNodeTransition.cs" t="Include" />
+            <e p="ComboTree.cs" t="Include" />
+            <e p="DevonaActions.cs" t="Include" />
+          </e>
+        </e>
         <e p="MagicaCloth" t="Include">
           <e p="Core" t="Include">
             <e p="API" t="Include">
