@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f454e34c61c94770ab90334ad7c4ba54, type: 3}
   m_Name: Crescent 2
   m_EditorClassIdentifier: 
+  m_TransitionDuration: 0.05
   m_AnimationName: att_light_2
   m_Transitions:
   - targetNode: {fileID: 11400000, guid: 07ae2b13c3bef284b878233694a370ea, type: 2}
-    transitionBegin: 0.3
+    transitionBegin: 0.1
     transitionEnd: 0.5
     input: 1

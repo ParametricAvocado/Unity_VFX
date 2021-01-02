@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 using UnityEngine.Serialization;
 
 namespace DevonaProject {
@@ -43,11 +44,13 @@ namespace DevonaProject {
     
         //Visual
         private float animatorMoveSpeed;
-        private float lookAngle;
+        private float currentLookAngle;
+        private float targetLookAngle;
     
         //Animator State
         private int combatLayerIndex;
         private AnimatorStateInfo currentCombatLayerState;
+        private AnimatorStateInfo nextCombatLayerState;
         private bool isPerformingAttack;
 
         private readonly int hBoolIsMoving = Animator.StringToHash("IsMoving");
@@ -64,15 +67,18 @@ namespace DevonaProject {
     
         private void Awake() {
             InitializeInput();
+            
             animator = GetComponent<Animator>();
             combatLayerIndex =  animator.GetLayerIndex("Combat");
+            
             m_ComboTree.SetAnimator(animator, combatLayerIndex);
+            m_ComboTree.Initialize();
         }
 
         private void Start() {
             gameplayCamera = Camera.main;
             actions.Enable();
-            lookAngle = transform.rotation.eulerAngles.y;
+            currentLookAngle = transform.rotation.eulerAngles.y;
         }
 
         private void OnDestroy() {
@@ -81,7 +87,10 @@ namespace DevonaProject {
 
         private void FixedUpdate() {
             currentCombatLayerState = animator.GetCurrentAnimatorStateInfo(combatLayerIndex);
-            isPerformingAttack = currentCombatLayerState.shortNameHash != hStateAttackNone;
+            nextCombatLayerState = animator.GetNextAnimatorStateInfo(combatLayerIndex);
+            
+            isPerformingAttack = currentCombatLayerState.shortNameHash != hStateAttackNone 
+                                 || nextCombatLayerState.shortNameHash != hStateAttackNone && nextCombatLayerState.shortNameHash != 0;
         
             //Input Update
             var characterUp = transform.up;
@@ -100,10 +109,7 @@ namespace DevonaProject {
         
             if (!isPerformingAttack) {
                 //Character Turn
-                lookAngle = Mathf.MoveTowardsAngle(lookAngle, 
-                    Mathf.Atan2(worldMoveDirection.x, worldMoveDirection.z) * Mathf.Rad2Deg, 
-                    m_TurnRate.Evaluate(animatorMoveSpeed) * Time.deltaTime);
-                transform.rotation = Quaternion.Euler(0, lookAngle, 0);
+                UpdateLookAngle();
 
                 //Animator Update
                 animator.SetBool(hBoolIsMoving, isMoving);
@@ -115,13 +121,30 @@ namespace DevonaProject {
             }
         
             if (LightAttackInput) {
-                m_ComboTree.ExecuteCombo(ComboInput.LightAttack);
-                animator.SetBool(hBoolIsMoving, false);
+                if (m_ComboTree.ExecuteCombo(ComboInput.LightAttack, currentCombatLayerState, nextCombatLayerState)) {
+                    UpdateLookAngle();
+                    animator.SetBool(hBoolIsMoving, false);
+                }
             }
             else if (HeavyAttackInput) {
-                m_ComboTree.ExecuteCombo(ComboInput.HeavyAttack);
-                animator.SetBool(hBoolIsMoving, false);
+                if (m_ComboTree.ExecuteCombo(ComboInput.HeavyAttack, currentCombatLayerState, nextCombatLayerState)) {
+                    UpdateLookAngle();
+                    animator.SetBool(hBoolIsMoving, false);
+                }
             }
+            
+            CharacterTurnUpdate();
+        }
+
+        private void CharacterTurnUpdate() {
+            currentLookAngle = Mathf.MoveTowardsAngle(currentLookAngle,
+                targetLookAngle,
+                m_TurnRate.Evaluate(animatorMoveSpeed) * Time.deltaTime);
+            transform.rotation = Quaternion.Euler(0, currentLookAngle, 0);
+        }
+
+        private void UpdateLookAngle() {
+            targetLookAngle = Mathf.Atan2(worldMoveDirection.x, worldMoveDirection.z) * Mathf.Rad2Deg;
         }
 
         public bool LightAttackInput => Time.unscaledTime - lightAttackInputTime < m_InputPressDuration;

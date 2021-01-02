@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f454e34c61c94770ab90334ad7c4ba54, type: 3}
-  m_Name: Crescent 1
+  m_Name: Moonlight 2
   m_EditorClassIdentifier: 
   m_TransitionDuration: 0.1
-  m_AnimationName: att_light_1
+  m_AnimationName: att_heavy_2
   m_Transitions:
-  - targetNode: {fileID: 11400000, guid: 39b4fc1ef60f78c4aac35188e876d081, type: 2}
-    transitionBegin: 0.15
-    transitionEnd: 0.4
-    input: 0
+  - targetNode: {fileID: 11400000, guid: 8c16b39ea090c524492f428b3bf93c14, type: 2}
+    transitionBegin: 0.3
+    transitionEnd: 0.5
+    input: 1

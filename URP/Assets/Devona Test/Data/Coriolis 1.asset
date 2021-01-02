@@ -10,12 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f454e34c61c94770ab90334ad7c4ba54, type: 3}
-  m_Name: Crescent 1
+  m_Name: Coriolis 1
   m_EditorClassIdentifier: 
-  m_TransitionDuration: 0.1
-  m_AnimationName: att_light_1
-  m_Transitions:
-  - targetNode: {fileID: 11400000, guid: 39b4fc1ef60f78c4aac35188e876d081, type: 2}
-    transitionBegin: 0.15
-    transitionEnd: 0.4
-    input: 0
+  m_AnimationName: att_finisher_1
+  m_Transitions: []

@@ -4,21 +4,28 @@ using UnityEngine.Serialization;
 namespace DevonaProject {
     [CreateAssetMenu(menuName = "Devona Project/Combo Node", fileName = "ComboNode", order = 0)]
     public class ComboNode : ScriptableObject {
+        [SerializeField] private float m_TransitionDuration = 0.1f;
         [SerializeField] private string m_AnimationName;
         [SerializeField] private ComboNodeTransition[] m_Transitions;
 
         private int animationHash = -1;
 
+        public ComboNodeTransition[] Transitions {
+            get => m_Transitions;
+        }
+
+        public int AnimationHash => animationHash;
+
+        public void Initialize() {
+            animationHash = Animator.StringToHash(m_AnimationName);
+        }
+        
         public void Execute(Animator animator, int layer) {
-            if (animationHash == -1) {
-                animationHash = Animator.StringToHash(m_AnimationName);
-            }
-            
-            animator.Play(animationHash,layer);
+            animator.CrossFade(AnimationHash, m_TransitionDuration, layer);
         }
 
         public bool GetNodeFromTransition(float normalizedTime, ComboInput attackInput, out ComboNode comboNode) {
-            foreach (var transition in m_Transitions) {
+            foreach (var transition in Transitions) {
                 if (transition.input != attackInput || normalizedTime < transition.transitionBegin ||
                     normalizedTime > transition.transitionEnd) {
                     continue;
