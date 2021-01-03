@@ -16,6 +16,6 @@ MonoBehaviour:
   m_AnimationName: att_heavy_1
   m_Transitions:
   - targetNode: {fileID: 11400000, guid: 79ba88410f2b37e41b5fc74534ec1395, type: 2}
-    transitionBegin: 0.15
+    transitionBegin: 0.25
     transitionEnd: 0.5
     input: 1

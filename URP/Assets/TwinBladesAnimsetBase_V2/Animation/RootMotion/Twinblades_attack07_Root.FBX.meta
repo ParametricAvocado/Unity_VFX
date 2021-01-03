@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 3867456c848d550409cfc885b6becf73
 ModelImporter:
-  serializedVersion: 20101
+  serializedVersion: 20200
   internalIDToNameTable:
   - first:
       1: 100000
@@ -410,7 +410,7 @@ ModelImporter:
       name: att_heavy_1
       takeName: Twinblades_attack07
       internalID: 0
-      firstFrame: 15
+      firstFrame: 40
       lastFrame: 240
       wrapMode: 0
       orientationOffsetY: 0
@@ -427,7 +427,7 @@ ModelImporter:
       keepOriginalPositionY: 1
       keepOriginalPositionXZ: 0
       heightFromFeet: 0
-      mirror: 1
+      mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events: []
@@ -1365,6 +1365,7 @@ ModelImporter:
   animationType: 3
   humanoidOversampling: 1
   avatarSetup: 2
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
   additionalBone: 0
   userData: 
   assetBundleName: 

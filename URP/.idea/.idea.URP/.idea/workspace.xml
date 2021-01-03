@@ -4,12 +4,71 @@
     <list default="true" id="4b6707dd-7755-478b-b167-c048a79d9a47" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/indexLayout.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Base.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_A_Detail.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Base.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_B_Detail.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Base.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Building_C_Detail.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Eyes.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Eyes.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_1.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_2.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_Windows.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_FireStation_Windows.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_1.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Fire_Badge_2.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseBase.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseBase.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseRoof.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseRoof.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseWindow.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_HouseWindow.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Mouth.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Mouth.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_1.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_2.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Badge.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Badge.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Glasses.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Glasses.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Windows.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Police_Windows.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Railing.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_Railing.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WaterTankBody.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WaterTankBody.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Base.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Base.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Detail.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/M_WindTurbine_Detail.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Buildings/Metal.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Buildings/Metal.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/M_Fire.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/M_Fire.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/M_Floor.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/M_Floor.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/M_Tears.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/M_Tears.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeBark.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeBark.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeLeaves.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/Props/M_TreeLeaves.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/City/Materials/VFX/M_AreaRender.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/City/Materials/VFX/M_AreaRender.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Animations/Devona_GameplayController.controller" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Animations/Devona_GameplayController.controller" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_Blades.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_Blades.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_Eyes.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_Eyes.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_FloorCheckers.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_FloorCheckers.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Char_Devona.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Char_Devona.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Data/Crescent 1.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Data/Crescent 1.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Data/Crescent 2.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Data/Crescent 2.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Data/Moonlight 1.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Data/Moonlight 1.asset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Devona Test Scene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Devona Test Scene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNode.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNode.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/ComboTree.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/ComboTree.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/Material/Floor.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/Material/Floor.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/Model/Arrow/Materials/Arrow.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/Model/Arrow/Materials/Arrow.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/Model/Sphere/Materials/mat.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/Model/Sphere/Materials/mat.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/Model/plane/Materials/mat.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/Model/plane/Materials/mat.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/UnityChan/Model/Materials/Left.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/UnityChan/Model/Materials/Left.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/UnityChan/Model/Materials/mat_cheek.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/UnityChan/Model/Materials/mat_cheek.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/UnityChan/Model/Stage/unitychan_tile5.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/MagicaCloth/Example (Can be deleted)/UnityChan/Model/Stage/unitychan_tile5.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Settings/ForwardRendererWithAreaOverlays.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/ForwardRendererWithAreaOverlays.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack04_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack04_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack07_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack07_Root.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Material/Mat_UnityModelBody1.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Material/Mat_UnityModelBody1.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Material/Mat_UnityModelBody2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Material/Mat_UnityModelBody2.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/WM_Master_Unity.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/WM_Master_Unity.FBX.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Weapon/Materials/Mat_WeaponTwinSword.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Weapon/Materials/Mat_WeaponTwinSword.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Weapon/Materials/Material #2.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Model/Weapon/Materials/Material #2.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Scene/Material/Mat_Floor.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Scene/Material/Mat_Floor.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Scene/Preview.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Scene/Preview.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/Packages-Update.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/Packages-Update.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/URPProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/URPProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

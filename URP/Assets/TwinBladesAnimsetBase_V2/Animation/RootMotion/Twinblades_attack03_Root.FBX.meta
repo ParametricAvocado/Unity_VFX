@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: bb297f84c25d73042938ad4a09986c6f
 ModelImporter:
-  serializedVersion: 20101
+  serializedVersion: 20200
   internalIDToNameTable:
   - first:
       1: 100000
@@ -410,7 +410,7 @@ ModelImporter:
       name: Twinblades_attack03
       takeName: Twinblades_attack03
       internalID: 0
-      firstFrame: 9
+      firstFrame: 25
       lastFrame: 240
       wrapMode: 0
       orientationOffsetY: 0
@@ -1365,6 +1365,7 @@ ModelImporter:
   animationType: 3
   humanoidOversampling: 1
   avatarSetup: 2
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
   additionalBone: 0
   userData: 
   assetBundleName: 

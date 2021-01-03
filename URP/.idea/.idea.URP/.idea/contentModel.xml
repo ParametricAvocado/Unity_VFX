@@ -18,6 +18,9 @@
           <e p="CustomLighting.hlsl" t="Include" />
         </e>
         <e p="Devona Test" t="Include">
+          <e p="Art" t="Include">
+            <e p="GlowTrail.shader" t="Include" />
+          </e>
           <e p="Source" t="Include">
             <e p="CharacterController.cs" t="Include" />
             <e p="ComboNode.cs" t="Include" />

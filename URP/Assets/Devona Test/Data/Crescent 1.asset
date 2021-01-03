@@ -19,3 +19,7 @@ MonoBehaviour:
     transitionBegin: 0.15
     transitionEnd: 0.4
     input: 0
+  - targetNode: {fileID: 11400000, guid: 79ba88410f2b37e41b5fc74534ec1395, type: 2}
+    transitionBegin: 0.2
+    transitionEnd: 0.4
+    input: 1

@@ -11,3 +11,15 @@ The following packages were added:
   com.unity.package-manager-ui@2.0.8
   com.unity.purchasing@2.0.3
   com.unity.textmeshpro@1.4.1
+
+=== Sat Jan  2 14:32:57 2021
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.ide.rider from version 1.2.1 to 2.0.7
+  com.unity.quicksearch from version 1.5.4 to 2.0.2
+  com.unity.render-pipelines.universal from version 8.3.1 to 10.2.2
+The following packages were removed:
+  com.unity.package-manager-ui@2.2.0

@@ -60,7 +60,9 @@ namespace DevonaProject {
 
         private void InitializeInput() {
             actions = new DevonaActions();
+            actions.Character.Move.started += (ctx) => moveVector = ctx.ReadValue<Vector2>();
             actions.Character.Move.performed += (ctx) => moveVector = ctx.ReadValue<Vector2>();
+            actions.Character.Move.canceled += (ctx) => moveVector = Vector2.zero;
             actions.Character.LightAttack.started += (ctx)=> lightAttackInputTime = Time.unscaledTime;
             actions.Character.HeavyAttack.started += (ctx)=> heavyAttackInputTime = Time.unscaledTime;
         }
@@ -102,7 +104,6 @@ namespace DevonaProject {
 
             if (isMoving) {
                 moveVectorMagnitude = moveVector.magnitude;
-                worldMoveDirection = worldMoveVector.normalized;
             }
 
             animatorMoveSpeed = Mathf.MoveTowards(animatorMoveSpeed, moveVectorMagnitude > m_WalkThreshold ? 1 : 0, m_WalkBlendRate * Time.deltaTime);
@@ -144,6 +145,10 @@ namespace DevonaProject {
         }
 
         private void UpdateLookAngle() {
+            if (isMoving) {
+                worldMoveDirection = worldMoveVector.normalized;
+            }
+            
             targetLookAngle = Mathf.Atan2(worldMoveDirection.x, worldMoveDirection.z) * Mathf.Rad2Deg;
         }
 
