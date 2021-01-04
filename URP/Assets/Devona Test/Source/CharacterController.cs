@@ -31,7 +31,8 @@ namespace DevonaProject {
         //Components
         private Animator animator;
         private Camera gameplayCamera;
-
+        private CharacterTargeting targeting;
+        
         private DevonaActions actions;
 
         //Input
@@ -43,6 +44,7 @@ namespace DevonaProject {
         private float moveVectorMagnitude;
         private Vector3 worldMoveDirection;
         private Vector3 worldMoveVector;
+        private Vector3 worldLookDirection;
         private bool isMoving;
     
         //Visual
@@ -74,6 +76,7 @@ namespace DevonaProject {
             InitializeInput();
             
             animator = GetComponent<Animator>();
+            targeting = GetComponent<CharacterTargeting>();
             combatLayerIndex =  animator.GetLayerIndex("Combat");
             
             m_ComboTree.SetAnimator(animator, combatLayerIndex);
@@ -109,13 +112,18 @@ namespace DevonaProject {
 
             if (isMoving) {
                 moveVectorMagnitude = moveVector.magnitude;
+                worldMoveDirection = worldMoveVector.normalized;
+                targeting.InputDirection = worldMoveDirection;
+            }
+            else {
+                targeting.InputDirection = transform.forward;
             }
 
             animatorMoveSpeed = Mathf.MoveTowards(animatorMoveSpeed, moveVectorMagnitude > m_WalkThreshold ? 1 : 0, m_WalkBlendRate * Time.deltaTime);
         
             if (!isPerformingAttack) {
                 //Character Turn
-                UpdateLookAngle();
+                UpdateLookAngle(false);
 
                 //Animator Update
                 animator.SetBool(hBoolIsMoving, isMoving);
@@ -128,13 +136,13 @@ namespace DevonaProject {
         
             if (LightAttackInput) {
                 if (m_ComboTree.ExecuteCombo(ComboInput.LightAttack)) {
-                    UpdateLookAngle();
+                    UpdateLookAngle(true);
                     animator.SetBool(hBoolIsMoving, false);
                 }
             }
             else if (HeavyAttackInput) {
                 if (m_ComboTree.ExecuteCombo(ComboInput.HeavyAttack)) {
-                    UpdateLookAngle();
+                    UpdateLookAngle(true);
                     animator.SetBool(hBoolIsMoving, false);
                 }
             }
@@ -151,12 +159,15 @@ namespace DevonaProject {
             transform.rotation = Quaternion.Euler(0, currentLookAngle, 0);
         }
 
-        private void UpdateLookAngle() {
+        private void UpdateLookAngle(bool useTargeting) {
+            if (useTargeting) {
+                worldLookDirection = targeting.PreferredDirection;
+            }else
             if (isMoving) {
-                worldMoveDirection = worldMoveVector.normalized;
+                worldLookDirection = worldMoveDirection;
             }
             
-            targetLookAngle = Mathf.Atan2(worldMoveDirection.x, worldMoveDirection.z) * Mathf.Rad2Deg;
+            targetLookAngle = Mathf.Atan2(worldLookDirection.x, worldLookDirection.z) * Mathf.Rad2Deg;
         }
 
         public bool LightAttackInput => Time.unscaledTime - lightAttackInputTime < m_InputPressDuration;

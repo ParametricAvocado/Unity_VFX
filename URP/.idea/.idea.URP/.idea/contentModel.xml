@@ -7,7 +7,6 @@
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
-        <e p="CharacterTargeting.cs" t="Include" />
         <e p="City" t="Include">
           <e p="Script" t="Include">
             <e p="RandomStartTime.cs" t="Include" />
@@ -18,16 +17,18 @@
         <e p="CustomLighting" t="Include">
           <e p="CustomLighting.hlsl" t="Include" />
         </e>
-        <e p="DamageTrigger.cs" t="Include" />
         <e p="Devona Test" t="Include">
           <e p="Source" t="Include">
             <e p="CharacterCombatVFX.cs" t="Include" />
             <e p="CharacterController.cs" t="Include" />
+            <e p="CharacterTargeting.cs" t="Include" />
             <e p="ComboNode.cs" t="Include" />
             <e p="ComboNodeDamageEvent.cs" t="Include" />
             <e p="ComboNodeTransition.cs" t="Include" />
             <e p="ComboTree.cs" t="Include" />
+            <e p="DamageTrigger.cs" t="Include" />
             <e p="DevonaActions.cs" t="Include" />
+            <e p="TargetDummy.cs" t="Include" />
           </e>
         </e>
         <e p="MagicaCloth" t="Include">
@@ -347,7 +348,6 @@
             </e>
           </e>
         </e>
-        <e p="TargetDummy.cs" t="Include" />
       </e>
       <e p="obj" t="ExcludeRecursive" />
       <e p="Packages" t="ExcludeRecursive" />

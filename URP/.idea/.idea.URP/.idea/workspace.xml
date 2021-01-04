@@ -2,52 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4b6707dd-7755-478b-b167-c048a79d9a47" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/M_WeaponTrail.mat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/M_WeaponTrail.mat.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Models/SM_Slash.fbx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Models/SM_Slash.fbx.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Textures/T_Slash.psd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Textures/T_Slash.psd.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/VFX_Slash.prefab" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/VFX_Slash.vfx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/VFX_Slash.vfx.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterCombatVFX.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterCombatVFX.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Logs/AssetImportWorker0.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/contentModel.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/indexLayout.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Animations/DevonaAnimationTest.controller" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Animations/DevonaAnimationTest.controller.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Animations/Devona_GameplayController.controller" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Animations/Devona_GameplayController.controller.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Animations/PhysicsTest.controller" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Animations/PhysicsTest.controller.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/EquinoxTrail.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/EquinoxTrail.prefab.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/VFX_Slash.prefab.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Models/Equinox.fbx" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Models/Equinox.fbx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/WeaponTrail.shadergraph" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/WeaponTrail.shadergraph.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CharacterTargeting.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CharacterTargeting.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/DamageTrigger.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/DamageTrigger.cs.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Char_Devona.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Char_Devona.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Data/Crescent 1.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Data/Crescent 1.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Data/Crescent 2.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Data/Crescent 2.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Data/Crescent 3.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Data/Crescent 3.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Char_TargetDummy Variant.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Char_TargetDummy Variant.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Devona Test Scene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Devona Test Scene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNode.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNode.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/ComboTree.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/ComboTree.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack02_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack02_Root.FBX.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack03_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack03_Root.FBX.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack04_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack04_Root.FBX.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack05_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack05_Root.FBX.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack08_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack08_Root.FBX.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack12_Root.FBX.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TwinBladesAnimsetBase_V2/Animation/RootMotion/Twinblades_attack12_Root.FBX.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker0-prev.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/AssetImportWorker0-prev.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/DynamicsManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/DynamicsManager.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TargetDummy.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TargetDummy.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/ApiUpdaterCheck.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/ApiUpdaterCheck.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker0.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/AssetImportWorker0.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/VFXManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/VFXManager.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,10 +28,8 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/CopyTransform.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/TargetDummy.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/7F90ED7B-2CD3-4BC5-95F5-E9D084F29FE3/93/e18926bc/Animator.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/DamageTrigger.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/CharacterTargeting.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
@@ -72,10 +39,11 @@
       <option value="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNode.cs" />
       <option value="$PROJECT_DIR$/Assets/Devona Test/Source/ComboTree.cs" />
       <option value="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNodeDamageEvent.cs" />
-      <option value="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" />
       <option value="$PROJECT_DIR$/Assets/TargetDummy.cs" />
       <option value="$PROJECT_DIR$/Assets/DamageTrigger.cs" />
       <option value="$PROJECT_DIR$/Assets/CharacterTargeting.cs" />
+      <option value="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" />
+      <option value="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterTargeting.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1mJMDkz42K4NJ3YKmg7IbFIbeKP" />
@@ -106,10 +74,10 @@
       </option>
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="16512">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" />
+      <option name="pid" value="16512" />
       <option name="selectedOptions">
         <list />
       </option>
