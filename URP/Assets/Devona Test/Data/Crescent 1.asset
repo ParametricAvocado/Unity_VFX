@@ -23,3 +23,7 @@ MonoBehaviour:
     transitionBegin: 0.2
     transitionEnd: 0.4
     input: 1
+  m_DamageEvents:
+  - m_TimeRange: {x: 0.05, y: 0.1}
+    m_Direction: {x: -1, y: 0, z: 0}
+    m_DamageRange: {x: 0, y: 0}

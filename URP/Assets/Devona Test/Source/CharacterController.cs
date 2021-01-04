@@ -13,6 +13,9 @@ namespace DevonaProject {
 
     public class CharacterController : MonoBehaviour {
         //Inspector
+        [Header("Components")] 
+        [SerializeField] private DamageTrigger m_DamageTrigger;
+        
         [Header("Data")]
         [SerializeField] private ComboTree m_ComboTree;
 
@@ -49,8 +52,8 @@ namespace DevonaProject {
     
         //Animator State
         private int combatLayerIndex;
-        private AnimatorStateInfo currentCombatLayerState;
-        private AnimatorStateInfo nextCombatLayerState;
+        public AnimatorStateInfo CurrentCombatLayerState;
+        public AnimatorStateInfo NextCombatLayerState;
         private bool isPerformingAttack;
 
         private readonly int hBoolIsMoving = Animator.StringToHash("IsMoving");
@@ -74,7 +77,9 @@ namespace DevonaProject {
             combatLayerIndex =  animator.GetLayerIndex("Combat");
             
             m_ComboTree.SetAnimator(animator, combatLayerIndex);
-            m_ComboTree.Initialize();
+            m_ComboTree.Initialize(this);
+            
+            m_DamageTrigger.Initialize(this);
         }
 
         private void Start() {
@@ -88,11 +93,11 @@ namespace DevonaProject {
         }
 
         private void FixedUpdate() {
-            currentCombatLayerState = animator.GetCurrentAnimatorStateInfo(combatLayerIndex);
-            nextCombatLayerState = animator.GetNextAnimatorStateInfo(combatLayerIndex);
+            CurrentCombatLayerState = animator.GetCurrentAnimatorStateInfo(combatLayerIndex);
+            NextCombatLayerState = animator.GetNextAnimatorStateInfo(combatLayerIndex);
             
-            isPerformingAttack = currentCombatLayerState.shortNameHash != hStateAttackNone 
-                                 || nextCombatLayerState.shortNameHash != hStateAttackNone && nextCombatLayerState.shortNameHash != 0;
+            isPerformingAttack = CurrentCombatLayerState.shortNameHash != hStateAttackNone 
+                                 || NextCombatLayerState.shortNameHash != hStateAttackNone && NextCombatLayerState.shortNameHash != 0;
         
             //Input Update
             var characterUp = transform.up;
@@ -122,17 +127,19 @@ namespace DevonaProject {
             }
         
             if (LightAttackInput) {
-                if (m_ComboTree.ExecuteCombo(ComboInput.LightAttack, currentCombatLayerState, nextCombatLayerState)) {
+                if (m_ComboTree.ExecuteCombo(ComboInput.LightAttack)) {
                     UpdateLookAngle();
                     animator.SetBool(hBoolIsMoving, false);
                 }
             }
             else if (HeavyAttackInput) {
-                if (m_ComboTree.ExecuteCombo(ComboInput.HeavyAttack, currentCombatLayerState, nextCombatLayerState)) {
+                if (m_ComboTree.ExecuteCombo(ComboInput.HeavyAttack)) {
                     UpdateLookAngle();
                     animator.SetBool(hBoolIsMoving, false);
                 }
             }
+            
+            m_DamageTrigger.UpdateDamageData(m_ComboTree.GetDamageData());
             
             CharacterTurnUpdate();
         }

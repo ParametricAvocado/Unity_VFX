@@ -15,3 +15,7 @@ MonoBehaviour:
   m_TransitionDuration: 0.05
   m_AnimationName: att_light_finisher
   m_Transitions: []
+  m_DamageEvents:
+  - m_TimeRange: {x: 0.1, y: 0.15}
+    m_Direction: {x: 1, y: 0, z: 0}
+    m_DamageRange: {x: 0, y: 0}

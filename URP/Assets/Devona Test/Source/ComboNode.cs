@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEditor.ShaderGraph.Internal;
+using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace DevonaProject {
@@ -7,6 +9,7 @@ namespace DevonaProject {
         [SerializeField] private float m_TransitionDuration = 0.1f;
         [SerializeField] private string m_AnimationName;
         [SerializeField] private ComboNodeTransition[] m_Transitions;
+        [SerializeField] private ComboNodeDamageEvent[] m_DamageEvents;
 
         private int animationHash = -1;
 
@@ -37,6 +40,10 @@ namespace DevonaProject {
 
             comboNode = null;
             return false;
+        }
+
+        public ComboNodeDamageEvent GetDamageEvent(float time) {
+            return m_DamageEvents.FirstOrDefault(damageEvent => time >= damageEvent.m_TimeRange.x && time <= damageEvent.m_TimeRange.y);
         }
     }
 }
