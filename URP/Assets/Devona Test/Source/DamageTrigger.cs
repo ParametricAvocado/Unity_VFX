@@ -1,10 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace DevonaProject {
     public class DamageTrigger : MonoBehaviour {
+        public class DamageTriggerEvent : UnityEvent<ComboNodeDamageEvent>{}
+
         private Collider collider;
         private ComboNodeDamageEvent currentDamageEvent;
         private CharacterController owner;
@@ -25,7 +29,14 @@ namespace DevonaProject {
 
         private void OnTriggerEnter(Collider other) {
             var dummy = other.GetComponentInParent<TargetDummy>();
-            dummy.OnHit(owner.transform.TransformDirection(currentDamageEvent.m_Direction));
+            var hitDirection = owner.transform.TransformDirection(currentDamageEvent.m_Direction);
+
+            if (currentDamageEvent.m_IsKnockdown) { dummy.OnKnockdown(hitDirection); }
+            else{ dummy.OnHit(hitDirection); }
+
+            var hitPoint = transform.TransformPoint(Vector3.ProjectOnPlane(transform.InverseTransformPoint(dummy.transform.position), Vector3.up));
+            
+            owner.CombatVFX.SpawnTargetVFX(hitPoint, Quaternion.LookRotation(hitDirection,transform.up),Vector3.one);
         }
     }
 }

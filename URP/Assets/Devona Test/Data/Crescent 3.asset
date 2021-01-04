@@ -12,10 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f454e34c61c94770ab90334ad7c4ba54, type: 3}
   m_Name: Crescent 3
   m_EditorClassIdentifier: 
+  m_AttackVFXCaster: {fileID: 4369921541376908721, guid: 449186c2b70f9e141abf78e88b9b0817,
+    type: 3}
+  m_AttackVFXProjectile: {fileID: 0}
+  m_AttackVFXTarget: {fileID: 6226305653337248464, guid: 3ce89239254728a4da0512378774c904,
+    type: 3}
   m_TransitionDuration: 0.05
   m_AnimationName: att_light_finisher
+  m_AllowsTurn: 0
+  m_TurnSpeedMultiplier: 1
   m_Transitions: []
   m_DamageEvents:
   - m_TimeRange: {x: 0.1, y: 0.15}
-    m_Direction: {x: 1, y: 0, z: 0}
+    m_Direction: {x: 0.5, y: 0, z: 1}
+    m_IsKnockdown: 1
     m_DamageRange: {x: 0, y: 0}

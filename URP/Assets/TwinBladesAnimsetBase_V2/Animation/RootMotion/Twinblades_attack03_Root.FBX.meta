@@ -432,7 +432,7 @@ ModelImporter:
       curves: []
       events:
       - time: 0.11260054
-        functionName: SpawnVFX
+        functionName: SpawnCasterVFX
         data: light_finisher
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0

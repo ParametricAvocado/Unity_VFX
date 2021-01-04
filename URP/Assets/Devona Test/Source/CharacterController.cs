@@ -29,10 +29,11 @@ namespace DevonaProject {
 
 
         //Components
-        private Animator animator;
-        private Camera gameplayCamera;
-        private CharacterTargeting targeting;
-        
+        public Animator CharacterAnimator { get; private set; }
+        public Camera GameplayCamera { get; private set; }
+        public CharacterTargeting Targeting { get; private set; }
+        public CharacterCombatVFX CombatVFX { get; private set; }
+
         private DevonaActions actions;
 
         //Input
@@ -75,18 +76,20 @@ namespace DevonaProject {
         private void Awake() {
             InitializeInput();
             
-            animator = GetComponent<Animator>();
-            targeting = GetComponent<CharacterTargeting>();
-            combatLayerIndex =  animator.GetLayerIndex("Combat");
+            CharacterAnimator = GetComponent<Animator>();
+            Targeting = GetComponent<CharacterTargeting>();
+            CombatVFX = GetComponent<CharacterCombatVFX>();
             
-            m_ComboTree.SetAnimator(animator, combatLayerIndex);
+            combatLayerIndex =  CharacterAnimator.GetLayerIndex("Combat");
+            
+            m_ComboTree.SetAnimator(CharacterAnimator, combatLayerIndex);
             m_ComboTree.Initialize(this);
             
             m_DamageTrigger.Initialize(this);
         }
 
         private void Start() {
-            gameplayCamera = Camera.main;
+            GameplayCamera = Camera.main;
             actions.Enable();
             currentLookAngle = transform.rotation.eulerAngles.y;
         }
@@ -96,16 +99,16 @@ namespace DevonaProject {
         }
 
         private void FixedUpdate() {
-            CurrentCombatLayerState = animator.GetCurrentAnimatorStateInfo(combatLayerIndex);
-            NextCombatLayerState = animator.GetNextAnimatorStateInfo(combatLayerIndex);
+            CurrentCombatLayerState = CharacterAnimator.GetCurrentAnimatorStateInfo(combatLayerIndex);
+            NextCombatLayerState = CharacterAnimator.GetNextAnimatorStateInfo(combatLayerIndex);
             
             isPerformingAttack = CurrentCombatLayerState.shortNameHash != hStateAttackNone 
                                  || NextCombatLayerState.shortNameHash != hStateAttackNone && NextCombatLayerState.shortNameHash != 0;
         
             //Input Update
             var characterUp = transform.up;
-            var projCamForward=  Vector3.ProjectOnPlane(gameplayCamera.transform.forward, characterUp).normalized;
-            var projCamRight=  Vector3.ProjectOnPlane(gameplayCamera.transform.right, characterUp).normalized;
+            var projCamForward=  Vector3.ProjectOnPlane(GameplayCamera.transform.forward, characterUp).normalized;
+            var projCamRight=  Vector3.ProjectOnPlane(GameplayCamera.transform.right, characterUp).normalized;
             worldMoveVector = projCamForward * moveVector.y + projCamRight * moveVector.x;
 
             isMoving = moveVector != Vector2.zero;
@@ -113,10 +116,10 @@ namespace DevonaProject {
             if (isMoving) {
                 moveVectorMagnitude = moveVector.magnitude;
                 worldMoveDirection = worldMoveVector.normalized;
-                targeting.InputDirection = worldMoveDirection;
+                Targeting.InputDirection = worldMoveDirection;
             }
             else {
-                targeting.InputDirection = transform.forward;
+                Targeting.InputDirection = transform.forward;
             }
 
             animatorMoveSpeed = Mathf.MoveTowards(animatorMoveSpeed, moveVectorMagnitude > m_WalkThreshold ? 1 : 0, m_WalkBlendRate * Time.deltaTime);
@@ -126,8 +129,8 @@ namespace DevonaProject {
                 UpdateLookAngle(false);
 
                 //Animator Update
-                animator.SetBool(hBoolIsMoving, isMoving);
-                animator.SetFloat(hFloatMoveSpeed, animatorMoveSpeed);
+                CharacterAnimator.SetBool(hBoolIsMoving, isMoving);
+                CharacterAnimator.SetFloat(hFloatMoveSpeed, animatorMoveSpeed);
 
             
                 //Ensure Combo Tree is clear 
@@ -136,15 +139,16 @@ namespace DevonaProject {
         
             if (LightAttackInput) {
                 if (m_ComboTree.ExecuteCombo(ComboInput.LightAttack)) {
-                    UpdateLookAngle(true);
-                    animator.SetBool(hBoolIsMoving, false);
+                    OnExecuteCombo();
                 }
             }
             else if (HeavyAttackInput) {
                 if (m_ComboTree.ExecuteCombo(ComboInput.HeavyAttack)) {
-                    UpdateLookAngle(true);
-                    animator.SetBool(hBoolIsMoving, false);
+                    OnExecuteCombo();
                 }
+            }
+            else if (isPerformingAttack && m_ComboTree.CurrentNode.AllowsTurn) {
+                UpdateLookAngle(true);
             }
             
             m_DamageTrigger.UpdateDamageData(m_ComboTree.GetDamageData());
@@ -152,16 +156,28 @@ namespace DevonaProject {
             CharacterTurnUpdate();
         }
 
+        private void OnExecuteCombo() {
+            UpdateLookAngle(true);
+            CharacterAnimator.SetBool(hBoolIsMoving, false);
+            CombatVFX.SetDefaultCasterVFX(m_ComboTree.CurrentNode.AttackVFXCaster);
+            CombatVFX.SetDefaultTargetVFX(m_ComboTree.CurrentNode.AttackVFXTarget);
+        }
+
         private void CharacterTurnUpdate() {
+            var turnRate = m_TurnRate.Evaluate(animatorMoveSpeed);
+            if (isPerformingAttack) {
+                turnRate *= m_ComboTree.CurrentNode.TurnSpeedMultiplier;
+            }
+            
             currentLookAngle = Mathf.MoveTowardsAngle(currentLookAngle,
                 targetLookAngle,
-                m_TurnRate.Evaluate(animatorMoveSpeed) * Time.deltaTime);
+                turnRate * Time.deltaTime);
             transform.rotation = Quaternion.Euler(0, currentLookAngle, 0);
         }
 
         private void UpdateLookAngle(bool useTargeting) {
             if (useTargeting) {
-                worldLookDirection = targeting.PreferredDirection;
+                worldLookDirection = Targeting.PreferredDirection;
             }else
             if (isMoving) {
                 worldLookDirection = worldMoveDirection;
