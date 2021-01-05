@@ -1,14 +1,9 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 namespace DevonaProject {
     public class CameraRotation : MonoBehaviour {
-        private CinemachineVirtualCamera vc;
-        private CinemachineOrbitalTransposer transposer;
+        private CinemachineFreeLook vc;
         private DevonaActions actions;
         private Vector2 cameraDelta;
 
@@ -18,8 +13,7 @@ namespace DevonaProject {
             actions.Character.Look.performed += (ctx) => cameraDelta = ctx.ReadValue<Vector2>();
             actions.Character.Look.canceled += (ctx) => cameraDelta = Vector2.zero;
             actions.Enable();
-            vc = GetComponent<CinemachineVirtualCamera>();
-            transposer = vc.GetCinemachineComponent<CinemachineOrbitalTransposer>();
+            vc = GetComponent<CinemachineFreeLook>();
         }
 
         private void OnEnable() {
@@ -32,7 +26,9 @@ namespace DevonaProject {
         }
 
         private void Update() {
-            transposer.m_XAxis.m_InputAxisValue = cameraDelta.x;
+            vc.m_XAxis.m_InputAxisValue = cameraDelta.x;
+            vc.m_YAxis.m_InputAxisValue = cameraDelta.y;
+
         }
     }
 }

@@ -2,16 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4b6707dd-7755-478b-b167-c048a79d9a47" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/contentModel.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/indexLayout.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CameraRotation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/CameraRotation.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Devona Test Scene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Devona Test Scene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/DevonaActions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/DevonaActions.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/DevonaActions.inputactions" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/DevonaActions.inputactions" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logs/ApiUpdaterCheck.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/ApiUpdaterCheck.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker0-prev.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/AssetImportWorker0-prev.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker0.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker1-prev.log" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,10 +34,10 @@
       <option value="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterTargeting.cs" />
       <option value="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNode.cs" />
       <option value="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterCombatVFX.cs" />
-      <option value="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" />
       <option value="$PROJECT_DIR$/Assets/Devona Test/Source/ComboNodeDamageEvent.cs" />
       <option value="$PROJECT_DIR$/Assets/Devona Test/Source/DamageTrigger.cs" />
       <option value="$PROJECT_DIR$/Assets/Devona Test/Source/TargetDummy.cs" />
+      <option value="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" />
       <option value="$PROJECT_DIR$/Assets/CameraRotation.cs" />
     </changedPaths>
   </component>

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.PlayerLoop;
-using UnityEngine.Serialization;
+﻿using UnityEngine;
 
 namespace DevonaProject {
     public enum ComboInput {
@@ -92,6 +87,7 @@ namespace DevonaProject {
             GameplayCamera = Camera.main;
             actions.Enable();
             currentLookAngle = transform.rotation.eulerAngles.y;
+            worldLookDirection = worldMoveDirection = transform.forward;
         }
 
         private void OnDestroy() {
