@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: fa99d4387e2fd564eb653346e0515ada
 ModelImporter:
-  serializedVersion: 20101
+  serializedVersion: 20200
   internalIDToNameTable:
   - first:
       74: -5552720547654417780
@@ -903,6 +903,51 @@ ModelImporter:
   - first:
       74: 52260576243592148
     second: EquinoxUnfolded Export|taperAction
+  - first:
+      74: -694503925756861866
+    second: EquinoxUnfolded Export Hi Res|bevelAction
+  - first:
+      74: 6966131842487024893
+    second: EquinoxUnfolded Export Hi Res|BladeAction
+  - first:
+      74: -4005944627600337818
+    second: EquinoxUnfolded Export Hi Res|Camera RootAction
+  - first:
+      74: -5024922717035154821
+    second: EquinoxUnfolded Export Hi Res|Camera TargetAction
+  - first:
+      74: -330050970973643700
+    second: EquinoxUnfolded Export Hi Res|DaggerAction.001
+  - first:
+      74: -57775342371099415
+    second: EquinoxUnfolded Export Hi Res|Extension1_MeshAction
+  - first:
+      74: 5397199541312502377
+    second: EquinoxUnfolded Export Hi Res|Extension2Action.001
+  - first:
+      74: -1510527183115411300
+    second: EquinoxUnfolded Export Hi Res|Grip2Action
+  - first:
+      74: -457338021503991971
+    second: EquinoxUnfolded Export Hi Res|GripAction.001
+  - first:
+      74: 7136590837384368509
+    second: EquinoxUnfolded Export Hi Res|LightAction
+  - first:
+      74: -691756373560300068
+    second: EquinoxUnfolded Export Hi Res|OrbEyeBigAction.001
+  - first:
+      74: 7183745762616316506
+    second: EquinoxUnfolded Export Hi Res|OrbOffsetAction
+  - first:
+      74: 626584917705224870
+    second: EquinoxUnfolded Export Hi Res|StaffAction
+  - first:
+      74: 7482456356245203165
+    second: EquinoxUnfolded Export Hi Res|StaffEndAction
+  - first:
+      74: -8794154659940760332
+    second: EquinoxUnfolded Export Hi Res|taperAction
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -913,7 +958,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: M_Devona
-    second: {fileID: 2100000, guid: fe280a16056d9214fa1dccdc7010ec8e, type: 2}
+    second: {fileID: 2100000, guid: 1e4f1f82a94d8634fa5b519417c57909, type: 2}
   materials:
     materialImportMode: 1
     materialName: 0
@@ -983,7 +1028,7 @@ ModelImporter:
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
   referencedClips: []
-  importAnimation: 1
+  importAnimation: 0
   humanDescription:
     serializedVersion: 3
     human: []
@@ -1005,6 +1050,7 @@ ModelImporter:
   animationType: 2
   humanoidOversampling: 1
   avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
   additionalBone: 0
   userData: 
   assetBundleName: 

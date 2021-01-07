@@ -2,12 +2,29 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4b6707dd-7755-478b-b167-c048a79d9a47" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/contentModel.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/indexLayout.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/CameraRotation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/CameraRotation.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/CustomLighting.hlsl" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/CustomLighting/CustomLighting.hlsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/GetMainLight.shadersubgraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/CustomLighting/GetMainLight.shadersubgraph" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/PaletteLit.shadergraph" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/CustomLighting/PaletteLit.shadergraph.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_Blades.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_Blades.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_Devona.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_Devona.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_Equinox_Trail.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Materials/M_Equinox_Trail.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Models/Equinox.fbx" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Models/Equinox.fbx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Art/Models/Equinox.fbx.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Art/Models/Equinox.fbx.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Char_Devona.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Char_Devona.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Devona Test Scene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Devona Test Scene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/DevonaActions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/DevonaActions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Devona Test/Source/DevonaActions.inputactions" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Devona Test/Source/DevonaActions.inputactions" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/ApiUpdaterCheck.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/ApiUpdaterCheck.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker0.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/AssetImportWorker0.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/PackageManagerSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/PackageManagerSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/TimeManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TimeManager.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/UserSettings/EditorUserSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,9 +36,16 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/CopyTransform.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.shadergraph@10.2.2/Editor/Generation/TargetResources/Fields.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.visualeffectgraph@10.2.2/Editor/Models/Blocks/Implementations/Size/ScreenSpaceSize.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@1.0.1/InputSystem/Actions/InputAction.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/7F90ED7B-2CD3-4BC5-95F5-E9D084F29FE3/93/e18926bc/Animator.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@1.0.1/InputSystem/Editor/InputParameterEditor.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/CameraRotation.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.shadergraph@10.2.2/Editor/Generation/Targets/PreviewTarget.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.visualeffectgraph@10.2.2/Editor/Compiler/VFXCodeGenerator.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.render-pipelines.universal@10.2.2/Runtime/Passes/MainLightShadowCasterPass.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@1.0.1/InputSystem/Editor/Settings/InputEditorUserSettings.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
@@ -39,6 +63,8 @@
       <option value="$PROJECT_DIR$/Assets/Devona Test/Source/TargetDummy.cs" />
       <option value="$PROJECT_DIR$/Assets/Devona Test/Source/CharacterController.cs" />
       <option value="$PROJECT_DIR$/Assets/CameraRotation.cs" />
+      <option value="$PROJECT_DIR$/Assets/CustomLighting/CustomLighting.hlsl" />
+      <option value="$PROJECT_DIR$/Assets/SmearsController.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1mJMDkz42K4NJ3YKmg7IbFIbeKP" />
@@ -69,10 +95,10 @@
       </option>
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="1100">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" />
+      <option name="pid" value="1100" />
       <option name="selectedOptions">
         <list />
       </option>

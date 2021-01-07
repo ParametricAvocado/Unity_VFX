@@ -1973,7 +1973,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 931108911}
-  m_LocalRotation: {x: 0.057712454, y: 0.7047477, z: -0.057712466, w: 0.70474774}
+  m_LocalRotation: {x: 0.05771245, y: 0.70474774, z: -0.05771247, w: 0.70474756}
   m_LocalPosition: {x: -2.988, y: 2, z: 0.00000047683716}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -2422,7 +2422,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1088794771}
   m_LocalRotation: {x: 0.14453584, y: 0.6921773, z: -0.14453588, w: 0.6921773}
-  m_LocalPosition: {x: 1, y: 0.5, z: -0.00000011920929}
+  m_LocalPosition: {x: 1, y: 0.49999905, z: -0.00000011920929}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1057220485}
@@ -2591,8 +2591,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1211969372}
-  m_LocalRotation: {x: 0.05771245, y: 0.7047477, z: -0.057712454, w: 0.7047477}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.057712458, y: 0.70474774, z: -0.057712458, w: 0.7047476}
+  m_LocalPosition: {x: 0, y: -0.00000011920929, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1913256829}
@@ -2761,8 +2761,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1412479633}
-  m_LocalRotation: {x: 0.044917803, y: 0.7056787, z: -0.04491781, w: 0.70567864}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.044917826, y: 0.70567864, z: -0.04491782, w: 0.7056787}
+  m_LocalPosition: {x: 0, y: -0.00000011920929, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1431935420}
@@ -4360,20 +4360,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1895065155, guid: 46691a51504058144ab44f098dd9401c, type: 3}
-      propertyPath: m_VFXPrefab.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1895065155, guid: 46691a51504058144ab44f098dd9401c, type: 3}
-      propertyPath: m_VFXPrefab.Array.data[0]
-      value: 
-      objectReference: {fileID: 4369921541376908721, guid: 449186c2b70f9e141abf78e88b9b0817,
-        type: 3}
-    - target: {fileID: 1895065155, guid: 46691a51504058144ab44f098dd9401c, type: 3}
-      propertyPath: m_VFXPrefab.Array.data[1]
-      value: 
-      objectReference: {fileID: 6226305653337248464, guid: 3ce89239254728a4da0512378774c904,
-        type: 3}
     - target: {fileID: 8558615574090732592, guid: 46691a51504058144ab44f098dd9401c,
         type: 3}
       propertyPath: m_RootOrder
@@ -4428,11 +4414,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9047062221733055031, guid: 46691a51504058144ab44f098dd9401c,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9047062222693305994, guid: 46691a51504058144ab44f098dd9401c,
         type: 3}
