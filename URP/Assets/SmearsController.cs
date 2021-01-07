@@ -30,14 +30,12 @@ public class SmearsController : MonoBehaviour
         prevTransform = transform.localToWorldMatrix;
         
         propertyBlock = new MaterialPropertyBlock();
-        
+        propertyBlock.SetVector(angularSmearAxisID, Vector3.forward);
+
         renderer.SetPropertyBlock(propertyBlock);
     }
 
     private void FixedUpdate() {
-        //angle = Vector3.SignedAngle(transform.up, prevUp, transform.forward) * Mathf.Deg2Rad;
-
-        
         var fromTo = Quaternion.FromToRotation(transform.InverseTransformDirection(prevUp), Vector3.up);
         
         fromTo.ToAngleAxis(out angle, out rotationAxis);

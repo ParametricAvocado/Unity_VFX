@@ -186,13 +186,13 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!114 &618086059959371597
+--- !u!114 &8374942100195539615
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7247441136771461623}
+  m_GameObject: {fileID: 7190580304830119340}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 515a15a007d267744a40c8e12b651d6f, type: 3}
@@ -202,7 +202,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0.2
+      time: 0.3
       value: 0
       inSlope: 0
       outSlope: 0
@@ -211,7 +211,7 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 1
+      time: 2
       value: 2
       inSlope: 0.000120411205
       outSlope: 0.000120411205
@@ -222,13 +222,13 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &8374942100195539615
+--- !u!114 &618086059959371597
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7190580304830119340}
+  m_GameObject: {fileID: 7247441136771461623}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 515a15a007d267744a40c8e12b651d6f, type: 3}
@@ -378,7 +378,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: fa99d4387e2fd564eb653346e0515ada,
         type: 3}
       propertyPath: m_Name
-      value: Weap_Equinox
+      value: Equinox
       objectReference: {fileID: 0}
     - target: {fileID: 6261402218349480694, guid: fa99d4387e2fd564eb653346e0515ada,
         type: 3}
