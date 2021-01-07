@@ -6,7 +6,7 @@ namespace DevonaProject {
         HeavyAttack
     }
 
-    public class CharacterController : MonoBehaviour {
+    public class Character : MonoBehaviour {
         //Inspector
         [Header("Components")] 
         [SerializeField] private DamageTrigger m_DamageTrigger;
@@ -17,7 +17,16 @@ namespace DevonaProject {
         [Header("Input")]
         [SerializeField] private float m_InputPressDuration = 0.1f;
 
-        [Header("Animation")]
+        [Header("Locomotion")]
+        [SerializeField] private float m_JumpDelay = 0.15f;
+        [SerializeField] private float m_JumpVSpeed = 10;
+        [SerializeField] private float m_JumpHSpeed = 5f;
+        [SerializeField] private float m_JumpHoldTime = 0.3f;
+        [SerializeField] private float m_JumpHoldSpeed = 10f;
+        [SerializeField] private float m_JumpGravity = 30;
+        [SerializeField] private float m_JumpMaxFallSpeed = 10;
+
+        [Header("Animation")] 
         [SerializeField] AnimationCurve m_TurnRate = AnimationCurve.Linear(0,1000,1,800);
         [SerializeField] private float m_WalkThreshold = 0.5f;
         [SerializeField] private float m_WalkBlendRate = 2f;
@@ -26,6 +35,7 @@ namespace DevonaProject {
         //Components
         public Animator CharacterAnimator { get; private set; }
         public Camera GameplayCamera { get; private set; }
+        public CharacterController Controller { get; private set; }
         public CharacterTargeting Targeting { get; private set; }
         public CharacterCombatVFX CombatVFX { get; private set; }
 
@@ -35,6 +45,8 @@ namespace DevonaProject {
         private Vector2 moveVector;
         private float lightAttackInputTime = -1;
         private float heavyAttackInputTime = -1;
+        private float jumpInputTime = -1;
+        private bool jumpInputDown;
 
         //Locomotion
         private float moveVectorMagnitude;
@@ -42,6 +54,12 @@ namespace DevonaProject {
         private Vector3 worldMoveVector;
         private Vector3 worldLookDirection;
         private bool isMoving;
+        
+        private bool isAirborne;
+        private bool isJumping;
+        private float jumpTimer;
+        private bool jumpHold;
+        private Vector3 airVelocity;
     
         //Visual
         private float animatorMoveSpeed;
@@ -49,6 +67,7 @@ namespace DevonaProject {
         private float targetLookAngle;
     
         //Animator State
+        private int jumpLayerIndex;
         private int combatLayerIndex;
         public AnimatorStateInfo CurrentCombatLayerState;
         public AnimatorStateInfo NextCombatLayerState;
@@ -58,7 +77,10 @@ namespace DevonaProject {
         private readonly int hFloatMoveSpeed = Animator.StringToHash("MoveSpeed");
 
         private readonly int hStateAttackNone = Animator.StringToHash("att_none");
-
+        private readonly int hStateJumpStart = Animator.StringToHash("jump_start");
+        private readonly int hStateJumpEnd = Animator.StringToHash("jump_end");
+        
+        
         private void InitializeInput() {
             actions = new DevonaActions();
             actions.Character.Move.started += (ctx) => moveVector = ctx.ReadValue<Vector2>();
@@ -66,17 +88,24 @@ namespace DevonaProject {
             actions.Character.Move.canceled += (ctx) => moveVector = Vector2.zero;
             actions.Character.LightAttack.started += (ctx)=> lightAttackInputTime = Time.unscaledTime;
             actions.Character.HeavyAttack.started += (ctx)=> heavyAttackInputTime = Time.unscaledTime;
+            actions.Character.Jump.started += (ctx)=> {
+                jumpInputTime = Time.unscaledTime;
+                jumpInputDown = true;
+            };
+            actions.Character.Jump.canceled += (ctx)=> jumpInputDown = false;
         }
     
         private void Awake() {
             InitializeInput();
             
             CharacterAnimator = GetComponent<Animator>();
+            Controller = GetComponent<CharacterController>();
             Targeting = GetComponent<CharacterTargeting>();
             CombatVFX = GetComponent<CharacterCombatVFX>();
-            
+
+            jumpLayerIndex =  CharacterAnimator.GetLayerIndex("Jump");
             combatLayerIndex =  CharacterAnimator.GetLayerIndex("Combat");
-            
+
             m_ComboTree.SetAnimator(CharacterAnimator, combatLayerIndex);
             m_ComboTree.Initialize(this);
             
@@ -119,18 +148,57 @@ namespace DevonaProject {
             }
 
             animatorMoveSpeed = Mathf.MoveTowards(animatorMoveSpeed, moveVectorMagnitude > m_WalkThreshold ? 1 : 0, m_WalkBlendRate * Time.deltaTime);
-        
-            if (!isPerformingAttack) {
-                //Character Turn
-                UpdateLookAngle(false);
-
-                //Animator Update
-                CharacterAnimator.SetBool(hBoolIsMoving, isMoving);
-                CharacterAnimator.SetFloat(hFloatMoveSpeed, animatorMoveSpeed);
-
             
-                //Ensure Combo Tree is clear 
-                m_ComboTree.ClearCombo();
+            //Character Turn
+            if (!isAirborne && (!isPerformingAttack || m_ComboTree.CurrentNode.AllowsTurn)) {
+                UpdateLookAngle(true);
+            }
+            
+            if (isJumping) {
+                jumpTimer += Time.deltaTime;
+                
+                if (!jumpInputDown || jumpTimer > m_JumpHoldTime) jumpHold = false;
+                
+                
+                if (!isAirborne && jumpTimer >= m_JumpDelay) {
+                    isAirborne = true;
+                    airVelocity.x = worldMoveVector.x * m_JumpHSpeed;
+                    airVelocity.z = worldMoveVector.z * m_JumpHSpeed;
+                    
+                    airVelocity.y = m_JumpVSpeed;
+                }
+            }
+
+            if (isAirborne) {
+                var collisionFlags = Controller.Move(airVelocity * Time.deltaTime);
+                airVelocity.y = Mathf.Max(airVelocity.y - m_JumpGravity * Time.deltaTime, jumpHold ? m_JumpHoldSpeed : -m_JumpMaxFallSpeed);
+
+                if (airVelocity.y < 0 && collisionFlags == CollisionFlags.Below) {
+                    isAirborne = false;
+                    CharacterAnimator.CrossFadeInFixedTime(hStateJumpEnd,0.05f, jumpLayerIndex, 0f);
+                    isJumping = false;
+                    isAirborne = false;
+                }
+            }
+
+            else {
+                if (!isPerformingAttack) {
+                    if (JumpInput && !isJumping) {
+                        CharacterAnimator.CrossFadeInFixedTime(hStateJumpStart, 0.1f, jumpLayerIndex,0f);
+
+
+                        jumpHold = jumpInputDown;
+                        isJumping = true;
+                        jumpTimer = 0;
+                    }
+                
+                    //Animator Update
+                    CharacterAnimator.SetBool(hBoolIsMoving, isMoving);
+                    CharacterAnimator.SetFloat(hFloatMoveSpeed, animatorMoveSpeed);
+
+                    //Ensure Combo Tree is clear 
+                    m_ComboTree.ClearCombo();
+                }
             }
         
             if (LightAttackInput) {
@@ -142,9 +210,6 @@ namespace DevonaProject {
                 if (m_ComboTree.ExecuteCombo(ComboInput.HeavyAttack)) {
                     OnExecuteCombo();
                 }
-            }
-            else if (isPerformingAttack && m_ComboTree.CurrentNode.AllowsTurn) {
-                UpdateLookAngle(true);
             }
             
             m_DamageTrigger.UpdateDamageData(m_ComboTree.GetDamageData());
@@ -184,5 +249,6 @@ namespace DevonaProject {
 
         public bool LightAttackInput => Time.unscaledTime - lightAttackInputTime < m_InputPressDuration;
         public bool HeavyAttackInput => Time.unscaledTime - heavyAttackInputTime < m_InputPressDuration;
+        public bool JumpInput => Time.unscaledTime - jumpInputTime < m_InputPressDuration;
     }
 }

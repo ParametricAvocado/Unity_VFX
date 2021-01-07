@@ -18,7 +18,7 @@ namespace DevonaProject {
         public bool IsExecutingCombo { get; private set; }
         
         private HashSet<ComboNode> comboNodes = new HashSet<ComboNode>();
-        private CharacterController owner;
+        private Character owner;
 
         private void InitializeComboNodesRecursively(ComboNode comboNode) {
             if (comboNodes.Contains(comboNode)) return;
@@ -30,7 +30,7 @@ namespace DevonaProject {
             }
         } 
         
-        public void Initialize(CharacterController owner) {
+        public void Initialize(Character owner) {
             this.owner = owner;
             InitializeComboNodesRecursively(lightAttackRootNode);
             InitializeComboNodesRecursively(heavyAttackRootNode);

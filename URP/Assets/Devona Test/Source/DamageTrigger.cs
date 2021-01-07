@@ -11,14 +11,14 @@ namespace DevonaProject {
 
         private Collider collider;
         private ComboNodeDamageEvent currentDamageEvent;
-        private CharacterController owner;
+        private Character owner;
 
         private void Awake() {
             collider = GetComponent<Collider>();
             collider.enabled = false;
         }
 
-        public void Initialize(CharacterController owner) {
+        public void Initialize(Character owner) {
             this.owner = owner;
         }
         
