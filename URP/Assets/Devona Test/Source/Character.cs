@@ -25,6 +25,7 @@ namespace DevonaProject {
         [SerializeField] private float m_JumpHoldSpeed = 10f;
         [SerializeField] private float m_JumpGravity = 30;
         [SerializeField] private float m_JumpMaxFallSpeed = 10;
+        [SerializeField] private float m_JumpCombatFallSpeed = 1;
 
         [Header("Animation")] 
         [SerializeField] AnimationCurve m_TurnRate = AnimationCurve.Linear(0,1000,1,800);
@@ -43,9 +44,9 @@ namespace DevonaProject {
 
         //Input
         private Vector2 moveVector;
-        private float lightAttackInputTime = -1;
-        private float heavyAttackInputTime = -1;
-        private float jumpInputTime = -1;
+        private float lightAttackInputTime = float.MinValue;
+        private float heavyAttackInputTime = float.MinValue;
+        private float jumpInputTime = float.MinValue;
         private bool jumpInputDown;
 
         //Locomotion
@@ -54,8 +55,8 @@ namespace DevonaProject {
         private Vector3 worldMoveVector;
         private Vector3 worldLookDirection;
         private bool isMoving;
-        
-        private bool isAirborne;
+
+        public bool IsAirborne { get; private set; }
         private bool isJumping;
         private float jumpTimer;
         private bool jumpHold;
@@ -150,7 +151,7 @@ namespace DevonaProject {
             animatorMoveSpeed = Mathf.MoveTowards(animatorMoveSpeed, moveVectorMagnitude > m_WalkThreshold ? 1 : 0, m_WalkBlendRate * Time.deltaTime);
             
             //Character Turn
-            if (!isAirborne && (!isPerformingAttack || m_ComboTree.CurrentNode.AllowsTurn)) {
+            if (!IsAirborne && (!isPerformingAttack || m_ComboTree.CurrentNode.AllowsTurn)) {
                 UpdateLookAngle(true);
             }
             
@@ -160,8 +161,8 @@ namespace DevonaProject {
                 if (!jumpInputDown || jumpTimer > m_JumpHoldTime) jumpHold = false;
                 
                 
-                if (!isAirborne && jumpTimer >= m_JumpDelay) {
-                    isAirborne = true;
+                if (!IsAirborne && jumpTimer >= m_JumpDelay) {
+                    IsAirborne = true;
                     airVelocity.x = worldMoveVector.x * m_JumpHSpeed;
                     airVelocity.z = worldMoveVector.z * m_JumpHSpeed;
                     
@@ -169,15 +170,16 @@ namespace DevonaProject {
                 }
             }
 
-            if (isAirborne) {
+            if (IsAirborne) {
                 var collisionFlags = Controller.Move(airVelocity * Time.deltaTime);
-                airVelocity.y = Mathf.Max(airVelocity.y - m_JumpGravity * Time.deltaTime, jumpHold ? m_JumpHoldSpeed : -m_JumpMaxFallSpeed);
+                float maxFallSpeed = isPerformingAttack ? m_JumpCombatFallSpeed : m_JumpMaxFallSpeed;
+                airVelocity.y = Mathf.Max(airVelocity.y - m_JumpGravity * Time.deltaTime, jumpHold ? m_JumpHoldSpeed : -maxFallSpeed);
 
                 if (airVelocity.y < 0 && collisionFlags == CollisionFlags.Below) {
-                    isAirborne = false;
+                    IsAirborne = false;
                     CharacterAnimator.CrossFadeInFixedTime(hStateJumpEnd,0.05f, jumpLayerIndex, 0f);
                     isJumping = false;
-                    isAirborne = false;
+                    IsAirborne = false;
                 }
             }
 
@@ -222,6 +224,8 @@ namespace DevonaProject {
             CharacterAnimator.SetBool(hBoolIsMoving, false);
             CombatVFX.SetDefaultCasterVFX(m_ComboTree.CurrentNode.AttackVFXCaster);
             CombatVFX.SetDefaultTargetVFX(m_ComboTree.CurrentNode.AttackVFXTarget);
+            airVelocity.x = 0;
+            airVelocity.z = 0;
         }
 
         private void CharacterTurnUpdate() {

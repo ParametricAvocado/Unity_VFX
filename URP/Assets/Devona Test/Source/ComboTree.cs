@@ -10,7 +10,8 @@ namespace DevonaProject {
     public class ComboTree : ScriptableObject {
         [SerializeField] ComboNode lightAttackRootNode;
         [SerializeField] ComboNode heavyAttackRootNode;
-        
+        [SerializeField] ComboNode airborneLightAttackRootNode;
+
         private Animator animator;
         private int combatLayerIndex;
 
@@ -33,6 +34,7 @@ namespace DevonaProject {
         public void Initialize(Character owner) {
             this.owner = owner;
             InitializeComboNodesRecursively(lightAttackRootNode);
+            InitializeComboNodesRecursively(airborneLightAttackRootNode);
             InitializeComboNodesRecursively(heavyAttackRootNode);
         }
 
@@ -54,7 +56,7 @@ namespace DevonaProject {
             if (!IsExecutingCombo){
                 switch (attackInput) {
                     case ComboInput.LightAttack:
-                        ExecuteNode(lightAttackRootNode);
+                        ExecuteNode(owner.IsAirborne ? airborneLightAttackRootNode : lightAttackRootNode);
                         return true;
                     case ComboInput.HeavyAttack:
                         ExecuteNode(heavyAttackRootNode);

@@ -16,3 +16,5 @@ MonoBehaviour:
     type: 2}
   heavyAttackRootNode: {fileID: 11400000, guid: 07ae2b13c3bef284b878233694a370ea,
     type: 2}
+  airborneLightAttackRootNode: {fileID: 11400000, guid: 9e27ec3d3e24012428a2e966a6784dbb,
+    type: 2}
