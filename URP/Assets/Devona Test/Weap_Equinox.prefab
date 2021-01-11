@@ -348,7 +348,7 @@ PrefabInstance:
     - target: {fileID: -868586230297588457, guid: fa99d4387e2fd564eb653346e0515ada,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -868586230297588457, guid: fa99d4387e2fd564eb653346e0515ada,
         type: 3}
@@ -378,12 +378,12 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: fa99d4387e2fd564eb653346e0515ada,
         type: 3}
       propertyPath: m_Name
-      value: Equinox
+      value: Weap_Equinox
       objectReference: {fileID: 0}
     - target: {fileID: 6261402218349480694, guid: fa99d4387e2fd564eb653346e0515ada,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6261402218349480694, guid: fa99d4387e2fd564eb653346e0515ada,
         type: 3}
@@ -413,15 +413,15 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 6158845847228967351}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &7247441136771461623 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: -5625971225262548928, guid: fa99d4387e2fd564eb653346e0515ada,
-    type: 3}
-  m_PrefabInstance: {fileID: 6158845847228967351}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &7190580304830119340 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3941369967213630491, guid: fa99d4387e2fd564eb653346e0515ada,
+    type: 3}
+  m_PrefabInstance: {fileID: 6158845847228967351}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7247441136771461623 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625971225262548928, guid: fa99d4387e2fd564eb653346e0515ada,
     type: 3}
   m_PrefabInstance: {fileID: 6158845847228967351}
   m_PrefabAsset: {fileID: 0}

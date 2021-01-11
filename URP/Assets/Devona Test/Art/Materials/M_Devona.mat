@@ -25,9 +25,9 @@ Material:
     type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2150
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
@@ -79,15 +79,26 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - BOOLEAN_23C50765C7824D09ACB8B4291893F347: 0
+    - BOOLEAN_B9B44787B9C846DEB82C0C97E2626034: 0
     - BOOLEAN_C8CA17B555C34C7E9F53AD712DE1B9BE: 0
+    - RIMLIGHT: 1
+    - SMEARS: 0
     - Vector1_123004faf76c488486ee39f9051dc804: 0.3
     - Vector1_2286dd5aaf0a4eb38c038539507237e1: 0.24
+    - Vector1_478be36087cb4bcdb7dec78c73ffb517: 0
     - Vector1_4ccff41e7aa249caa7a7d78fd56a0c5a: 0
+    - Vector1_726039230df14ea4be35207b5ae1d998: 0
     - Vector1_89271a7a075f43639f50422ed0125691: 0
+    - Vector1_95db621c4f5d45718669d4de1ee7fd73: 0
+    - Vector1_ab3ea29d1d8e4d6893e8257523109917: 0
     - Vector1_b207232a78b04252b4b4c0e5494a83ed: 0
     - Vector1_bcd9e49b2a52412381107a90d7f042c1: 1
     - Vector1_c2d70950c27f49d1b53a36a0eae666d9: 3
     - Vector1_c948ca0b465b4512960d9a531a37bc37: 0
+    - Vector1_ca646acfa0544c669bdb29034740382e: 0
+    - Vector1_eb31ce92e3354f0fa0f99380db1185e0: 0
+    - WIND: 0
+    - WIND_SWAY: 0
     - _AlphaClip: 0
     - _AngularSmear: 0
     - _Blend: 0
@@ -120,13 +131,18 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - Vector2_83c44742541d48e9b5e19bed789261ba: {r: 0, g: 0, b: 0, a: 0}
+    - Vector2_87d258c444174cd09cef0d67ff8490da: {r: 0, g: 0, b: 0, a: 0}
+    - Vector2_8db80af8b057432582b160c3dc17c907: {r: 0, g: 0, b: 0, a: 0}
+    - Vector2_ba93da38af5848abb28c8e65fc5afd0e: {r: 0, g: 0, b: 0, a: 0}
     - Vector3_966999ac4b36401490d54a52e811b684: {r: 0, g: 0, b: 1, a: 0}
     - Vector3_bea2111c929b43b89fe1862a1138a027: {r: 0, g: 0, b: 0, a: 0}
+    - Vector3_d22833dfca514cb1b6ed8c946f88b84c: {r: 0, g: 1, b: 0, a: 0}
+    - Vector4_7780932d55cc4e169aa89e15e0402f43: {r: 0, g: 0, b: 0, a: 0}
     - _AngularSmearAxis: {r: 0, g: 0, b: 1, a: 0}
     - _BaseColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
     - _Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LinearSmear: {r: 0, g: 0, b: 0, a: 0}
-    - _PaletteOffset: {r: 0.0625, g: 0, b: 0, a: 0}
+    - _PaletteOffset: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

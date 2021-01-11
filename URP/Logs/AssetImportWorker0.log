@@ -15,11 +15,11 @@ D:/Unity Projects/Unity_VFX/URP
 -logFile
 Logs/AssetImportWorker0.log
 -srvPort
-52262
+63241
 Successfully changed project path to: D:/Unity Projects/Unity_VFX/URP
 D:/Unity Projects/Unity_VFX/URP
 Using Asset Import Pipeline V2.
-Refreshing native plugins compatible for Editor in 104.85 ms, found 0 plugins.
+Refreshing native plugins compatible for Editor in 70.37 ms, found 0 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Initialize engine version: 2020.2.1f1 (270dd8c3da1c)
 [Subsystems] Discovering subsystems at path W:/Unity Installs/2020.2.1f1/Editor/Data/Resources/UnitySubsystems
@@ -36,173 +36,311 @@ Initialize mono
 Mono path[0] = 'W:/Unity Installs/2020.2.1f1/Editor/Data/Managed'
 Mono path[1] = 'W:/Unity Installs/2020.2.1f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit'
 Mono config path = 'W:/Unity Installs/2020.2.1f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56832
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56404
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
 Register platform support module: W:/Unity Installs/2020.2.1f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
 Register platform support module: W:/Unity Installs/2020.2.1f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
-Registered in 0.001578 seconds.
+Registered in 0.001553 seconds.
 Native extension for WindowsStandalone target not found
 Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 90.99 ms, found 0 plugins.
+Refreshing native plugins compatible for Editor in 69.84 ms, found 0 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Invoked RoslynAnalysisRunner static constructor.
 RoslynAnalysisRunner will not be running.
 RoslynAnalysisRunner has terminated.
 Mono: successfully reloaded assembly
-- Completed reload, in  1.135 seconds
+- Completed reload, in  0.875 seconds
 Platform modules already initialized, skipping
-Registering precompiled user dll's ...
-Registered in 0.003365 seconds.
-Begin MonoManager ReloadAssembly
-Native extension for WindowsStandalone target not found
-Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 111.39 ms, found 0 plugins.
-Preloading 0 native plugins for Editor in 0.00 ms.
-Invoked RoslynAnalysisRunner static constructor.
-RoslynAnalysisRunner will not be running.
-RoslynAnalysisRunner has terminated.
-Mono: successfully reloaded assembly
-- Completed reload, in  2.571 seconds
-Platform modules already initialized, skipping
-========================================================================
-Worker process is ready to serve import requests
-Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
-Launched and connected shader compiler UnityShaderCompiler.exe after 0.10 seconds
-Refreshing native plugins compatible for Editor in 0.85 ms, found 0 plugins.
-Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 4436 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 194.0 MB.
-System memory in use after: 194.2 MB.
-
-Unloading 174 unused Assets to reduce memory usage. Loaded Objects now: 4864.
-Total: 4.415200 ms (FindLiveObjects: 0.607600 ms CreateObjectMapping: 0.414900 ms MarkObjects: 3.087400 ms  DeleteObjects: 0.303900 ms)
-
-========================================================================
-Received Import Request.
-  path: Assets/Settings/SampleSceneProfile.asset
-  artifactKey: Guid(10fc4df2da32a41aaa32d77bc913491c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Settings/SampleSceneProfile.asset using Guid(10fc4df2da32a41aaa32d77bc913491c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ddcf8880455edab33b5426ddc1583914') in 0.063247 seconds
-  Import took 0.089215 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.000256 seconds.
-  path: Assets/Settings/ForwardRenderer2.asset
-  artifactKey: Guid(dfb3592819db6bf4ea66e99327b6abfa) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Settings/ForwardRenderer2.asset using Guid(dfb3592819db6bf4ea66e99327b6abfa) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '61b7e7ae22b4d1cc09c399f5284c2379') in 0.030906 seconds
-  Import took 0.076207 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.000202 seconds.
-  path: Assets/Settings/UniversalRP-LowQuality.asset
-  artifactKey: Guid(a31e9f9f9c9d4b9429ed0d1234e22103) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Settings/UniversalRP-LowQuality.asset using Guid(a31e9f9f9c9d4b9429ed0d1234e22103) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '402f678e3932e41eee214efb33fa5dcb') in 0.006122 seconds
-  Import took 0.037870 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.000204 seconds.
-  path: Assets/Settings/UniversalRP-MediumQuality.asset
-  artifactKey: Guid(d847b876476d3d6468f5dfcd34266f96) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Settings/UniversalRP-MediumQuality.asset using Guid(d847b876476d3d6468f5dfcd34266f96) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8f9aeb53ed5bfbc6eda8219b60c78586') in 0.007766 seconds
-  Import took 0.021931 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.000178 seconds.
-  path: Assets/Settings/ForwardRendererWithAreaOverlays.asset
-  artifactKey: Guid(4a8e21d5c33334b11b34a596161b9360) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Settings/ForwardRendererWithAreaOverlays.asset using Guid(4a8e21d5c33334b11b34a596161b9360) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3563cc0dbddcb4bbae611a5b68e31552') in 0.009443 seconds
-  Import took 0.029788 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 101.772270 seconds.
-  path: Assets/Devona Test/Data/Crescent 2.asset
-  artifactKey: Guid(39b4fc1ef60f78c4aac35188e876d081) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Devona Test/Data/Crescent 2.asset using Guid(39b4fc1ef60f78c4aac35188e876d081) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'bce01b46fdaae4cec216741a28ac0f55') in 0.105813 seconds
-  Import took 0.144492 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.000199 seconds.
-  path: Assets/Devona Test/Data/Crescent 3.asset
-  artifactKey: Guid(c189daa747b97844c8bac9a3b5f90f79) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Devona Test/Data/Crescent 3.asset using Guid(c189daa747b97844c8bac9a3b5f90f79) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'fe501175e1b221007181090ac9ab0e1c') in 0.078088 seconds
-  Import took 0.101767 seconds .
-
-========================================================================
-Received Prepare
-Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
-Refreshing native plugins compatible for Editor in 1.96 ms, found 0 plugins.
-Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 8 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 99.6 MB.
-System memory in use after: 99.8 MB.
-
-Unloading 8 unused Assets to reduce memory usage. Loaded Objects now: 4864.
-Total: 4.185100 ms (FindLiveObjects: 0.402800 ms CreateObjectMapping: 0.232100 ms MarkObjects: 3.474700 ms  DeleteObjects: 0.073500 ms)
-
-========================================================================
-Received Import Request.
-  Time since last request: 403.290082 seconds.
-  path: Assets/Devona Test/Art/Materials/M_Props.mat
-  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Devona Test/Art/Materials/M_Props.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '39d67ef29d7f6c6e4aeb4002b4ea6e20') in 0.519341 seconds
-  Import took 0.544566 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.000190 seconds.
-  path: Assets/Devona Test/Art/Materials/M_Scenario.mat
-  artifactKey: Guid(53817c9fa33aa014780ed79af36eefe5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Devona Test/Art/Materials/M_Scenario.mat using Guid(53817c9fa33aa014780ed79af36eefe5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9eb5994863f55f86677a96afadcbbb38') in 0.029648 seconds
-  Import took 0.065921 seconds .
-
-========================================================================
-Received Prepare
-Registering precompiled user dll's ...
-Registered in 0.002918 seconds.
-Begin MonoManager ReloadAssembly
-Native extension for WindowsStandalone target not found
-Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 0.63 ms, found 0 plugins.
-Preloading 0 native plugins for Editor in 0.00 ms.
-Warning: Annotation not found!
-UnityEngine.StackTraceUtility:ExtractStackTrace ()
-UnityEditor.ProBuilder.EditorUtility:SetGizmoIconEnabled (System.Type,bool) (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs:593)
-UnityEditor.ProBuilder.HierarchyListener:.cctor () (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/HierarchyListener.cs:21)
-System.Runtime.CompilerServices.RuntimeHelpers:RunClassConstructor (System.RuntimeTypeHandle)
-UnityEditor.EditorAssemblies:ProcessInitializeOnLoadAttributes (System.Type[])
-
-[Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs line 593]
-
-Invoked RoslynAnalysisRunner static constructor.
-RoslynAnalysisRunner will not be running.
-RoslynAnalysisRunner has terminated.
-Mono: successfully reloaded assembly
-- Completed reload, in  1.205 seconds
-Platform modules already initialized, skipping
-Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
-Refreshing native plugins compatible for Editor in 0.64 ms, found 0 plugins.
-Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 4251 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 189.0 MB.
-System memory in use after: 189.2 MB.
-
-Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 4946.
-Total: 5.162400 ms (FindLiveObjects: 0.459700 ms CreateObjectMapping: 0.303900 ms MarkObjects: 4.311500 ms  DeleteObjects: 0.085900 ms)
-
-========================================================================
-Received Prepare
 Registering precompiled user dll's ...
 Registered in 0.002810 seconds.
 Begin MonoManager ReloadAssembly
 Native extension for WindowsStandalone target not found
 Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 72.45 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.754 seconds
+Platform modules already initialized, skipping
+========================================================================
+Worker process is ready to serve import requests
+Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.04 seconds
 Refreshing native plugins compatible for Editor in 0.65 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 4436 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 193.9 MB.
+System memory in use after: 194.1 MB.
+
+Unloading 174 unused Assets to reduce memory usage. Loaded Objects now: 4864.
+Total: 3.410100 ms (FindLiveObjects: 0.349600 ms CreateObjectMapping: 0.238400 ms MarkObjects: 2.570000 ms  DeleteObjects: 0.251200 ms)
+
+========================================================================
+Received Import Request.
+  path: Assets/Devona Test/Art/Textures/T_Palette.psd
+  artifactKey: Guid(abec4eef35d04634a8247ccc9276204e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Textures/T_Palette.psd using Guid(abec4eef35d04634a8247ccc9276204e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6ea46fa3e0b0ed87c4ff2741f3204ecb') in 0.165226 seconds
+  Import took 0.171275 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000291 seconds.
+  path: Assets/Devona Test/Art/Textures/T_Props.psd
+  artifactKey: Guid(1f7622440d904a9468aa65ab6729e0a4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Textures/T_Props.psd using Guid(1f7622440d904a9468aa65ab6729e0a4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'dbb4e3725e3d1cce799732a860b9ee7e') in 0.029919 seconds
+  Import took 0.036190 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000250 seconds.
+  path: Assets/Devona Test/Art/VFX/VFX_Slash_Impact.vfx
+  artifactKey: Guid(779a35d876e5bcc4380393adafb62ec5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/VFX/VFX_Slash_Impact.vfx using Guid(779a35d876e5bcc4380393adafb62ec5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8503e15a1ed9e0a3dcd28fd58e58899f') in 0.022970 seconds
+  Import took 0.057625 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000176 seconds.
+  path: Assets/Devona Test/Art/Textures/T_Spark.psd
+  artifactKey: Guid(dd63ec615c62ba744ab47c7618e9d315) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Textures/T_Spark.psd using Guid(dd63ec615c62ba744ab47c7618e9d315) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2f1f9e6980cf9ade698faca5153acad0') in 0.055326 seconds
+  Import took 0.074092 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000156 seconds.
+  path: Assets/Devona Test/Art/Textures/T_Flash.psd
+  artifactKey: Guid(0ad35a47058d96e4d95d66dcf51b9475) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Textures/T_Flash.psd using Guid(0ad35a47058d96e4d95d66dcf51b9475) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0aacb74a67fb4db98831ce6a67d0d659') in 0.018579 seconds
+  Import took 0.024749 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000161 seconds.
+  path: Assets/Devona Test/Art/Textures/T_Eye.png
+  artifactKey: Guid(afc9e9279f50ffc41bfa260932ec9850) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Textures/T_Eye.png using Guid(afc9e9279f50ffc41bfa260932ec9850) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e89a40f26d126ef44a29bad73643f478') in 0.053829 seconds
+  Import took 0.060117 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000166 seconds.
+  path: Assets/Devona Test/Art/VFX/vfx_equinox_hit.prefab
+  artifactKey: Guid(3ce89239254728a4da0512378774c904) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/VFX/vfx_equinox_hit.prefab using Guid(3ce89239254728a4da0512378774c904) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6e13cda7bba985b5e21cc616a58b2db2') in 0.416714 seconds
+  Import took 0.423076 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.010450 seconds.
+  path: Assets/Devona Test/Art/VFX/vfx_equinox_arc.prefab
+  artifactKey: Guid(449186c2b70f9e141abf78e88b9b0817) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/VFX/vfx_equinox_arc.prefab using Guid(449186c2b70f9e141abf78e88b9b0817) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '95d8e9e12647554062d4f2515d480edd') in 0.282639 seconds
+  Import took 0.289258 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000250 seconds.
+  path: Assets/Devona Test/Art/Textures/T_Slash.psd
+  artifactKey: Guid(aef69281fcd285d469434bf2afb0d367) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Textures/T_Slash.psd using Guid(aef69281fcd285d469434bf2afb0d367) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8d98313d9b71de25baab9538b206a4cc') in 0.049718 seconds
+  Import took 0.055633 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000220 seconds.
+  path: Assets/Devona Test/Art/VFX/VFX_Slash_Arc.vfx
+  artifactKey: Guid(1f2f319f03c674143adaefc3c54b3650) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/VFX/VFX_Slash_Arc.vfx using Guid(1f2f319f03c674143adaefc3c54b3650) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '206d91803cb9552036224c6fe3e43414') in 0.016810 seconds
+  Import took 0.023092 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 38.212021 seconds.
+  path: Assets/Devona Test/Art/Props/stone_1.prefab
+  artifactKey: Guid(97bee2f6cb251b7449ab0cc93a949a65) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Props/stone_1.prefab using Guid(97bee2f6cb251b7449ab0cc93a949a65) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c4fb34e0a71293bc4169e656c0953778') in 0.193133 seconds
+  Import took 0.200422 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 16.353137 seconds.
+  path: Assets/Devona Test/Art/Props/stone_2.prefab
+  artifactKey: Guid(1f32007c2e4263a4f81b3cb0b0bdd9db) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Props/stone_2.prefab using Guid(1f32007c2e4263a4f81b3cb0b0bdd9db) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e63e17042f1ff9398283f8b529d89567') in 0.016037 seconds
+  Import took 0.036453 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 14.482114 seconds.
+  path: Assets/Devona Test/Art/Props/stone_3.prefab
+  artifactKey: Guid(858fd3cbd8f5f2f4a9c510e63f8acea7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Props/stone_3.prefab using Guid(858fd3cbd8f5f2f4a9c510e63f8acea7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '83bd1bd91ba224db0194dc2b1a3e4268') in 0.015376 seconds
+  Import took 0.022902 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 504.152687 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Scenario.mat
+  artifactKey: Guid(53817c9fa33aa014780ed79af36eefe5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Scenario.mat using Guid(53817c9fa33aa014780ed79af36eefe5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7c12dedfbf00023f04106829cd5307b4') in 0.051899 seconds
+  Import took 0.060292 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 1073.409486 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Props.mat
+  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Props.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1adddbc0352ef1e2c80a960582d93afb') in 0.023864 seconds
+  Import took 0.031840 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 679.965667 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Props.mat
+  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Props.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '929d6abc8654cdec014ad0da098c25eb') in 0.010400 seconds
+  Import took 0.032752 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 212.366707 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Props.mat
+  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Props.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5af17719ad3c307dc8f4820ff28de8ba') in 0.008392 seconds
+  Import took 0.027159 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 348.421838 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Props.mat
+  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Props.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a67f79781c284b60a6f2cff7361c6418') in 0.009432 seconds
+  Import took 0.030768 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 532.047962 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Props.mat
+  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Props.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '68462d216493bd1b8a5a308bdd2f027a') in 0.009018 seconds
+  Import took 0.034611 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 252.718404 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Props.mat
+  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Props.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7212790e4ccc198039ce2e165027673b') in 0.009503 seconds
+  Import took 0.030744 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 676.667426 seconds.
+  path: Assets/Devona Test/Art/Props/grass_1.prefab
+  artifactKey: Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Props/grass_1.prefab using Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6d00337da978ca449448a5569dbcb310') in 0.023189 seconds
+  Import took 0.051775 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 6.974255 seconds.
+  path: Assets/Devona Test/Art/Props/grass_2.prefab
+  artifactKey: Guid(6cc9a292dce2ae24e83899e4ac24dc46) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Props/grass_2.prefab using Guid(6cc9a292dce2ae24e83899e4ac24dc46) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '236660dfc09960bacc1d3162b9b9deb1') in 0.017343 seconds
+  Import took 0.038213 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 3.829243 seconds.
+  path: Assets/Devona Test/Art/Shaders/Matrix Smears.shadersubgraph
+  artifactKey: Guid(3d7dcb1539c12d44489f3d4e9ec86176) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Shaders/Matrix Smears.shadersubgraph using Guid(3d7dcb1539c12d44489f3d4e9ec86176) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ce4f8a2b48400147f1c92fdf3feeeae8') in 0.020559 seconds
+  Import took 0.028116 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000227 seconds.
+  path: Assets/Devona Test/Art/Shaders/Wind Sway.shadersubgraph
+  artifactKey: Guid(1b07d7d518bf92b46ba5f3bb7df369f6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Shaders/Wind Sway.shadersubgraph using Guid(1b07d7d518bf92b46ba5f3bb7df369f6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a9c6a356b0d5e9680344ccec6528608f') in 0.005499 seconds
+  Import took 0.012034 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000214 seconds.
+  path: Assets/Devona Test/Art/Shaders/Simple Smears.shadersubgraph
+  artifactKey: Guid(b61f6fc6fdfdd004eaf0852fbca531db) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Shaders/Simple Smears.shadersubgraph using Guid(b61f6fc6fdfdd004eaf0852fbca531db) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4eabe9f5bfd6bf4cb9b19f4645f7aa42') in 0.004987 seconds
+  Import took 0.018842 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 27.469723 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Grass.mat
+  artifactKey: Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Grass.mat using Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '993ac4f380e024895f55066232aa90a2') in 0.012571 seconds
+  Import took 0.064995 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000205 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Vegetation.mat
+  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Vegetation.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '18eaf3f99443f375a0cf32f3a537d0f1') in 0.010223 seconds
+  Import took 0.032621 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 232.073069 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Grass.mat
+  artifactKey: Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Grass.mat using Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b7936438df63c25b85b227a1fa46619c') in 0.013702 seconds
+  Import took 0.021438 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 166.317250 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Grass.mat
+  artifactKey: Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Grass.mat using Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'fb55f91e9c891ef3ee925f03f0436752') in 0.008135 seconds
+  Import took 0.042051 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 191.389447 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Grass.mat
+  artifactKey: Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Grass.mat using Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1354ac99daf67d00f813f588395d26fe') in 0.008747 seconds
+  Import took 0.027102 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 37.241597 seconds.
+  path: Assets/Settings/UniversalRP-HighQuality.asset
+  artifactKey: Guid(19ba41d7c0026c3459d37c2fe90c55a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Settings/UniversalRP-HighQuality.asset using Guid(19ba41d7c0026c3459d37c2fe90c55a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '297c0a37bd5d67565273905dccc986c3') in 0.009077 seconds
+  Import took 0.036593 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 175.123197 seconds.
+  path: Assets/Settings/UniversalRP-HighQuality.asset
+  artifactKey: Guid(19ba41d7c0026c3459d37c2fe90c55a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Settings/UniversalRP-HighQuality.asset using Guid(19ba41d7c0026c3459d37c2fe90c55a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'fc56ab5d81530f67f19be18074aeafb2') in 0.002446 seconds
+  Import took 0.009954 seconds .
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.003015 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.68 ms, found 0 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Warning: Annotation not found!
 UnityEngine.StackTraceUtility:ExtractStackTrace ()
@@ -217,22 +355,260 @@ Invoked RoslynAnalysisRunner static constructor.
 RoslynAnalysisRunner will not be running.
 RoslynAnalysisRunner has terminated.
 Mono: successfully reloaded assembly
-- Completed reload, in  1.190 seconds
+- Completed reload, in  1.321 seconds
 Platform modules already initialized, skipping
 Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
-Refreshing native plugins compatible for Editor in 0.69 ms, found 0 plugins.
+Refreshing native plugins compatible for Editor in 0.66 ms, found 0 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 4251 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 189.1 MB.
-System memory in use after: 189.3 MB.
+Unloading 4252 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 189.5 MB.
+System memory in use after: 189.7 MB.
 
-Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 4950.
-Total: 4.091100 ms (FindLiveObjects: 0.697900 ms CreateObjectMapping: 0.490100 ms MarkObjects: 2.837000 ms  DeleteObjects: 0.064900 ms)
+Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 4951.
+Total: 4.988900 ms (FindLiveObjects: 0.779900 ms CreateObjectMapping: 0.578400 ms MarkObjects: 3.524000 ms  DeleteObjects: 0.104800 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 92.829573 seconds.
+  path: Assets/Devona Test/Art/Props/grass_1.prefab
+  artifactKey: Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Props/grass_1.prefab using Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e7a1dfeff926003e3373b3147e11b4e6') in 0.176974 seconds
+  Import took 0.200156 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.003176 seconds.
+  path: Assets/Devona Test/Art/Props/grass_1.prefab
+  artifactKey: Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Props/grass_1.prefab using Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e7a1dfeff926003e3373b3147e11b4e6') in 0.008234 seconds
+  Import took 0.014502 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 21.182769 seconds.
+  path: Assets/Devona Test/Art/Props/grass_2.prefab
+  artifactKey: Guid(6cc9a292dce2ae24e83899e4ac24dc46) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Props/grass_2.prefab using Guid(6cc9a292dce2ae24e83899e4ac24dc46) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd5f6f913de670927ef7a7fc0aaa86aaf') in 0.011635 seconds
+  Import took 0.044957 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 139.657774 seconds.
+  path: Assets/Devona Test/Art/Props/grass_1.prefab
+  artifactKey: Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Props/grass_1.prefab using Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1b66b624003909c0152badc6fb877a84') in 0.027106 seconds
+  Import took 0.045132 seconds .
 
 ========================================================================
 Received Prepare
 Registering precompiled user dll's ...
-Registered in 0.003455 seconds.
+Registered in 0.003027 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.75 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Warning: Annotation not found!
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEditor.ProBuilder.EditorUtility:SetGizmoIconEnabled (System.Type,bool) (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs:593)
+UnityEditor.ProBuilder.HierarchyListener:.cctor () (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/HierarchyListener.cs:21)
+System.Runtime.CompilerServices.RuntimeHelpers:RunClassConstructor (System.RuntimeTypeHandle)
+UnityEditor.EditorAssemblies:ProcessInitializeOnLoadAttributes (System.Type[])
+
+[Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs line 593]
+
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.334 seconds
+Platform modules already initialized, skipping
+Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
+Refreshing native plugins compatible for Editor in 0.76 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 4251 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 189.7 MB.
+System memory in use after: 189.9 MB.
+
+Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 4991.
+Total: 5.333400 ms (FindLiveObjects: 0.657200 ms CreateObjectMapping: 0.401600 ms MarkObjects: 4.194100 ms  DeleteObjects: 0.079100 ms)
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.002921 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.68 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Warning: Annotation not found!
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEditor.ProBuilder.EditorUtility:SetGizmoIconEnabled (System.Type,bool) (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs:593)
+UnityEditor.ProBuilder.HierarchyListener:.cctor () (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/HierarchyListener.cs:21)
+System.Runtime.CompilerServices.RuntimeHelpers:RunClassConstructor (System.RuntimeTypeHandle)
+UnityEditor.EditorAssemblies:ProcessInitializeOnLoadAttributes (System.Type[])
+
+[Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs line 593]
+
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.215 seconds
+Platform modules already initialized, skipping
+Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
+Refreshing native plugins compatible for Editor in 0.65 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 4251 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 189.7 MB.
+System memory in use after: 189.9 MB.
+
+Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 4995.
+Total: 4.570600 ms (FindLiveObjects: 0.654600 ms CreateObjectMapping: 0.364500 ms MarkObjects: 3.475600 ms  DeleteObjects: 0.074600 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 1675.706793 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Vegetation.mat
+  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Vegetation.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd9a4dfe9f651f9152f348f10052719b9') in 0.577916 seconds
+  Import took 0.610023 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 15.908153 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Grass.mat
+  artifactKey: Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Grass.mat using Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '95866c82488f4eeef1fc50e06865a20a') in 0.244911 seconds
+  Import took 0.253909 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.003429 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Vegetation.mat
+  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Vegetation.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '295df6b4e4d6bf7617f618452eafc6e1') in 0.016566 seconds
+  Import took 0.023781 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000239 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Scenario.mat
+  artifactKey: Guid(53817c9fa33aa014780ed79af36eefe5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Scenario.mat using Guid(53817c9fa33aa014780ed79af36eefe5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd17bdae35df6f856b4884aac751bd9af') in 0.010945 seconds
+  Import took 0.036153 seconds .
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.003463 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.94 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Warning: Annotation not found!
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEditor.ProBuilder.EditorUtility:SetGizmoIconEnabled (System.Type,bool) (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs:593)
+UnityEditor.ProBuilder.HierarchyListener:.cctor () (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/HierarchyListener.cs:21)
+System.Runtime.CompilerServices.RuntimeHelpers:RunClassConstructor (System.RuntimeTypeHandle)
+UnityEditor.EditorAssemblies:ProcessInitializeOnLoadAttributes (System.Type[])
+
+[Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs line 593]
+
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.250 seconds
+Platform modules already initialized, skipping
+Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
+Refreshing native plugins compatible for Editor in 0.73 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 4251 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 189.9 MB.
+System memory in use after: 190.1 MB.
+
+Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 5035.
+Total: 3.535400 ms (FindLiveObjects: 0.360400 ms CreateObjectMapping: 0.229000 ms MarkObjects: 2.876800 ms  DeleteObjects: 0.068000 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 284.862946 seconds.
+  path: Assets/Devona Test/Art/Materials/M_DefaultLit.mat
+  artifactKey: Guid(9e435eed1190db74f95714eda43a0bb3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_DefaultLit.mat using Guid(9e435eed1190db74f95714eda43a0bb3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '04ed6dd9bf479a1a5db09521fd7b0296') in 0.512289 seconds
+  Import took 0.523638 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000229 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Vegetation.mat
+  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Vegetation.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '16d0eb375355f669a2262495b6ab1e0e') in 0.309021 seconds
+  Import took 0.315900 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000168 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Equinox_Blades.mat
+  artifactKey: Guid(d0d697c72c608fb4e8775f3c4fe4510b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Equinox_Blades.mat using Guid(d0d697c72c608fb4e8775f3c4fe4510b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '074eb315bf59a9e0e1f57a0f93d4c5ab') in 0.014105 seconds
+  Import took 0.028231 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000165 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Devona.mat
+  artifactKey: Guid(fe280a16056d9214fa1dccdc7010ec8e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Devona.mat using Guid(fe280a16056d9214fa1dccdc7010ec8e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3925d093c05921bb4ca13b6d6a1e05c2') in 0.021585 seconds
+  Import took 0.029540 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000185 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Grass.mat
+  artifactKey: Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Grass.mat using Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '20d188c4bad00eb3d55ffed20d8f5496') in 0.042673 seconds
+  Import took 0.061541 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000203 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Equinox.mat
+  artifactKey: Guid(1e4f1f82a94d8634fa5b519417c57909) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Equinox.mat using Guid(1e4f1f82a94d8634fa5b519417c57909) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9eb314acc49a68116439eae926893f56') in 0.616948 seconds
+  Import took 0.637587 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000177 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Scenario.mat
+  artifactKey: Guid(53817c9fa33aa014780ed79af36eefe5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Scenario.mat using Guid(53817c9fa33aa014780ed79af36eefe5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'bf85919fff5bdcc3846f7a114112612e') in 0.007325 seconds
+  Import took 0.014041 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000177 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Eyes.mat
+  artifactKey: Guid(39fcfec73ee70b44e81ad31761f1c56a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Eyes.mat using Guid(39fcfec73ee70b44e81ad31761f1c56a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ebecb890ce9eff204a46d2b190ff5ee0') in 0.010484 seconds
+  Import took 0.037148 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 6.251239 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Equinox.mat
+  artifactKey: Guid(1e4f1f82a94d8634fa5b519417c57909) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Equinox.mat using Guid(1e4f1f82a94d8634fa5b519417c57909) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9eb314acc49a68116439eae926893f56') in 0.007590 seconds
+  Import took 0.014149 seconds .
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.003944 seconds.
 Begin MonoManager ReloadAssembly
 Native extension for WindowsStandalone target not found
 Native extension for WebGL target not found
@@ -251,16 +627,265 @@ Invoked RoslynAnalysisRunner static constructor.
 RoslynAnalysisRunner will not be running.
 RoslynAnalysisRunner has terminated.
 Mono: successfully reloaded assembly
-- Completed reload, in  1.151 seconds
+- Completed reload, in  1.256 seconds
 Platform modules already initialized, skipping
 Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
-Refreshing native plugins compatible for Editor in 0.90 ms, found 0 plugins.
+Refreshing native plugins compatible for Editor in 0.65 ms, found 0 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Unloading 4251 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 189.1 MB.
-System memory in use after: 189.4 MB.
+System memory in use before: 190.1 MB.
+System memory in use after: 190.3 MB.
 
-Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 4954.
-Total: 5.472100 ms (FindLiveObjects: 0.946700 ms CreateObjectMapping: 0.573200 ms MarkObjects: 3.867900 ms  DeleteObjects: 0.083000 ms)
+Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 5075.
+Total: 3.471500 ms (FindLiveObjects: 0.366600 ms CreateObjectMapping: 0.220100 ms MarkObjects: 2.817600 ms  DeleteObjects: 0.066100 ms)
 
-AssetImportWorkerClient::OnTransportError - code=2 error=End of file
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.002801 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.69 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Warning: Annotation not found!
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEditor.ProBuilder.EditorUtility:SetGizmoIconEnabled (System.Type,bool) (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs:593)
+UnityEditor.ProBuilder.HierarchyListener:.cctor () (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/HierarchyListener.cs:21)
+System.Runtime.CompilerServices.RuntimeHelpers:RunClassConstructor (System.RuntimeTypeHandle)
+UnityEditor.EditorAssemblies:ProcessInitializeOnLoadAttributes (System.Type[])
+
+[Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs line 593]
+
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.279 seconds
+Platform modules already initialized, skipping
+Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
+Refreshing native plugins compatible for Editor in 0.68 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 4251 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 190.1 MB.
+System memory in use after: 190.3 MB.
+
+Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 5079.
+Total: 3.231700 ms (FindLiveObjects: 0.355300 ms CreateObjectMapping: 0.196200 ms MarkObjects: 2.612900 ms  DeleteObjects: 0.066400 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 152.089545 seconds.
+  path: Assets/Settings/UniversalRP-HighQuality.asset
+  artifactKey: Guid(19ba41d7c0026c3459d37c2fe90c55a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Settings/UniversalRP-HighQuality.asset using Guid(19ba41d7c0026c3459d37c2fe90c55a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9947cb5c67c898eb22c4d7fefa55de96') in 0.007565 seconds
+  Import took 0.014969 seconds .
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.002866 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.76 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Warning: Annotation not found!
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEditor.ProBuilder.EditorUtility:SetGizmoIconEnabled (System.Type,bool) (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs:593)
+UnityEditor.ProBuilder.HierarchyListener:.cctor () (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/HierarchyListener.cs:21)
+System.Runtime.CompilerServices.RuntimeHelpers:RunClassConstructor (System.RuntimeTypeHandle)
+UnityEditor.EditorAssemblies:ProcessInitializeOnLoadAttributes (System.Type[])
+
+[Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs line 593]
+
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.161 seconds
+Platform modules already initialized, skipping
+Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
+Refreshing native plugins compatible for Editor in 0.65 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 4252 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 190.1 MB.
+System memory in use after: 190.4 MB.
+
+Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 5084.
+Total: 3.524400 ms (FindLiveObjects: 0.412100 ms CreateObjectMapping: 0.263500 ms MarkObjects: 2.779600 ms  DeleteObjects: 0.068000 ms)
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.003078 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.86 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Warning: Annotation not found!
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEditor.ProBuilder.EditorUtility:SetGizmoIconEnabled (System.Type,bool) (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs:593)
+UnityEditor.ProBuilder.HierarchyListener:.cctor () (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/HierarchyListener.cs:21)
+System.Runtime.CompilerServices.RuntimeHelpers:RunClassConstructor (System.RuntimeTypeHandle)
+UnityEditor.EditorAssemblies:ProcessInitializeOnLoadAttributes (System.Type[])
+
+[Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs line 593]
+
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.130 seconds
+Platform modules already initialized, skipping
+Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
+Refreshing native plugins compatible for Editor in 0.66 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 4251 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 190.1 MB.
+System memory in use after: 190.4 MB.
+
+Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 5088.
+Total: 3.906100 ms (FindLiveObjects: 0.388500 ms CreateObjectMapping: 0.242000 ms MarkObjects: 3.200100 ms  DeleteObjects: 0.073900 ms)
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.002956 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.80 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Warning: Annotation not found!
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEditor.ProBuilder.EditorUtility:SetGizmoIconEnabled (System.Type,bool) (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs:593)
+UnityEditor.ProBuilder.HierarchyListener:.cctor () (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/HierarchyListener.cs:21)
+System.Runtime.CompilerServices.RuntimeHelpers:RunClassConstructor (System.RuntimeTypeHandle)
+UnityEditor.EditorAssemblies:ProcessInitializeOnLoadAttributes (System.Type[])
+
+[Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs line 593]
+
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  2.106 seconds
+Platform modules already initialized, skipping
+Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
+Refreshing native plugins compatible for Editor in 0.73 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 4251 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 190.2 MB.
+System memory in use after: 190.4 MB.
+
+Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 5092.
+Total: 4.245000 ms (FindLiveObjects: 0.570500 ms CreateObjectMapping: 0.411600 ms MarkObjects: 3.177600 ms  DeleteObjects: 0.084200 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 1269.780465 seconds.
+  path: Assets/Devona Test/Art/Props/grass_1.prefab
+  artifactKey: Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Props/grass_1.prefab using Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4da118b6f8d48a15ab5259fc1371b9e4') in 0.175667 seconds
+  Import took 0.199106 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 13.089851 seconds.
+  path: Assets/Devona Test/Art/Props/grass_1.prefab
+  artifactKey: Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Props/grass_1.prefab using Guid(044131f203539b84aa67bd1f94ef58a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e5296c62a15e4ad3ab7a7c7f17e152f4') in 0.005645 seconds
+  Import took 0.034309 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 293.697719 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Devona.mat
+  artifactKey: Guid(fe280a16056d9214fa1dccdc7010ec8e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Devona.mat using Guid(fe280a16056d9214fa1dccdc7010ec8e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f84b6ce5517ed561750f86aca8f95d56') in 0.025814 seconds
+  Import took 0.033885 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000251 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Vegetation.mat
+  artifactKey: Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Vegetation.mat using Guid(3d5538738ea83e64b8240c694a6a12bb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e31e448b97c56792c8437b6bf83de2f7') in 0.033560 seconds
+  Import took 0.058597 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000213 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Equinox_Blades.mat
+  artifactKey: Guid(d0d697c72c608fb4e8775f3c4fe4510b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Equinox_Blades.mat using Guid(d0d697c72c608fb4e8775f3c4fe4510b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7080183f3cda7b1e72dec8932e913bc8') in 0.033758 seconds
+  Import took 0.044400 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000280 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Devona.mat
+  artifactKey: Guid(fe280a16056d9214fa1dccdc7010ec8e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Devona.mat using Guid(fe280a16056d9214fa1dccdc7010ec8e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f84b6ce5517ed561750f86aca8f95d56') in 0.007477 seconds
+  Import took 0.014123 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000225 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Grass.mat
+  artifactKey: Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Grass.mat using Guid(bfa777d9aa8618040b3a2839e058f16f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd6588f76f4d9bd2c59dcf2a4708524c2') in 0.015424 seconds
+  Import took 0.039663 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000228 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Equinox.mat
+  artifactKey: Guid(1e4f1f82a94d8634fa5b519417c57909) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Equinox.mat using Guid(1e4f1f82a94d8634fa5b519417c57909) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c56acbffb56da0138afb62f5168de452') in 0.034925 seconds
+  Import took 0.070407 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000236 seconds.
+  path: Assets/Devona Test/Art/Materials/M_Scenario.mat
+  artifactKey: Guid(53817c9fa33aa014780ed79af36eefe5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Devona Test/Art/Materials/M_Scenario.mat using Guid(53817c9fa33aa014780ed79af36eefe5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '354896770b8c4571157f3e5095e33192') in 0.007276 seconds
+  Import took 0.014506 seconds .
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.003131 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 0.66 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Warning: Annotation not found!
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEditor.ProBuilder.EditorUtility:SetGizmoIconEnabled (System.Type,bool) (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs:593)
+UnityEditor.ProBuilder.HierarchyListener:.cctor () (at Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/HierarchyListener.cs:21)
+System.Runtime.CompilerServices.RuntimeHelpers:RunClassConstructor (System.RuntimeTypeHandle)
+UnityEditor.EditorAssemblies:ProcessInitializeOnLoadAttributes (System.Type[])
+
+[Library/PackageCache/com.unity.probuilder@4.4.0/Editor/EditorCore/EditorUtility.cs line 593]
+
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.223 seconds
+Platform modules already initialized, skipping
+Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
+Refreshing native plugins compatible for Editor in 0.68 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 4251 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 190.3 MB.
+System memory in use after: 190.6 MB.
+
+Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 5132.
+Total: 3.668600 ms (FindLiveObjects: 0.367700 ms CreateObjectMapping: 0.231400 ms MarkObjects: 2.996600 ms  DeleteObjects: 0.071100 ms)
+
