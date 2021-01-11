@@ -78,11 +78,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - BOOLEAN_23C50765C7824D09ACB8B4291893F347: 0
     - BOOLEAN_C8CA17B555C34C7E9F53AD712DE1B9BE: 0
+    - Vector1_123004faf76c488486ee39f9051dc804: 0.3
     - Vector1_2286dd5aaf0a4eb38c038539507237e1: 0.24
     - Vector1_4ccff41e7aa249caa7a7d78fd56a0c5a: 0
     - Vector1_89271a7a075f43639f50422ed0125691: 0
     - Vector1_b207232a78b04252b4b4c0e5494a83ed: 0
+    - Vector1_bcd9e49b2a52412381107a90d7f042c1: 1
+    - Vector1_c2d70950c27f49d1b53a36a0eae666d9: 3
     - Vector1_c948ca0b465b4512960d9a531a37bc37: 0
     - _AlphaClip: 0
     - _AngularSmear: 0
@@ -123,6 +127,6 @@ Material:
     - _Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LinearSmear: {r: 0, g: 0, b: 0, a: 0}
-    - _PaletteOffset: {r: 0.05, g: 0, b: 0, a: 0}
+    - _PaletteOffset: {r: 0.0625, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
