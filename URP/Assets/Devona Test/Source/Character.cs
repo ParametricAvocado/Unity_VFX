@@ -147,7 +147,9 @@ namespace DevonaProject {
             else {
                 Targeting.InputDirection = transform.forward;
             }
-
+            
+            Targeting.UpdateTargeting();
+            
             animatorMoveSpeed = Mathf.MoveTowards(animatorMoveSpeed, moveVectorMagnitude > m_WalkThreshold ? 1 : 0, m_WalkBlendRate * Time.deltaTime);
             
             //Character Turn
@@ -171,11 +173,11 @@ namespace DevonaProject {
             }
 
             if (IsAirborne) {
-                var collisionFlags = Controller.Move(airVelocity * Time.deltaTime);
+                Controller.Move(airVelocity * Time.deltaTime);
                 float maxFallSpeed = isPerformingAttack ? m_JumpCombatFallSpeed : m_JumpMaxFallSpeed;
                 airVelocity.y = Mathf.Max(airVelocity.y - m_JumpGravity * Time.deltaTime, jumpHold ? m_JumpHoldSpeed : -maxFallSpeed);
 
-                if (airVelocity.y < 0 && collisionFlags == CollisionFlags.Below) {
+                if (airVelocity.y < 0 && Controller.isGrounded) {
                     IsAirborne = false;
                     CharacterAnimator.CrossFadeInFixedTime(hStateJumpEnd,0.05f, jumpLayerIndex, 0f);
                     isJumping = false;

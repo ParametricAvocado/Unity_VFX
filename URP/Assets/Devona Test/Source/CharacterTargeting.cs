@@ -10,8 +10,6 @@ namespace DevonaProject {
         [SerializeField] private float m_TargetingRadius = 5f;
         [SerializeField] private LayerMask m_LayerMask = 1;
         [SerializeField] private float m_TargetingAngle = 30f;
-        [SerializeField] private int m_FrameSkip = 3;
-        
         private Collider[] overlapResults = new Collider[10];
 
         public Vector3 InputDirection { get; set; }
@@ -19,15 +17,8 @@ namespace DevonaProject {
 
         public Transform closest { get; set; }
 
-        private int frameCount = 0;
         
-        private void FixedUpdate() {
-            if (frameCount > 0) {
-                frameCount--;
-                return;
-            }
-
-            frameCount = m_FrameSkip;
+        public void UpdateTargeting() {
             
             int overlaps = Physics.OverlapSphereNonAlloc(transform.position, m_TargetingRadius, overlapResults, m_LayerMask, QueryTriggerInteraction.Ignore);
 
