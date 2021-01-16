@@ -347,6 +347,13 @@
             </e>
           </e>
         </e>
+        <e p="Tanks" t="Include">
+          <e p="Source" t="Include">
+            <e p="Projectile.cs" t="Include" />
+            <e p="Tank.cs" t="Include" />
+            <e p="TankGameManager.cs" t="Include" />
+          </e>
+        </e>
         <e p="TargetDummy.cs" t="Include" />
       </e>
       <e p="obj" t="ExcludeRecursive" />
