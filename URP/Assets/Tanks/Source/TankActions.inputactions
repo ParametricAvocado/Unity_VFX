@@ -15,11 +15,11 @@
                 },
                 {
                     "name": "Fire",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "4c4ef4da-98b9-47dc-b05b-33c5c5224ff4",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
-                    "interactions": "Press"
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -37,7 +37,7 @@
                 {
                     "name": "",
                     "id": "d38f678e-39b1-4947-a828-a8f050b85e83",
-                    "path": "<Keyboard>/h",
+                    "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
                     "groups": "WASD",

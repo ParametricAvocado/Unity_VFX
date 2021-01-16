@@ -349,6 +349,7 @@
         </e>
         <e p="Tanks" t="Include">
           <e p="Source" t="Include">
+            <e p="HealthRing.cs" t="Include" />
             <e p="Projectile.cs" t="Include" />
             <e p="Tank.cs" t="Include" />
             <e p="TankGameManager.cs" t="Include" />

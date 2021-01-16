@@ -4,16 +4,35 @@
     <list default="true" id="4b6707dd-7755-478b-b167-c048a79d9a47" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/contentModel.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.URP/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/ForwardRendererWithAreaOverlays.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/ForwardRendererWithAreaOverlays.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Settings/UniversalRP-HighQuality.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Settings/UniversalRP-HighQuality.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Ground.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Ground.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Shot.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Shot.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Tank_Blue.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Tank_Blue.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Tank_Tracks.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Tank_Tracks.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Tank_Yellow.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Tank_Yellow.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Wall.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/M_Wall.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/TanksLighting.lighting" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/TanksLighting.lighting.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/m_Dust.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/m_Dust.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/m_Fire.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/m_Fire.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/m_Smoke.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Art/m_Smoke.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Prefabs/player_tank_blue.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tanks/Prefabs/player_tank_blue.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Prefabs/player_tank_yellow.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tanks/Prefabs/player_tank_yellow.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Prefabs/projectile.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tanks/Prefabs/projectile.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Scenes/Tanks.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tanks/Scenes/Tanks.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Source/Projectile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tanks/Source/Projectile.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Source/Tank.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tanks/Source/Tank.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tanks/Source/TankActions.inputactions" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tanks/Source/TankActions.inputactions" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Logs/ApiUpdaterCheck.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/ApiUpdaterCheck.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker0-prev.log" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker0.log" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/AssetImportWorker0.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Logs/AssetImportWorker1-prev.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/packages-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,6 +57,9 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/7F90ED7B-2CD3-4BC5-95F5-E9D084F29FE3/93/e18926bc/Animator.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/B8454F29-553C-4926-988F-DE5694827D28/1c/62117a93/PlayerNotifications.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Tanks/Source/TankGameManager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Tanks/Source/HealthRing.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@1.0.1/InputSystem/Utilities/DelegateHelpers.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@1.0.1/InputSystem/Plugins/PlayerInput/InputValue.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
@@ -54,6 +76,7 @@
       <option value="$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@1.0.1/InputSystem/Plugins/PlayerInput/PlayerInput.cs" />
       <option value="$PROJECT_DIR$/Assets/Tanks/Source/TankControl.cs" />
       <option value="$PROJECT_DIR$/Assets/Tanks/Source/TankGameManager.cs" />
+      <option value="$PROJECT_DIR$/Assets/Tanks/Source/HealthRing.cs" />
       <option value="$PROJECT_DIR$/Assets/Tanks/Source/Tank.cs" />
       <option value="$PROJECT_DIR$/Assets/Tanks/Source/Projectile.cs" />
     </changedPaths>
@@ -145,32 +168,6 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@1.0.1/InputSystem/Plugins/PlayerInput/PlayerInput.cs</url>
-          <line>1259</line>
-          <properties documentPath="D:\Unity Projects\Unity_VFX\URP\Library\PackageCache\com.unity.inputsystem@1.0.1\InputSystem\Plugins\PlayerInput\PlayerInput.cs" initialLine="1259" containingFunctionPresentation="method 'OnActionTriggered'">
-            <startOffsets>
-              <option value="57836" />
-            </startOffsets>
-            <endOffsets>
-              <option value="57855" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@1.0.1/InputSystem/Plugins/PlayerInput/PlayerInput.cs</url>
-          <line>1253</line>
-          <properties documentPath="D:\Unity Projects\Unity_VFX\URP\Library\PackageCache\com.unity.inputsystem@1.0.1\InputSystem\Plugins\PlayerInput\PlayerInput.cs" initialLine="1253" containingFunctionPresentation="method 'UninstallOnActionTriggeredHook'">
-            <startOffsets>
-              <option value="57546" />
-            </startOffsets>
-            <endOffsets>
-              <option value="57601" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Library/PackageCache/com.unity.inputsystem@1.0.1/InputSystem/Plugins/PlayerInput/PlayerInput.cs</url>
           <line>319</line>
           <properties documentPath="D:\Unity Projects\Unity_VFX\URP\Library\PackageCache\com.unity.inputsystem@1.0.1\InputSystem\Plugins\PlayerInput\PlayerInput.cs" initialLine="319" containingFunctionPresentation="property 'actions'">
             <startOffsets>
@@ -207,6 +204,19 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Tanks/Source/Tank.cs</url>
+          <line>104</line>
+          <properties documentPath="D:\Unity Projects\Unity_VFX\URP\Assets\Tanks\Source\Tank.cs" initialLine="100" containingFunctionPresentation="method 'Damage'">
+            <startOffsets>
+              <option value="3329" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3330" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
