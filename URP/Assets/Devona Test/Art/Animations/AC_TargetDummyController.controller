@@ -143,13 +143,13 @@ AnimatorStateMachine:
     m_Position: {x: 230, y: -40, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 2546998627341988635}
-    m_Position: {x: 510, y: -80, z: 0}
+    m_Position: {x: 480, y: -170, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 9069546186940820049}
-    m_Position: {x: 510, y: -20, z: 0}
+    m_Position: {x: 480, y: -110, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4494068399025547684}
-    m_Position: {x: 510, y: 70, z: 0}
+    m_Position: {x: 480, y: -20, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8557939091052434749}
     m_Position: {x: 230, y: 140, z: 0}
@@ -211,7 +211,7 @@ BlendTree:
     m_CycleOffset: 0
     m_DirectBlendParameter: Blend
     m_Mirror: 0
-  m_BlendParameter: hit_angle
+  m_BlendParameter: HitAngle
   m_BlendParameterY: Blend
   m_MinThreshold: -2
   m_MaxThreshold: 2
@@ -275,7 +275,7 @@ AnimatorController:
   m_Name: AC_TargetDummyController
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: hit_angle
+  - m_Name: HitAngle
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0

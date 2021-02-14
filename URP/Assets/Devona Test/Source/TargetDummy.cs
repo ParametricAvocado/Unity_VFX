@@ -15,9 +15,9 @@ namespace DevonaProject {
 
         private static int hStateCombatHit = Animator.StringToHash("combat_hit");
         private static int hStateCombatKnockdown = Animator.StringToHash("combat_knockdown_start");
+        private static int hFloatAngle = Animator.StringToHash("hit_angle");
         private static int hStateFollowRun = Animator.StringToHash("run");
         private static int hStateIdle = Animator.StringToHash("idle");
-        private static int hFloatAngle = Animator.StringToHash("hit_angle");
 
         private bool isFollowing = false;
         

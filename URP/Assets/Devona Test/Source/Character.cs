@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor.Rendering;
+using UnityEngine;
 
 namespace DevonaProject {
     public enum ComboInput {
@@ -6,16 +7,11 @@ namespace DevonaProject {
         HeavyAttack
     }
 
+
     public class Character : MonoBehaviour {
         //Inspector
         [Header("Components")] 
         [SerializeField] private DamageTrigger m_DamageTrigger;
-        
-        [Header("Data")]
-        [SerializeField] private ComboTree m_ComboTree;
-
-        [Header("Input")]
-        [SerializeField] private float m_InputPressDuration = 0.1f;
 
         [Header("Locomotion")]
         [SerializeField] private float m_JumpDelay = 0.15f;
@@ -32,27 +28,21 @@ namespace DevonaProject {
         [SerializeField] private float m_WalkThreshold = 0.5f;
         [SerializeField] private float m_WalkBlendRate = 2f;
 
-
         //Components
         public Animator CharacterAnimator { get; private set; }
         public Camera GameplayCamera { get; private set; }
         public CharacterController Controller { get; private set; }
         public CharacterTargeting Targeting { get; private set; }
+        public CharacterCombat Combat { get; private set; }
         public CharacterCombatVFX CombatVFX { get; private set; }
 
-        private DevonaActions actions;
-
         //Input
-        private Vector2 moveVector;
-        private float lightAttackInputTime = float.MinValue;
-        private float heavyAttackInputTime = float.MinValue;
-        private float jumpInputTime = float.MinValue;
-        private bool jumpInputDown;
+        protected bool jumpInputDown;
 
         //Locomotion
         private float moveVectorMagnitude;
         private Vector3 worldMoveDirection;
-        private Vector3 worldMoveVector;
+        protected Vector3 worldMoveVector;
         private Vector3 worldLookDirection;
         private bool isMoving;
 
@@ -68,92 +58,76 @@ namespace DevonaProject {
         private float targetLookAngle;
     
         //Animator State
-        private int jumpLayerIndex;
-        private int combatLayerIndex;
+        public int JumpLayerIndex { get; set; }
+        public int CombatLayerIndex { get; set; }
         public AnimatorStateInfo CurrentCombatLayerState;
         public AnimatorStateInfo NextCombatLayerState;
         private bool isPerformingAttack;
 
-        private readonly int hBoolIsMoving = Animator.StringToHash("IsMoving");
-        private readonly int hFloatMoveSpeed = Animator.StringToHash("MoveSpeed");
+        private static int hBoolIsMoving = Animator.StringToHash("IsMoving");
+        private static int hFloatMoveSpeed = Animator.StringToHash("MoveSpeed");
+        private static int hFloatAngle = Animator.StringToHash("HitAngle");
 
-        private readonly int hStateAttackNone = Animator.StringToHash("att_none");
-        private readonly int hStateJumpStart = Animator.StringToHash("jump_start");
-        private readonly int hStateJumpEnd = Animator.StringToHash("jump_end");
+        private static int hStateAttackNone = Animator.StringToHash("att_none");
+        private static int hStateJumpStart = Animator.StringToHash("jump_start");
+        private static int hStateJumpEnd = Animator.StringToHash("jump_end");
         
+        private static int hStateCombatHit = Animator.StringToHash("combat_hit");
+        private static int hStateCombatKnockdown = Animator.StringToHash("combat_knockdown_start");
         
-        private void InitializeInput() {
-            actions = new DevonaActions();
-            actions.Character.Move.started += (ctx) => moveVector = ctx.ReadValue<Vector2>();
-            actions.Character.Move.performed += (ctx) => moveVector = ctx.ReadValue<Vector2>();
-            actions.Character.Move.canceled += (ctx) => moveVector = Vector2.zero;
-            actions.Character.LightAttack.started += (ctx)=> lightAttackInputTime = Time.unscaledTime;
-            actions.Character.HeavyAttack.started += (ctx)=> heavyAttackInputTime = Time.unscaledTime;
-            actions.Character.Jump.started += (ctx)=> {
-                jumpInputTime = Time.unscaledTime;
-                jumpInputDown = true;
-            };
-            actions.Character.Jump.canceled += (ctx)=> jumpInputDown = false;
-        }
+        protected virtual void InitializeInput(){}
     
         private void Awake() {
             InitializeInput();
             
             CharacterAnimator = GetComponent<Animator>();
             Controller = GetComponent<CharacterController>();
-            Targeting = GetComponent<CharacterTargeting>();
+            Targeting = GetComponent<CharacterTargeting>() ?? gameObject.AddComponent<CharacterTargeting>();
+            Combat = GetComponent<CharacterCombat>() ?? gameObject.AddComponent<CharacterCombat>();
             CombatVFX = GetComponent<CharacterCombatVFX>();
 
-            jumpLayerIndex =  CharacterAnimator.GetLayerIndex("Jump");
-            combatLayerIndex =  CharacterAnimator.GetLayerIndex("Combat");
+            JumpLayerIndex = CharacterAnimator.GetLayerIndex("Jump");
+            CombatLayerIndex = CharacterAnimator.GetLayerIndex("Combat");
 
-            m_ComboTree.SetAnimator(CharacterAnimator, combatLayerIndex);
-            m_ComboTree.Initialize(this);
+            Combat.Initialize(this);
             
             m_DamageTrigger.Initialize(this);
         }
 
-        private void Start() {
+        protected virtual void Start() {
             GameplayCamera = Camera.main;
-            actions.Enable();
             currentLookAngle = transform.rotation.eulerAngles.y;
             worldLookDirection = worldMoveDirection = transform.forward;
         }
 
-        private void OnDestroy() {
-            actions.Disable();
-        }
+        protected virtual void OnDestroy() { }
 
-        private void FixedUpdate() {
-            CurrentCombatLayerState = CharacterAnimator.GetCurrentAnimatorStateInfo(combatLayerIndex);
-            NextCombatLayerState = CharacterAnimator.GetNextAnimatorStateInfo(combatLayerIndex);
-            
-            isPerformingAttack = CurrentCombatLayerState.shortNameHash != hStateAttackNone 
-                                 || NextCombatLayerState.shortNameHash != hStateAttackNone && NextCombatLayerState.shortNameHash != 0;
-        
-            //Input Update
-            var characterUp = transform.up;
-            var projCamForward=  Vector3.ProjectOnPlane(GameplayCamera.transform.forward, characterUp).normalized;
-            var projCamRight=  Vector3.ProjectOnPlane(GameplayCamera.transform.right, characterUp).normalized;
-            worldMoveVector = projCamForward * moveVector.y + projCamRight * moveVector.x;
+        protected virtual void UpdateMoveVector() {
 
-            isMoving = moveVector != Vector2.zero;
+            isMoving = worldMoveVector != Vector3.zero;
 
             if (isMoving) {
-                moveVectorMagnitude = moveVector.magnitude;
+                moveVectorMagnitude = worldMoveVector.magnitude;
                 worldMoveDirection = worldMoveVector.normalized;
                 Targeting.InputDirection = worldMoveDirection;
             }
             else {
                 Targeting.InputDirection = transform.forward;
             }
+        }
+        
+        private void FixedUpdate() {
+            UpdateCombatLayerState();
+
+            //Input Update
+            UpdateMoveVector();
             
             Targeting.UpdateTargeting();
             
             animatorMoveSpeed = Mathf.MoveTowards(animatorMoveSpeed, moveVectorMagnitude > m_WalkThreshold ? 1 : 0, m_WalkBlendRate * Time.deltaTime);
             
             //Character Turn
-            if (!IsAirborne && (!isPerformingAttack || m_ComboTree.CurrentNode.AllowsTurn)) {
+            if (!IsAirborne && (!isPerformingAttack || Combat.CurrentNode.AllowsTurn)) {
                 UpdateLookAngle(true);
             }
             
@@ -179,7 +153,8 @@ namespace DevonaProject {
 
                 if (airVelocity.y < 0 && Controller.isGrounded) {
                     IsAirborne = false;
-                    CharacterAnimator.CrossFadeInFixedTime(hStateJumpEnd,0.05f, jumpLayerIndex, 0f);
+                    if(JumpLayerIndex != -1)
+                    CharacterAnimator.CrossFadeInFixedTime(hStateJumpEnd,0.05f, JumpLayerIndex, 0f);
                     isJumping = false;
                     IsAirborne = false;
                 }
@@ -188,8 +163,8 @@ namespace DevonaProject {
             else {
                 if (!isPerformingAttack) {
                     if (JumpInput && !isJumping) {
-                        CharacterAnimator.CrossFadeInFixedTime(hStateJumpStart, 0.1f, jumpLayerIndex,0f);
-
+                        if(JumpLayerIndex != -1)
+                        CharacterAnimator.CrossFadeInFixedTime(hStateJumpStart, 0.1f, JumpLayerIndex,0f);
 
                         jumpHold = jumpInputDown;
                         isJumping = true;
@@ -201,31 +176,45 @@ namespace DevonaProject {
                     CharacterAnimator.SetFloat(hFloatMoveSpeed, animatorMoveSpeed);
 
                     //Ensure Combo Tree is clear 
-                    m_ComboTree.ClearCombo();
+                    Combat.ClearCombo();
                 }
             }
         
             if (LightAttackInput) {
-                if (m_ComboTree.ExecuteCombo(ComboInput.LightAttack)) {
+                if (Combat.ExecuteCombo(ComboInput.LightAttack)) {
                     OnExecuteCombo();
                 }
             }
             else if (HeavyAttackInput) {
-                if (m_ComboTree.ExecuteCombo(ComboInput.HeavyAttack)) {
+                if (Combat.ExecuteCombo(ComboInput.HeavyAttack)) {
                     OnExecuteCombo();
                 }
             }
             
-            m_DamageTrigger.UpdateDamageData(m_ComboTree.GetDamageData());
+            m_DamageTrigger.UpdateDamageData(Combat.GetDamageData());
             
             CharacterTurnUpdate();
+        }
+
+        private void UpdateCombatLayerState() {
+            if (CombatLayerIndex != -1) {
+                CurrentCombatLayerState = CharacterAnimator.GetCurrentAnimatorStateInfo(CombatLayerIndex);
+                NextCombatLayerState = CharacterAnimator.GetNextAnimatorStateInfo(CombatLayerIndex);
+
+                isPerformingAttack = CurrentCombatLayerState.shortNameHash != hStateAttackNone
+                                     || NextCombatLayerState.shortNameHash != hStateAttackNone &&
+                                     NextCombatLayerState.shortNameHash != 0;
+            }
+            else {
+                isPerformingAttack = false;
+            }
         }
 
         private void OnExecuteCombo() {
             UpdateLookAngle(true);
             CharacterAnimator.SetBool(hBoolIsMoving, false);
-            CombatVFX.SetDefaultCasterVFX(m_ComboTree.CurrentNode.AttackVFXCaster);
-            CombatVFX.SetDefaultTargetVFX(m_ComboTree.CurrentNode.AttackVFXTarget);
+            CombatVFX.SetDefaultCasterVFX(Combat.CurrentNode.AttackVFXCaster);
+            CombatVFX.SetDefaultTargetVFX(Combat.CurrentNode.AttackVFXTarget);
             airVelocity.x = 0;
             airVelocity.z = 0;
         }
@@ -233,7 +222,7 @@ namespace DevonaProject {
         private void CharacterTurnUpdate() {
             var turnRate = m_TurnRate.Evaluate(animatorMoveSpeed);
             if (isPerformingAttack) {
-                turnRate *= m_ComboTree.CurrentNode.TurnSpeedMultiplier;
+                turnRate *= Combat.CurrentNode.TurnSpeedMultiplier;
             }
             
             currentLookAngle = Mathf.MoveTowardsAngle(currentLookAngle,
@@ -253,8 +242,21 @@ namespace DevonaProject {
             targetLookAngle = Mathf.Atan2(worldLookDirection.x, worldLookDirection.z) * Mathf.Rad2Deg;
         }
 
-        public bool LightAttackInput => Time.unscaledTime - lightAttackInputTime < m_InputPressDuration;
-        public bool HeavyAttackInput => Time.unscaledTime - heavyAttackInputTime < m_InputPressDuration;
-        public bool JumpInput => Time.unscaledTime - jumpInputTime < m_InputPressDuration;
+        public void OnHit(Vector3 direction) {
+            float angle = Vector3.SignedAngle(transform.forward, direction, transform.up)/90f;
+            CharacterAnimator.CrossFadeInFixedTime(hStateCombatHit, 0.1f, CombatLayerIndex, 0f);
+            
+            CharacterAnimator.SetFloat(hFloatAngle, angle);
+
+        }
+
+        public void OnKnockdown(Vector3 hitDirection) {
+            transform.rotation = Quaternion.LookRotation(-hitDirection);
+            CharacterAnimator.CrossFadeInFixedTime(hStateCombatKnockdown, 0.1f, CombatLayerIndex, 0f);
+        }
+        
+        public virtual bool LightAttackInput => false;
+        public virtual bool HeavyAttackInput => false;
+        public virtual bool JumpInput => false;
     }
 }
