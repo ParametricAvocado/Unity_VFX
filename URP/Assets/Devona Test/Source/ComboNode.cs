@@ -6,8 +6,14 @@ using UnityEngine.Serialization;
 namespace DevonaProject {
     [CreateAssetMenu(menuName = "Devona Project/Combo Node", fileName = "ComboNode", order = 0)]
     public class ComboNode : ScriptableObject {
+        [SerializeField] private GameObject m_AttackVFXCaster;
+        [SerializeField] private GameObject m_AttackVFXProjectile;
+        [SerializeField] private GameObject m_AttackVFXTarget;
+        
         [SerializeField] private float m_TransitionDuration = 0.1f;
         [SerializeField] private string m_AnimationName;
+        [SerializeField] private bool m_AllowsTurn = false;
+        [SerializeField] private float m_TurnSpeedMultiplier = 1;
         [SerializeField] private ComboNodeTransition[] m_Transitions;
         [SerializeField] private ComboNodeDamageEvent[] m_DamageEvents;
 
@@ -18,6 +24,12 @@ namespace DevonaProject {
         }
 
         public int AnimationHash => animationHash;
+        public bool AllowsTurn => m_AllowsTurn;
+        public float TurnSpeedMultiplier => m_TurnSpeedMultiplier;
+
+        public GameObject AttackVFXCaster => m_AttackVFXCaster;
+        public GameObject AttackVFXProjectile => m_AttackVFXProjectile;
+        public GameObject AttackVFXTarget => m_AttackVFXTarget;        
 
         public void Initialize() {
             animationHash = Animator.StringToHash(m_AnimationName);

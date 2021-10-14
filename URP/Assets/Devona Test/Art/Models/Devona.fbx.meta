@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 70085084f1a9fc14da295a501b0df089
 ModelImporter:
-  serializedVersion: 20101
+  serializedVersion: 20200
   internalIDToNameTable:
   - first:
       74: -2965343250492826279
@@ -43,7 +43,9 @@ ModelImporter:
     optimizeGameObjects: 0
     motionNodeName: 
     rigImportErrors: 
-    rigImportWarnings: 
+    rigImportWarnings: "Avatar Rig Configuration mis-match. Bone length in configuration
+      does not match position in animation file:\n\t'l.upperleg' : position error
+      = 19.781422 mm\n\t'l.foot' : position error = 16.017126 mm\n"
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -269,30 +271,6 @@ ModelImporter:
       limit:
         min: {x: 0, y: 0, z: -50}
         max: {x: 0, y: 0, z: 50}
-        value: {x: 0, y: 0, z: 0}
-        length: 0
-        modified: 0
-    - boneName: l.hair.2
-      humanName: LeftEye
-      limit:
-        min: {x: 0, y: -20, z: -10}
-        max: {x: 0, y: 20, z: 15}
-        value: {x: 0, y: 0, z: 0}
-        length: 0
-        modified: 0
-    - boneName: r.hair.2
-      humanName: RightEye
-      limit:
-        min: {x: 0, y: -20, z: -10}
-        max: {x: 0, y: 20, z: 15}
-        value: {x: 0, y: 0, z: 0}
-        length: 0
-        modified: 0
-    - boneName: f.hair.lower.2
-      humanName: Jaw
-      limit:
-        min: {x: 0, y: -10, z: -10}
-        max: {x: 0, y: 10, z: 10}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 0
@@ -1111,6 +1089,7 @@ ModelImporter:
   animationType: 3
   humanoidOversampling: 1
   avatarSetup: 1
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 0
   additionalBone: 0
   userData: 
   assetBundleName: 

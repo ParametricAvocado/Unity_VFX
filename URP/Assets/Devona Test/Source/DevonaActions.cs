@@ -27,6 +27,14 @@ public class @DevonaActions : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
+                    ""name"": ""Look"",
+                    ""type"": ""Value"",
+                    ""id"": ""904d38e1-dba0-420f-9f7d-bbdd91889af8"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
                     ""name"": ""Light Attack"",
                     ""type"": ""Button"",
                     ""id"": ""5d62a28e-917e-41e7-89df-51b459fbc879"",
@@ -213,6 +221,28 @@ public class @DevonaActions : IInputActionCollection, IDisposable
                     ""action"": ""Special"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""754597f3-47a5-445e-a550-767be78ec2c4"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": ""ScaleVector2"",
+                    ""groups"": """",
+                    ""action"": ""Look"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""97944dd9-888e-485a-a27d-36529af7a495"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": ""StickDeadzone,ScaleVector2(x=3,y=2)"",
+                    ""groups"": """",
+                    ""action"": ""Look"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -222,6 +252,7 @@ public class @DevonaActions : IInputActionCollection, IDisposable
         // Character
         m_Character = asset.FindActionMap("Character", throwIfNotFound: true);
         m_Character_Move = m_Character.FindAction("Move", throwIfNotFound: true);
+        m_Character_Look = m_Character.FindAction("Look", throwIfNotFound: true);
         m_Character_LightAttack = m_Character.FindAction("Light Attack", throwIfNotFound: true);
         m_Character_HeavyAttack = m_Character.FindAction("Heavy Attack", throwIfNotFound: true);
         m_Character_Jump = m_Character.FindAction("Jump", throwIfNotFound: true);
@@ -276,6 +307,7 @@ public class @DevonaActions : IInputActionCollection, IDisposable
     private readonly InputActionMap m_Character;
     private ICharacterActions m_CharacterActionsCallbackInterface;
     private readonly InputAction m_Character_Move;
+    private readonly InputAction m_Character_Look;
     private readonly InputAction m_Character_LightAttack;
     private readonly InputAction m_Character_HeavyAttack;
     private readonly InputAction m_Character_Jump;
@@ -285,6 +317,7 @@ public class @DevonaActions : IInputActionCollection, IDisposable
         private @DevonaActions m_Wrapper;
         public CharacterActions(@DevonaActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Character_Move;
+        public InputAction @Look => m_Wrapper.m_Character_Look;
         public InputAction @LightAttack => m_Wrapper.m_Character_LightAttack;
         public InputAction @HeavyAttack => m_Wrapper.m_Character_HeavyAttack;
         public InputAction @Jump => m_Wrapper.m_Character_Jump;
@@ -301,6 +334,9 @@ public class @DevonaActions : IInputActionCollection, IDisposable
                 @Move.started -= m_Wrapper.m_CharacterActionsCallbackInterface.OnMove;
                 @Move.performed -= m_Wrapper.m_CharacterActionsCallbackInterface.OnMove;
                 @Move.canceled -= m_Wrapper.m_CharacterActionsCallbackInterface.OnMove;
+                @Look.started -= m_Wrapper.m_CharacterActionsCallbackInterface.OnLook;
+                @Look.performed -= m_Wrapper.m_CharacterActionsCallbackInterface.OnLook;
+                @Look.canceled -= m_Wrapper.m_CharacterActionsCallbackInterface.OnLook;
                 @LightAttack.started -= m_Wrapper.m_CharacterActionsCallbackInterface.OnLightAttack;
                 @LightAttack.performed -= m_Wrapper.m_CharacterActionsCallbackInterface.OnLightAttack;
                 @LightAttack.canceled -= m_Wrapper.m_CharacterActionsCallbackInterface.OnLightAttack;
@@ -320,6 +356,9 @@ public class @DevonaActions : IInputActionCollection, IDisposable
                 @Move.started += instance.OnMove;
                 @Move.performed += instance.OnMove;
                 @Move.canceled += instance.OnMove;
+                @Look.started += instance.OnLook;
+                @Look.performed += instance.OnLook;
+                @Look.canceled += instance.OnLook;
                 @LightAttack.started += instance.OnLightAttack;
                 @LightAttack.performed += instance.OnLightAttack;
                 @LightAttack.canceled += instance.OnLightAttack;
@@ -339,6 +378,7 @@ public class @DevonaActions : IInputActionCollection, IDisposable
     public interface ICharacterActions
     {
         void OnMove(InputAction.CallbackContext context);
+        void OnLook(InputAction.CallbackContext context);
         void OnLightAttack(InputAction.CallbackContext context);
         void OnHeavyAttack(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);

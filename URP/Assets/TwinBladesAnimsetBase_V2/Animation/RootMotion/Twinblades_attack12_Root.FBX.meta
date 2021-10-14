@@ -432,21 +432,21 @@ ModelImporter:
       curves: []
       events:
       - time: 0.036544852
-        functionName: SpawnVFX
+        functionName: SpawnCasterVFX
         data: heavy_finisher_1
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
       - time: 0.15945953
-        functionName: SpawnVFX
+        functionName: SpawnCasterVFX
         data: heavy_finisher_2
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
       - time: 0.38069704
-        functionName: SpawnVFX
+        functionName: SpawnCasterVFX
         data: heavy_finisher_3
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0

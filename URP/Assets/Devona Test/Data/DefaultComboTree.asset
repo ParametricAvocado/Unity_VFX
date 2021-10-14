@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8d0f2f82bb84007b583dab458d99fa9, type: 3}
   m_Name: DefaultComboTree
   m_EditorClassIdentifier: 
-  lightAttackRootNode: {fileID: 11400000, guid: 6e2e698bda3c27d46a1544a1c92ae4f6,
+  m_LightAttackRootNode: {fileID: 11400000, guid: 6e2e698bda3c27d46a1544a1c92ae4f6,
     type: 2}
-  heavyAttackRootNode: {fileID: 11400000, guid: 07ae2b13c3bef284b878233694a370ea,
+  m_HeavyAttackRootNode: {fileID: 11400000, guid: 07ae2b13c3bef284b878233694a370ea,
+    type: 2}
+  m_AirborneLightAttackRootNode: {fileID: 11400000, guid: 9e27ec3d3e24012428a2e966a6784dbb,
     type: 2}

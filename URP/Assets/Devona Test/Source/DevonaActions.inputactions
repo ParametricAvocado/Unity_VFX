@@ -14,6 +14,14 @@
                     "interactions": ""
                 },
                 {
+                    "name": "Look",
+                    "type": "Value",
+                    "id": "904d38e1-dba0-420f-9f7d-bbdd91889af8",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
                     "name": "Light Attack",
                     "type": "Button",
                     "id": "5d62a28e-917e-41e7-89df-51b459fbc879",
@@ -198,6 +206,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Special",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "754597f3-47a5-445e-a550-767be78ec2c4",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "ScaleVector2",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "97944dd9-888e-485a-a27d-36529af7a495",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "StickDeadzone,ScaleVector2(x=3,y=2)",
+                    "groups": "",
+                    "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
