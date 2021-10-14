@@ -5,5 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Nuts&Bolts/NutsBolts.unity
+    guid: d986ffb629491ee429fc840319182d9c
+  - enabled: 1
+    path: Assets/SceneBrightnessMeasure/SceneBrightnessMeasure.unity
+    guid: 466c49b822c87ff4f8a17b24a459b4ba
+  m_configObjects: {}
