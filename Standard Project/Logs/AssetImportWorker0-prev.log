@@ -1,0 +1,189 @@
+Using pre-set license
+Built from '2020.3/staging' branch; Version is '2020.3.3f1 (76626098c1c4) revision 7758432'; Using compiler version '192528614'; Build Type 'Release'
+OS: 'Windows 10 Pro; OS build 19042.928; Version 2009; 64bit' Language: 'en' Physical Memory: 16315 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1, IsPro: 0
+
+ COMMAND LINE ARGUMENTS:
+W:\Unity Installs\2020.3.3f1\Editor\Unity.exe
+-adb2
+-batchMode
+-noUpm
+-name
+AssetImportWorker0
+-projectPath
+D:/Unity Projects/Unity_VFX/Standard Project
+-logFile
+Logs/AssetImportWorker0.log
+-srvPort
+50654
+Successfully changed project path to: D:/Unity Projects/Unity_VFX/Standard Project
+D:/Unity Projects/Unity_VFX/Standard Project
+Using Asset Import Pipeline V2.
+Refreshing native plugins compatible for Editor in 36.38 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 2020.3.3f1 (76626098c1c4)
+[Subsystems] Discovering subsystems at path W:/Unity Installs/2020.3.3f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path D:/Unity Projects/Unity_VFX/Standard Project/Assets
+GfxDevice: creating device client; threaded=0
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 2060 (ID=0x1f08)
+    Vendor:   
+    VRAM:     5980 MB
+    Driver:   27.21.14.6611
+Initialize mono
+Mono path[0] = 'W:/Unity Installs/2020.3.3f1/Editor/Data/Managed'
+Mono path[1] = 'W:/Unity Installs/2020.3.3f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit'
+Mono config path = 'W:/Unity Installs/2020.3.3f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56476
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: W:/Unity Installs/2020.3.3f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.001029 seconds.
+Native extension for WindowsStandalone target not found
+Refreshing native plugins compatible for Editor in 23.91 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.365 seconds
+Platform modules already initialized, skipping
+Registering precompiled user dll's ...
+Registered in 0.002387 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Refreshing native plugins compatible for Editor in 0.21 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  0.788 seconds
+Platform modules already initialized, skipping
+========================================================================
+Worker process is ready to serve import requests
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.04 seconds
+Refreshing native plugins compatible for Editor in 0.21 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 1261 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 150.1 MB.
+System memory in use after: 150.2 MB.
+
+Unloading 17 unused Assets to reduce memory usage. Loaded Objects now: 1726.
+Total: 1.573800 ms (FindLiveObjects: 0.140500 ms CreateObjectMapping: 0.042300 ms MarkObjects: 1.316800 ms  DeleteObjects: 0.073200 ms)
+
+========================================================================
+Received Import Request.
+  path: Assets/Common/Animations/Roundhouse Kick (1).fbx
+  artifactKey: Guid(fbb263d323931c84b85b470ea7615e85) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Animations/Roundhouse Kick (1).fbx using Guid(fbb263d323931c84b85b470ea7615e85) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c2127fb9ce31823caa5454db61f1c200') in 0.144337 seconds
+  Import took 0.146508 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000241 seconds.
+  path: Assets/Common/Animations/Capoeira.fbx
+  artifactKey: Guid(1eb3cfb9347e23140a1ce8df0ac4d1e9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Animations/Capoeira.fbx using Guid(1eb3cfb9347e23140a1ce8df0ac4d1e9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ddbb7bddf9ba2c4213f4f13a08b5f8f3') in 0.034287 seconds
+  Import took 0.036204 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000186 seconds.
+  path: Assets/Common/Animations/ybot@Fast Run.fbx
+  artifactKey: Guid(3e11e776f7209394ea4936da79976d06) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Animations/ybot@Fast Run.fbx using Guid(3e11e776f7209394ea4936da79976d06) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '24e0666472c27d899a911bbe9652e722') in 0.028031 seconds
+  Import took 0.030973 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000248 seconds.
+  path: Assets/Common/Animations/Martelo 2.fbx
+  artifactKey: Guid(fb8bcfa22bf948540bca1f8b6b42c45c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Animations/Martelo 2.fbx using Guid(fb8bcfa22bf948540bca1f8b6b42c45c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0b6a9c09e75fc536ca1d9b0fa586a890') in 0.029912 seconds
+  Import took 0.032238 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000214 seconds.
+  path: Assets/Common/Animations/Roundhouse Kick.fbx
+  artifactKey: Guid(a605287ff5f305044b429a31a578dd32) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Animations/Roundhouse Kick.fbx using Guid(a605287ff5f305044b429a31a578dd32) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '01b3c39076db694e86cc7ae40f84a647') in 0.026054 seconds
+  Import took 0.028077 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000256 seconds.
+  path: Assets/Nuts&Bolts/NutsBolts/LightingData.asset
+  artifactKey: Guid(41e43fa7a1fc0054fa1303f502bd13f0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Nuts&Bolts/NutsBolts/LightingData.asset using Guid(41e43fa7a1fc0054fa1303f502bd13f0) Importer(815301076,1909f56bfc062723c751e8b465ee728b) Lighting data asset ‘LightingData’ is incompatible with the current Unity version. Please use Generate Lighting to rebuild the lighting data.  Realtime Global Illumination cannot be used until the lighting data is rebuilt.
+
+ -> (artifact id: '5db2d1b8f940e83a8a02fc196446ed44') in 0.034982 seconds
+  Import took 0.036651 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000245 seconds.
+  path: Assets/Common/Animations/ybot@Idle To Sprint.fbx
+  artifactKey: Guid(1fb6038acd98afd40816dbdc159e1b9f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Animations/ybot@Idle To Sprint.fbx using Guid(1fb6038acd98afd40816dbdc159e1b9f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9f3c1a10f8640dd54df8e111aad88324') in 0.015298 seconds
+  Import took 0.017199 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 1.755688 seconds.
+  path: Assets/CharacterTrail/Unlit/Character Trail.unity
+  artifactKey: Guid(19bb1a41d220ced429e31b31083e9164) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/CharacterTrail/Unlit/Character Trail.unity using Guid(19bb1a41d220ced429e31b31083e9164) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '937371c561c83b5550920888df7d642d') in 0.005613 seconds
+  Import took 0.007486 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.008953 seconds.
+  path: Assets/CharacterTrail/Unlit/Character Trail.unity
+  artifactKey: Guid(19bb1a41d220ced429e31b31083e9164) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/CharacterTrail/Unlit/Character Trail.unity using Guid(19bb1a41d220ced429e31b31083e9164) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '937371c561c83b5550920888df7d642d') in 0.001788 seconds
+  Import took 0.003786 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 17.588275 seconds.
+  path: Assets/WeatherFX/Scenes/SampleScene.unity
+  artifactKey: Guid(e49753a316dec5847abe7d00ecbf67ab) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/WeatherFX/Scenes/SampleScene.unity using Guid(e49753a316dec5847abe7d00ecbf67ab) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5ebdc00552e185a5c251cbd7464664e4') in 0.005497 seconds
+  Import took 0.007448 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 1.555185 seconds.
+  path: Assets/SceneBrightnessMeasure/SceneBrightnessMeasure.unity
+  artifactKey: Guid(466c49b822c87ff4f8a17b24a459b4ba) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/SceneBrightnessMeasure.unity using Guid(466c49b822c87ff4f8a17b24a459b4ba) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7419b45b9291adf74fd02346e83a5200') in 0.037127 seconds
+  Import took 0.063286 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 1.017570 seconds.
+  path: Assets/BloodOrb/SCN_BloodOrb.unity
+  artifactKey: Guid(d947d85818f89c4468784720d8716814) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/BloodOrb/SCN_BloodOrb.unity using Guid(d947d85818f89c4468784720d8716814) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5705e7b721317d58ca537f136f3e9ae3') in 0.005705 seconds
+  Import took 0.007490 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.840599 seconds.
+  path: Assets/CharacterTrail/Standard/SCN_CharacterTrail_Standard.unity
+  artifactKey: Guid(ca6d7caa8ff124f4db2644295b879375) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/CharacterTrail/Standard/SCN_CharacterTrail_Standard.unity using Guid(ca6d7caa8ff124f4db2644295b879375) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'bb28fd85f442c019acfb05c28124b14d') in 0.006151 seconds
+  Import took 0.007956 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.001424 seconds.
+  path: Assets/CharacterTrail/Standard/SCN_CharacterTrail_Standard.unity
+  artifactKey: Guid(ca6d7caa8ff124f4db2644295b879375) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/CharacterTrail/Standard/SCN_CharacterTrail_Standard.unity using Guid(ca6d7caa8ff124f4db2644295b879375) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'bb28fd85f442c019acfb05c28124b14d') in 0.001792 seconds
+  Import took 0.003593 seconds .
+
+AssetImportWorkerClient::OnTransportError - code=2 error=End of file

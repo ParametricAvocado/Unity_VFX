@@ -1,0 +1,517 @@
+Using pre-set license
+Built from '2020.3/staging' branch; Version is '2020.3.3f1 (76626098c1c4) revision 7758432'; Using compiler version '192528614'; Build Type 'Release'
+OS: 'Windows 10 Pro; OS build 19042.928; Version 2009; 64bit' Language: 'en' Physical Memory: 16315 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1, IsPro: 0
+
+ COMMAND LINE ARGUMENTS:
+W:\Unity Installs\2020.3.3f1\Editor\Unity.exe
+-adb2
+-batchMode
+-noUpm
+-name
+AssetImportWorker0
+-projectPath
+D:/Unity Projects/Unity_VFX/Standard Project
+-logFile
+Logs/AssetImportWorker0.log
+-srvPort
+50341
+Successfully changed project path to: D:/Unity Projects/Unity_VFX/Standard Project
+D:/Unity Projects/Unity_VFX/Standard Project
+Using Asset Import Pipeline V2.
+Refreshing native plugins compatible for Editor in 38.97 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 2020.3.3f1 (76626098c1c4)
+[Subsystems] Discovering subsystems at path W:/Unity Installs/2020.3.3f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path D:/Unity Projects/Unity_VFX/Standard Project/Assets
+GfxDevice: creating device client; threaded=0
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 2060 (ID=0x1f08)
+    Vendor:   
+    VRAM:     5980 MB
+    Driver:   27.21.14.6611
+Initialize mono
+Mono path[0] = 'W:/Unity Installs/2020.3.3f1/Editor/Data/Managed'
+Mono path[1] = 'W:/Unity Installs/2020.3.3f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit'
+Mono config path = 'W:/Unity Installs/2020.3.3f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56964
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: W:/Unity Installs/2020.3.3f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.001275 seconds.
+Native extension for WindowsStandalone target not found
+Refreshing native plugins compatible for Editor in 30.12 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.806 seconds
+Platform modules already initialized, skipping
+Registering precompiled user dll's ...
+Registered in 0.002658 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Refreshing native plugins compatible for Editor in 0.23 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.078 seconds
+Platform modules already initialized, skipping
+========================================================================
+Worker process is ready to serve import requests
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.05 seconds
+Refreshing native plugins compatible for Editor in 0.28 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 1261 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 150.2 MB.
+System memory in use after: 150.3 MB.
+
+Unloading 17 unused Assets to reduce memory usage. Loaded Objects now: 1726.
+Total: 3.822900 ms (FindLiveObjects: 0.205900 ms CreateObjectMapping: 0.136700 ms MarkObjects: 3.380700 ms  DeleteObjects: 0.098100 ms)
+
+========================================================================
+Received Import Request.
+  path: Assets/SceneBrightnessMeasure/M_WallBlack.mat
+  artifactKey: Guid(303d918839c3acf4dab4c19fd94aec2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_WallBlack.mat using Guid(303d918839c3acf4dab4c19fd94aec2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3e27f4fc6c7bf1fb98e6446a90f7a13a') in 0.164445 seconds
+  Import took 0.166544 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 808.464497 seconds.
+  path: Assets/SceneBrightnessMeasure/M_WallWhite.mat
+  artifactKey: Guid(c82fbee3bbf6eeb45b600a3a97de7570) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_WallWhite.mat using Guid(c82fbee3bbf6eeb45b600a3a97de7570) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '01e3255aef123cfc2a648a1a247ff55a') in 0.011806 seconds
+  Import took 0.023222 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 4.725729 seconds.
+  path: Assets/Common/Textures/T_Checkers.psd
+  artifactKey: Guid(1aacec6146e343d499fc3282fd734576) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Textures/T_Checkers.psd using Guid(1aacec6146e343d499fc3282fd734576) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ce874fed44d1bd450081048347068fe3') in 0.026131 seconds
+  Import took 0.028063 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 28.983181 seconds.
+  path: Assets/BrightnessUI.cs
+  artifactKey: Guid(1540d99697c7a4b48a8cf7357e4e12d6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/BrightnessUI.cs using Guid(1540d99697c7a4b48a8cf7357e4e12d6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'dfde9dcb6ccf3b4fe17c3eac540c17e5') in 0.013813 seconds
+  Import took 0.016098 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 1.896400 seconds.
+  path: Assets/SimplePointerDragCamera.cs
+  artifactKey: Guid(95407419e9717e249bbaed8000f8ba03) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SimplePointerDragCamera.cs using Guid(95407419e9717e249bbaed8000f8ba03) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3a595b2a93d86de45616a77f6c560bd6') in 0.005287 seconds
+  Import took 0.007299 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000875 seconds.
+  path: Assets/SimplePointerDragCamera.cs
+  artifactKey: Guid(95407419e9717e249bbaed8000f8ba03) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SimplePointerDragCamera.cs using Guid(95407419e9717e249bbaed8000f8ba03) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3a595b2a93d86de45616a77f6c560bd6') in 0.001852 seconds
+  Import took 0.003779 seconds .
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.002198 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Refreshing native plugins compatible for Editor in 0.24 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  0.839 seconds
+Platform modules already initialized, skipping
+Refreshing native plugins compatible for Editor in 0.22 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 1242 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 152.4 MB.
+System memory in use after: 152.5 MB.
+
+Unloading 9 unused Assets to reduce memory usage. Loaded Objects now: 1771.
+Total: 1.444500 ms (FindLiveObjects: 0.138500 ms CreateObjectMapping: 0.042200 ms MarkObjects: 1.232100 ms  DeleteObjects: 0.030500 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 73.888763 seconds.
+  path: Assets/SceneBrightnessMeasure/Green.mat
+  artifactKey: Guid(fd0df78d98d57d44ab530df55bd6e27a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/Green.mat using Guid(fd0df78d98d57d44ab530df55bd6e27a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '89a04018fd38d25066e83f575ceb0d1d') in 0.074042 seconds
+  Import took 0.080222 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000316 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_Orange.mat
+  artifactKey: Guid(ae79aaad6bd49ce41a4a538eb59465e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_Orange.mat using Guid(ae79aaad6bd49ce41a4a538eb59465e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a8044ca196581b41ff128cd6f24e7ce9') in 0.016334 seconds
+  Import took 0.019604 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000242 seconds.
+  path: Assets/SceneBrightnessMeasure/M_WallWhite.mat
+  artifactKey: Guid(c82fbee3bbf6eeb45b600a3a97de7570) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_WallWhite.mat using Guid(c82fbee3bbf6eeb45b600a3a97de7570) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '975a04f721bcc4c1fd1a4058849aa1fe') in 0.011121 seconds
+  Import took 0.013240 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000228 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_Blue.mat
+  artifactKey: Guid(12f225a026870574490c698d7b251288) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_Blue.mat using Guid(12f225a026870574490c698d7b251288) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '957f71217c4874633db0cdcc51ff9e6f') in 0.018343 seconds
+  Import took 0.020444 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000199 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_White.mat
+  artifactKey: Guid(b9a90f604d9f8324695daf8223fd1e5a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_White.mat using Guid(b9a90f604d9f8324695daf8223fd1e5a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4558fe850da60bbf06e3c0708db42ad8') in 0.011312 seconds
+  Import took 0.013408 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000170 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_Dark.mat
+  artifactKey: Guid(0e8997c5867b3034eab6c892607aa156) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_Dark.mat using Guid(0e8997c5867b3034eab6c892607aa156) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '76130c5f4f1dc632ce24d47f4281c3a0') in 0.023980 seconds
+  Import took 0.026571 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000162 seconds.
+  path: Assets/SceneBrightnessMeasure/M_WallBlack.mat
+  artifactKey: Guid(303d918839c3acf4dab4c19fd94aec2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_WallBlack.mat using Guid(303d918839c3acf4dab4c19fd94aec2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2be5c9ce58b4dade693dc937937f15e8') in 0.013395 seconds
+  Import took 0.015476 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 106.598887 seconds.
+  path: Assets/Common/Textures/T_Checkers.psd
+  artifactKey: Guid(1aacec6146e343d499fc3282fd734576) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Textures/T_Checkers.psd using Guid(1aacec6146e343d499fc3282fd734576) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '750c5dbae6b7f9ca94b2e8b1c8232dc3') in 0.015282 seconds
+  Import took 0.017460 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 22.407985 seconds.
+  path: Assets/Common/Textures/T_Checkers.psd
+  artifactKey: Guid(1aacec6146e343d499fc3282fd734576) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Textures/T_Checkers.psd using Guid(1aacec6146e343d499fc3282fd734576) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8c95d1921de00078f9d9cbb4da9d7c1a') in 0.010225 seconds
+  Import took 0.012363 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 54.841426 seconds.
+  path: Assets/SceneBrightnessMeasure/Green.mat
+  artifactKey: Guid(fd0df78d98d57d44ab530df55bd6e27a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/Green.mat using Guid(fd0df78d98d57d44ab530df55bd6e27a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '22d31fcdb8abcdf600afc2de8dff2fa4') in 0.012688 seconds
+  Import took 0.015858 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000221 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_Orange.mat
+  artifactKey: Guid(ae79aaad6bd49ce41a4a538eb59465e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_Orange.mat using Guid(ae79aaad6bd49ce41a4a538eb59465e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '32d05a9936949f5a3a63ad3a93c38aca') in 0.011158 seconds
+  Import took 0.013385 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000199 seconds.
+  path: Assets/SceneBrightnessMeasure/M_WallWhite.mat
+  artifactKey: Guid(c82fbee3bbf6eeb45b600a3a97de7570) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_WallWhite.mat using Guid(c82fbee3bbf6eeb45b600a3a97de7570) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '83f04aa72befc5197c22e2286a47ed06') in 0.013058 seconds
+  Import took 0.015166 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000172 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_Blue.mat
+  artifactKey: Guid(12f225a026870574490c698d7b251288) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_Blue.mat using Guid(12f225a026870574490c698d7b251288) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2f156c4ec3f99f1f61faec4d1a797953') in 0.013975 seconds
+  Import took 0.016019 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000145 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_White.mat
+  artifactKey: Guid(b9a90f604d9f8324695daf8223fd1e5a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_White.mat using Guid(b9a90f604d9f8324695daf8223fd1e5a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '389a86427c9df6dd72e45b7481d34af5') in 0.012360 seconds
+  Import took 0.014875 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000209 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_Dark.mat
+  artifactKey: Guid(0e8997c5867b3034eab6c892607aa156) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_Dark.mat using Guid(0e8997c5867b3034eab6c892607aa156) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6350d93e641741a71e2aa083a5015cb0') in 0.011680 seconds
+  Import took 0.013763 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000196 seconds.
+  path: Assets/SceneBrightnessMeasure/M_WallBlack.mat
+  artifactKey: Guid(303d918839c3acf4dab4c19fd94aec2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_WallBlack.mat using Guid(303d918839c3acf4dab4c19fd94aec2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'cf8dd4ca1edfb7b6e0a2607242bae776') in 0.009905 seconds
+  Import took 0.012079 seconds .
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.002112 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Refreshing native plugins compatible for Editor in 0.22 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  0.749 seconds
+Platform modules already initialized, skipping
+Refreshing native plugins compatible for Editor in 0.22 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 1242 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 152.4 MB.
+System memory in use after: 152.5 MB.
+
+Unloading 9 unused Assets to reduce memory usage. Loaded Objects now: 1775.
+Total: 1.490900 ms (FindLiveObjects: 0.176700 ms CreateObjectMapping: 0.041000 ms MarkObjects: 1.234400 ms  DeleteObjects: 0.037400 ms)
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.37 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 7 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 128.0 MB.
+System memory in use after: 128.1 MB.
+
+Unloading 6 unused Assets to reduce memory usage. Loaded Objects now: 1775.
+Total: 1.873800 ms (FindLiveObjects: 0.186500 ms CreateObjectMapping: 0.166900 ms MarkObjects: 1.503200 ms  DeleteObjects: 0.015600 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 732.477436 seconds.
+  path: Assets/SceneBrightnessMeasure/Green.mat
+  artifactKey: Guid(fd0df78d98d57d44ab530df55bd6e27a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/Green.mat using Guid(fd0df78d98d57d44ab530df55bd6e27a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '72f43ec255a8c5e8646dcd94c0be04f1') in 0.073872 seconds
+  Import took 0.075979 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000212 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_Orange.mat
+  artifactKey: Guid(ae79aaad6bd49ce41a4a538eb59465e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_Orange.mat using Guid(ae79aaad6bd49ce41a4a538eb59465e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a4ca1c58c17cbf0a31a7be9af99acaa2') in 0.013596 seconds
+  Import took 0.016273 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000210 seconds.
+  path: Assets/SceneBrightnessMeasure/M_WallWhite.mat
+  artifactKey: Guid(c82fbee3bbf6eeb45b600a3a97de7570) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_WallWhite.mat using Guid(c82fbee3bbf6eeb45b600a3a97de7570) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '09e310d63263162f6e2487a95e1fa8bb') in 0.010852 seconds
+  Import took 0.013258 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000158 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_Blue.mat
+  artifactKey: Guid(12f225a026870574490c698d7b251288) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_Blue.mat using Guid(12f225a026870574490c698d7b251288) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9f897f649117939e7eeaa379284d451f') in 0.010974 seconds
+  Import took 0.029499 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000155 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_White.mat
+  artifactKey: Guid(b9a90f604d9f8324695daf8223fd1e5a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_White.mat using Guid(b9a90f604d9f8324695daf8223fd1e5a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5521adcd11bebb5fb5223632fd3c2f91') in 0.009545 seconds
+  Import took 0.011406 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000145 seconds.
+  path: Assets/SceneBrightnessMeasure/M_Wall_Dark.mat
+  artifactKey: Guid(0e8997c5867b3034eab6c892607aa156) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_Wall_Dark.mat using Guid(0e8997c5867b3034eab6c892607aa156) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2d84f21df10b6c1426e7c0876198f57e') in 0.009741 seconds
+  Import took 0.011725 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000142 seconds.
+  path: Assets/SceneBrightnessMeasure/M_WallBlack.mat
+  artifactKey: Guid(303d918839c3acf4dab4c19fd94aec2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/M_WallBlack.mat using Guid(303d918839c3acf4dab4c19fd94aec2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '58a4b63e2dbc8bc5e81f2b0eec18c5b7') in 0.009042 seconds
+  Import took 0.010848 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.116899 seconds.
+  path: Assets/SceneBrightnessMeasure/Green.mat
+  artifactKey: Guid(fd0df78d98d57d44ab530df55bd6e27a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/SceneBrightnessMeasure/Green.mat using Guid(fd0df78d98d57d44ab530df55bd6e27a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '72f43ec255a8c5e8646dcd94c0be04f1') in 0.010803 seconds
+  Import took 0.013178 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 577.606747 seconds.
+  path: Assets/Common/Materials
+  artifactKey: Guid(6b2e46b971c9cdf44b905f1a28798785) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Materials using Guid(6b2e46b971c9cdf44b905f1a28798785) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a97013f68516d4c72938f88f5a0b1712') in 0.007111 seconds
+  Import took 0.009380 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 10.330501 seconds.
+  path: Assets/Common/Materials/M_DefaultUI.mat
+  artifactKey: Guid(3d7bce8825bc4dd4e97e80ceaa193fb4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Materials/M_DefaultUI.mat using Guid(3d7bce8825bc4dd4e97e80ceaa193fb4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c204e2296664f9163898a5e87331f0ee') in 0.011699 seconds
+  Import took 0.013768 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 12.507753 seconds.
+  path: Assets/WaterTank/M_WaterDrop.mat
+  artifactKey: Guid(e457c7aadc8f38c409b7f54072143143) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/WaterTank/M_WaterDrop.mat using Guid(e457c7aadc8f38c409b7f54072143143) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'fde0166598996e5123d4a86dbd4d9aa7') in 0.037746 seconds
+  Import took 0.039650 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000260 seconds.
+  path: Assets/WaterTank/M_WaterVolume.mat
+  artifactKey: Guid(71a8c78b33e2ef74e8bb43ea5acbfeb5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/WaterTank/M_WaterVolume.mat using Guid(71a8c78b33e2ef74e8bb43ea5acbfeb5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '653fbb5fad6d3d94f439d5b22b124cc3') in 0.291396 seconds
+  Import took 0.293382 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 23.002507 seconds.
+  path: Assets/Common/Materials/M_DefaultUI.mat
+  artifactKey: Guid(3d7bce8825bc4dd4e97e80ceaa193fb4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Common/Materials/M_DefaultUI.mat using Guid(3d7bce8825bc4dd4e97e80ceaa193fb4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2fbb6f103bc05b2f23612e87c810576a') in 0.005630 seconds
+  Import took 0.007722 seconds .
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.21 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 7 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 128.2 MB.
+System memory in use after: 128.3 MB.
+
+Unloading 7 unused Assets to reduce memory usage. Loaded Objects now: 1776.
+Total: 2.271200 ms (FindLiveObjects: 0.172700 ms CreateObjectMapping: 0.041200 ms MarkObjects: 2.019400 ms  DeleteObjects: 0.036400 ms)
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.34 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 7 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 128.2 MB.
+System memory in use after: 128.3 MB.
+
+Unloading 6 unused Assets to reduce memory usage. Loaded Objects now: 1776.
+Total: 1.924400 ms (FindLiveObjects: 0.194600 ms CreateObjectMapping: 0.050200 ms MarkObjects: 1.658200 ms  DeleteObjects: 0.019800 ms)
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.19 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 7 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 128.2 MB.
+System memory in use after: 128.3 MB.
+
+Unloading 6 unused Assets to reduce memory usage. Loaded Objects now: 1776.
+Total: 1.891500 ms (FindLiveObjects: 0.126900 ms CreateObjectMapping: 0.041000 ms MarkObjects: 1.710600 ms  DeleteObjects: 0.011900 ms)
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.002253 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for WindowsStandalone target not found
+Refreshing native plugins compatible for Editor in 0.23 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Invoked RoslynAnalysisRunner static constructor.
+RoslynAnalysisRunner will not be running.
+RoslynAnalysisRunner has terminated.
+Mono: successfully reloaded assembly
+- Completed reload, in  0.783 seconds
+Platform modules already initialized, skipping
+Switching build target platform(5) subTarget(0) extendedPlatform(0) -> platform(13) subTarget(589824) extendedPlatform(0)
+Refreshing native plugins compatible for Editor in 0.24 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 1246 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 151.3 MB.
+System memory in use after: 151.4 MB.
+
+Unloading 8 unused Assets to reduce memory usage. Loaded Objects now: 1779.
+Total: 1.668600 ms (FindLiveObjects: 0.159600 ms CreateObjectMapping: 0.050600 ms MarkObjects: 1.437500 ms  DeleteObjects: 0.019500 ms)
+
+AssetImportParameters requested are different than current active one (requested -> active):
+  custom:graphics/normal-map-encoding: 01000000000000000000000000000000 -> 02000000000000000000000000000000
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.46 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 7 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 126.8 MB.
+System memory in use after: 126.9 MB.
+
+Unloading 6 unused Assets to reduce memory usage. Loaded Objects now: 1779.
+Total: 1.445100 ms (FindLiveObjects: 0.127600 ms CreateObjectMapping: 0.035400 ms MarkObjects: 1.268800 ms  DeleteObjects: 0.012300 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 673.764688 seconds.
+  path: ProjectSettings/ProjectSettings.asset
+  artifactKey: Guid(00000000000000004000000000000000) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing ProjectSettings/ProjectSettings.asset using Guid(00000000000000004000000000000000) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0c69e06c8998f08992a93cfc112cf2f8') in 0.019295 seconds
+  Import took 0.021294 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.026193 seconds.
+  path: ProjectSettings/ProjectSettings.asset
+  artifactKey: Guid(00000000000000004000000000000000) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing ProjectSettings/ProjectSettings.asset using Guid(00000000000000004000000000000000) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0c69e06c8998f08992a93cfc112cf2f8') in 0.003627 seconds
+  Import took 0.006028 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 30.610466 seconds.
+  path: ProjectSettings/ProjectSettings.asset
+  artifactKey: Guid(00000000000000004000000000000000) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing ProjectSettings/ProjectSettings.asset using Guid(00000000000000004000000000000000) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '23e5d3711a9e81ecb1f9a7768727a352') in 0.002927 seconds
+  Import took 0.005148 seconds .
+
+========================================================================
+Received Prepare
+Refreshing native plugins compatible for Editor in 1.25 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 7 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 126.9 MB.
+System memory in use after: 127.0 MB.
+
+Unloading 9 unused Assets to reduce memory usage. Loaded Objects now: 1779.
+Total: 2.059200 ms (FindLiveObjects: 0.133000 ms CreateObjectMapping: 0.042300 ms MarkObjects: 1.865800 ms  DeleteObjects: 0.017300 ms)
+
+AssetImportWorkerClient::OnTransportError - code=2 error=End of file

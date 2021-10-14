@@ -1,0 +1,28 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+Texture2D<float4> source_texture;
+SamplerState linearClampSampler;
+RWTexture2D<float4> result_texture;
+
+float resolution;
+
+struct FrameData
+{
+    float brightness;
+};
+
+RWStructuredBuffer<FrameData> frame_data;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    const float2 uv = id.xy / resolution;
+    const float4 c = source_texture.SampleLevel(linearClampSampler, uv, 0);
+
+    // result_texture[id.xy] = c;
+
+
+    const float3 lum = float3(.21, .71, .07);
+    frame_data[id.x + resolution * id.y].brightness = dot(c.rgb, lum);
+}
