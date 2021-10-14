@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &1726105979512554346
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7441122093792623676, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a495270b55ef3de4b865e0c65da382ff, type: 2}
+    - target: {fileID: 7441122094026195179, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a495270b55ef3de4b865e0c65da382ff, type: 2}
+    - target: {fileID: 7441122094728970670, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a495270b55ef3de4b865e0c65da382ff, type: 2}
+    - target: {fileID: 7441122095120576048, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095120576048, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095120576048, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095120576048, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095120576048, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095120576048, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095120576048, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095120576048, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095120576048, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095120576048, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095120576048, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095120576050, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_Name
+      value: player_tank_blue
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441122095237877247, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: a495270b55ef3de4b865e0c65da382ff, type: 2}
+    - target: {fileID: 7986771401252531475, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_BaseColor.b
+      value: 0.6075773
+      objectReference: {fileID: 0}
+    - target: {fileID: 7986771401252531475, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_BaseColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7986771401252531475, guid: 270a6b9a50b516c419049ddcd6ec5ce9,
+        type: 3}
+      propertyPath: m_BaseColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 270a6b9a50b516c419049ddcd6ec5ce9, type: 3}
