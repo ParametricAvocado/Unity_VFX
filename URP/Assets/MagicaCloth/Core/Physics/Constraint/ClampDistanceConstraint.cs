@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -158,7 +158,7 @@ namespace MagicaCloth
         /// <param name="dtime"></param>
         /// <param name="jobHandle"></param>
         /// <returns></returns>
-        public override JobHandle SolverConstraint(float dtime, float updatePower, int iteration, JobHandle jobHandle)
+        public override JobHandle SolverConstraint(int runCount, float dtime, float updatePower, int iteration, JobHandle jobHandle)
         {
             if (groupList.Count == 0)
                 return jobHandle;
@@ -166,6 +166,8 @@ namespace MagicaCloth
             // 最大最小距離拘束（パーティクルごとに実行する）
             var job1 = new ClampDistanceJob()
             {
+                runCount = runCount,
+
                 clampDistanceList = dataList.ToJobArray(),
                 groupList = groupList.ToJobArray(),
                 refDataList = refDataList.ToJobArray(),
@@ -174,15 +176,13 @@ namespace MagicaCloth
                 teamIdList = Manager.Particle.teamIdList.ToJobArray(),
 
                 flagList = Manager.Particle.flagList.ToJobArray(),
-                basePosList = Manager.Particle.basePosList.ToJobArray(),
                 nextPosList = Manager.Particle.InNextPosList.ToJobArray(),
-                outNextPosList = Manager.Particle.OutNextPosList.ToJobArray(),
+                basePosList = Manager.Particle.basePosList.ToJobArray(),
 
                 posList = Manager.Particle.posList.ToJobArray(),
                 frictionList = Manager.Particle.frictionList.ToJobArray(),
             };
             jobHandle = job1.Schedule(Manager.Particle.Length, 64, jobHandle);
-            Manager.Particle.SwitchingNextPosList();
 
             return jobHandle;
         }
@@ -194,6 +194,8 @@ namespace MagicaCloth
         [BurstCompile]
         struct ClampDistanceJob : IJobParallelFor
         {
+            public int runCount;
+
             [Unity.Collections.ReadOnly]
             public NativeArray<ClampDistanceData> clampDistanceList;
             [Unity.Collections.ReadOnly]
@@ -209,12 +211,10 @@ namespace MagicaCloth
 
             [Unity.Collections.ReadOnly]
             public NativeArray<PhysicsManagerParticleData.ParticleFlag> flagList;
+            [NativeDisableParallelForRestriction]
+            public NativeArray<float3> nextPosList;
             [Unity.Collections.ReadOnly]
             public NativeArray<float3> basePosList;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> nextPosList;
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> outNextPosList;
             public NativeArray<float3> posList;
             [Unity.Collections.ReadOnly]
             public NativeArray<float> frictionList;
@@ -222,10 +222,6 @@ namespace MagicaCloth
             // パーティクルごと
             public void Execute(int index)
             {
-                // 初期化コピー
-                var nextpos = nextPosList[index];
-                outNextPosList[index] = nextpos;
-
                 // 頂点フラグ
                 var flag = flagList[index];
                 if (flag.IsValid() == false || flag.IsFixed())
@@ -237,7 +233,7 @@ namespace MagicaCloth
                     return;
 
                 // 更新確認
-                if (team.IsUpdate() == false)
+                if (team.IsUpdate(runCount) == false)
                     return;
 
                 int pstart = team.particleChunk.startIndex;
@@ -247,6 +243,12 @@ namespace MagicaCloth
                 var gdata = groupList[team.clampDistanceGroupIndex];
                 if (gdata.active == 0)
                     return;
+
+                // アニメーションされた姿勢の使用
+                bool useAnimatedPose = team.IsFlag(PhysicsManagerTeamData.Flag_AnimatedPose);
+
+                var nextpos = nextPosList[index];
+                var basepos = basePosList[index];
 
                 // 参照データ情報
                 var refdata = refDataList[gdata.refChunk.startIndex + vindex];
@@ -267,11 +269,13 @@ namespace MagicaCloth
                     // 復元長さ
                     float length = data.length; // v1.7.0
                     length *= team.scaleRatio; // チームスケール倍率
-                    //if (length == 0.0f)
-                    //{
-                    //    // 従来データ（basePosの長さから)
-                    //    length = math.distance(basePosList[index], basePosList[pindex2]);
-                    //}
+                    if (useAnimatedPose)
+                    {
+                        // アニメーションされた距離を使用
+                        //length = math.distance(basepos, basePosList[pindex2]); // 現在のオリジナル距離
+                        //length = math.max(math.distance(basepos, basePosList[pindex2]), length); // 長い方を採用する
+                        length = (math.distance(basepos, basePosList[pindex2]) + length) * 0.5f; // 平均
+                    }
 
                     // ベクトル長クランプ
                     v = MathUtility.ClampVector(v, length * gdata.minRatio, length * gdata.maxRatio);
@@ -286,7 +290,7 @@ namespace MagicaCloth
                     nextpos = math.lerp(opos, nextpos, moveratio);
 
                     // 書き出し
-                    outNextPosList[index] = nextpos;
+                    nextPosList[index] = nextpos;
 
                     // 速度影響
                     var av = (nextpos - opos) * (1.0f - gdata.velocityInfluence);

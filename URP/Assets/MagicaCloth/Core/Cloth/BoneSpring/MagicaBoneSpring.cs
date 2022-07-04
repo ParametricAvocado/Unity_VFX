@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -20,7 +20,7 @@ namespace MagicaCloth
         /// <summary>
         /// データバージョン
         /// </summary>
-        private const int DATA_VERSION = 5;
+        private const int DATA_VERSION = 7;
 
         /// <summary>
         /// エラーデータバージョン
@@ -141,13 +141,6 @@ namespace MagicaCloth
         protected override void ClothActive()
         {
             base.ClothActive();
-
-            // ルートトランスフォームの親の未来予測をリセットする
-            // 遅延実行＋再アクティブ時のみ
-            if (MagicaPhysicsManager.Instance.IsDelay && ActiveCount > 1)
-            {
-                ClothTarget.ResetFuturePredictionParentTransform();
-            }
         }
 
         /// <summary>
@@ -203,13 +196,13 @@ namespace MagicaCloth
         }
 
         /// <summary>
-        /// デフォーマーの数を返す
+        /// デフォーマーが必須か返す
         /// </summary>
         /// <returns></returns>
-        public override int GetDeformerCount()
+        public override bool IsRequiresDeformer()
         {
             // BoneClothには不要
-            return 0;
+            return false;
         }
 
         /// <summary>
@@ -217,7 +210,7 @@ namespace MagicaCloth
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public override BaseMeshDeformer GetDeformer(int index)
+        public override BaseMeshDeformer GetDeformer()
         {
             // BoneClothには不要
             return null;
@@ -246,10 +239,50 @@ namespace MagicaCloth
         /// </summary>
         /// <param name="sw"></param>
         /// <param name="deformer"></param>
-        /// <param name="deformerIndex"></param>
-        protected override void SetDeformerUseVertex(bool sw, BaseMeshDeformer deformer, int deformerIndex)
+        protected override void SetDeformerUseVertex(bool sw, BaseMeshDeformer deformer)
         {
             // BoneClothには不要
+        }
+
+        /// <summary>
+        /// UnityPhyiscsでの更新の変更
+        /// 継承クラスは自身の使用するボーンの状態更新などを記述する
+        /// </summary>
+        /// <param name="sw"></param>
+        protected override void ChangeUseUnityPhysics(bool sw)
+        {
+            base.ChangeUseUnityPhysics(sw);
+
+            if (teamId <= 0)
+                return;
+
+            ClothTarget.ChangeUnityPhysicsCount(sw);
+        }
+
+        protected override void OnChangeCalculation()
+        {
+            base.OnChangeCalculation();
+
+            if (IsCalculate)
+            {
+                // ルートトランスフォームの親の未来予測をリセットする
+                // 遅延実行＋再アクティブ時のみ
+                //if (MagicaPhysicsManager.Instance.IsDelay && ActiveCount > 1)
+                if (MagicaPhysicsManager.Instance.IsDelay)
+                {
+                    ClothTarget.ResetFuturePredictionParentTransform();
+
+                    // 読み込みボーンの未来予測をリセットする
+                    MagicaPhysicsManager.Instance.Particle.ResetFuturePredictionTransform(particleChunk);
+                }
+            }
+
+            // 書き込みボーンのフラグ設定
+            if (MagicaPhysicsManager.IsInstance())
+            {
+                //Debug.Log($"ChangeWriteBoneFlag:[{this.name}] Write:{IsCalculate} F:{Time.frameCount}");
+                MagicaPhysicsManager.Instance.Team.ChangeBoneFlag(TeamId, CullingMode, IsCalculate);
+            }
         }
 
         //=========================================================================================
@@ -367,6 +400,8 @@ namespace MagicaCloth
                 // OK
                 var cdata = ClothData;
                 StaticStringBuilder.AppendLine("Active: ", Status.IsActive);
+                StaticStringBuilder.AppendLine($"Visible: {IsVisible}");
+                StaticStringBuilder.AppendLine($"Calculation:{IsCalculate}");
                 StaticStringBuilder.AppendLine("Transform: ", MeshData.VertexCount);
                 StaticStringBuilder.AppendLine("Clamp Position: ", clothParams.UseClampPositionLength ? cdata.VertexUseCount : 0);
                 StaticStringBuilder.AppendLine("Spring: ", clothParams.UseSpring ? cdata.VertexUseCount : 0);
@@ -399,7 +434,7 @@ namespace MagicaCloth
         /// ボーンを置換する
         /// </summary>
         /// <param name="boneReplaceDict"></param>
-        public override void ReplaceBone(Dictionary<Transform, Transform> boneReplaceDict)
+        public override void ReplaceBone<T>(Dictionary<T, Transform> boneReplaceDict)
         {
             base.ReplaceBone(boneReplaceDict);
 
@@ -409,6 +444,18 @@ namespace MagicaCloth
             }
 
             clothTarget.ReplaceBone(boneReplaceDict);
+        }
+
+        /// <summary>
+        /// 現在使用しているボーンを格納して返す
+        /// </summary>
+        /// <returns></returns>
+        public override HashSet<Transform> GetUsedBones()
+        {
+            var bones = base.GetUsedBones();
+            bones.UnionWith(useTransformList);
+            bones.UnionWith(clothTarget.GetUsedBones());
+            return bones;
         }
 
         //=========================================================================================
@@ -540,12 +587,13 @@ namespace MagicaCloth
         /// </summary>
         void ResetParams()
         {
-            clothParams.SetRadius(0.02f, 0.02f);
+            clothParams.AlgorithmType = ClothParams.Algorithm.Algorithm_2;
+            clothParams.SetRadius(0.05f, 0.05f);
             clothParams.SetMass(1.0f, 1.0f, false);
-            clothParams.SetGravity(false, -9.8f, -9.8f);
+            clothParams.SetGravity(false, -5.0f, -5.0f);
             clothParams.SetDrag(true, 0.03f, 0.03f);
             clothParams.SetMaxVelocity(true, 3.0f, 3.0f);
-            clothParams.SetWorldInfluence(10.0f, 0.5f, 0.5f);
+            clothParams.SetWorldInfluence(2.0f, 0.5f, 1.0f);
             clothParams.SetTeleport(false);
             clothParams.SetClampDistanceRatio(false);
             clothParams.SetClampPositionLength(true, 0.2f, 0.2f, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -556,8 +604,8 @@ namespace MagicaCloth
             clothParams.SetAdjustRotation(ClothParams.AdjustMode.Fixed, 3.0f);
             clothParams.SetTriangleBend(false);
             clothParams.SetVolume(false);
-            clothParams.SetCollision(false, 0.2f);
-            clothParams.SetExternalForce(0.2f, 0.0f, 0.0f);
+            clothParams.SetCollision(false, 0.1f);
+            clothParams.SetExternalForce(0.2f, 0.0f, 0.0f, 1.0f);
         }
     }
 }

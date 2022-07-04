@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,12 +27,6 @@ namespace MagicaCloth
         /// </summary>
         //[SerializeField]
         //private List<Transform> skinningBoneList = new List<Transform>();
-
-        /// <summary>
-        /// スキニングで無視するコライダーリスト
-        /// </summary>
-        //[SerializeField]
-        //private List<ColliderComponent> skinningIgnoreColliderList = new List<ColliderComponent>();
 
         /// <summary>
         /// 親アバターのコライダーを結合するかどうか
@@ -114,6 +108,15 @@ namespace MagicaCloth
                 addColliderList.Remove(collider);
         }
 
+        /// <summary>
+        /// コライダーなどの外部パーティクルの状態を更新する
+        /// </summary>
+        internal void UpdateStatus()
+        {
+            foreach (var collider in colliderList)
+                collider.UpdateStatus();
+        }
+
         //=========================================================================================
         public int ColliderCount
         {
@@ -139,21 +142,7 @@ namespace MagicaCloth
             }
         }
 
-        //public List<Transform> SkinningBoneList
-        //{
-        //    get
-        //    {
-        //        return skinningBoneList;
-        //    }
-        //}
-
-        //public List<ColliderComponent> SkinningIgnoreColliderList
-        //{
-        //    get
-        //    {
-        //        return skinningIgnoreColliderList;
-        //    }
-        //}
+        //public List<Transform> SkinningBoneList => skinningBoneList;
 
         public bool MergeAvatarCollider
         {

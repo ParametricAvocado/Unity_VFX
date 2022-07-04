@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -37,7 +37,8 @@ namespace MagicaCloth
         public const uint Flag_Transform_Read_Scl = 0x00010000; // ワールドスケールが必要
         public const uint Flag_Transform_Write = 0x00020000; // トランスフォームへpos/rotを書き戻す
         public const uint Flag_Transform_Restore = 0x00040000; // 実行前にトランスフォームlocalPos/localRotを復元
-        public const uint Flag_Transform_Parent = 0x00080000; // 親トランスフォームを参照している
+        public const uint Flag_Transform_UnityPhysics = 0x00080000; // FixedUpdateでの更新
+        public const uint Flag_Transform_Parent = 0x00100000; // 親トランスフォームを参照している
 
         public const uint Flag_Step_Update = 0x01000000; // Old -> Base を補間して現在姿勢とする
         public const uint Flag_Reset_Position = 0x02000000; // 位置回転速度をBaseにリセットする
@@ -118,6 +119,15 @@ namespace MagicaCloth
             }
 
             /// <summary>
+            /// このパーティクルが移動できるか判定する
+            /// </summary>
+            /// <returns></returns>
+            public bool IsMove()
+            {
+                return (flag & (Flag_Kinematic | Flag_Hold)) == 0;
+            }
+
+            /// <summary>
             /// このパーティクルが物理無効化されているか判定する
             /// </summary>
             /// <returns></returns>
@@ -179,6 +189,15 @@ namespace MagicaCloth
             {
                 return (flag & Flag_Transform_Restore) != 0;
                 //return (flag & (Flag_Transform_Restore_Pos | Flag_Transform_Restore_Rot)) != 0;
+            }
+
+            /// <summary>
+            /// このパーティクルがFixedUpdateでトランスフォームの更新を行うか判定する
+            /// </summary>
+            /// <returns></returns>
+            public bool IsUnityPhysics()
+            {
+                return (flag & Flag_Transform_UnityPhysics) != 0;
             }
 
             /// <summary>
@@ -245,14 +264,37 @@ namespace MagicaCloth
         public FixedChunkNativeArray<float3> localPosList;
 
         /// <summary>
-        /// 本来のワールド位置リスト
+        /// 現在の基準位置リスト
         /// </summary>
         public FixedChunkNativeArray<float3> basePosList;
 
         /// <summary>
-        /// 本来のワールド回転リスト
+        /// 現在の基準回転リスト
         /// </summary>
         public FixedChunkNativeArray<quaternion> baseRotList;
+
+        /// <summary>
+        /// 本来の基準位置リスト
+        /// </summary>
+        public FixedChunkNativeArray<float3> snapBasePosList;
+
+        /// <summary>
+        /// 本来の基準回転リスト
+        /// </summary>
+        public FixedChunkNativeArray<quaternion> snapBaseRotList;
+
+        /// <summary>
+        /// １つ前の基準位置リスト
+        /// </summary>
+        public FixedChunkNativeArray<float3> oldBasePosList;
+
+        /// <summary>
+        /// １つ前の基準回転リスト
+        /// </summary>
+        public FixedChunkNativeArray<quaternion> oldBaseRotList;
+
+
+
 
         /// <summary>
         /// パーティクル深さリスト
@@ -282,23 +324,24 @@ namespace MagicaCloth
         public FixedChunkNativeArray<float> frictionList;
 
         /// <summary>
+        /// 現在の静止摩擦係数リスト
+        /// </summary>
+        public FixedChunkNativeArray<float> staticFrictionList;
+
+        /// <summary>
         /// 現在の速度リスト
         /// </summary>
         public FixedChunkNativeArray<float3> velocityList;
 
         /// <summary>
-        /// 衝突コライダーID(0=なし)
+        /// 接触コライダーID(0=なし)
         /// </summary>
         public FixedChunkNativeArray<int> collisionLinkIdList;
 
         /// <summary>
-        /// 衝突コライダーとの距離
+        /// 接触コライダーの衝突法線
         /// </summary>
-        public FixedChunkNativeArray<float> collisionDistList;
-
-        //public FixedChunkNativeArray<float3> collisionLinkLocalPosList;
-
-        //public FixedChunkNativeArray<float3> collisionLinkDirectionList;
+        public FixedChunkNativeArray<float3> collisionNormalList;
 
         /// <summary>
         /// 作業用座標リスト０
@@ -352,16 +395,19 @@ namespace MagicaCloth
             localPosList = new FixedChunkNativeArray<float3>();
             basePosList = new FixedChunkNativeArray<float3>();
             baseRotList = new FixedChunkNativeArray<quaternion>();
+            snapBasePosList = new FixedChunkNativeArray<float3>();
+            snapBaseRotList = new FixedChunkNativeArray<quaternion>();
+            oldBasePosList = new FixedChunkNativeArray<float3>();
+            oldBaseRotList = new FixedChunkNativeArray<quaternion>();
             depthList = new FixedChunkNativeArray<float>();
             radiusList = new FixedChunkNativeArray<float3>();
             restoreTransformIndexList = new FixedChunkNativeArray<int>();
             transformIndexList = new FixedChunkNativeArray<int>();
             frictionList = new FixedChunkNativeArray<float>();
+            staticFrictionList = new FixedChunkNativeArray<float>();
             velocityList = new FixedChunkNativeArray<float3>();
             collisionLinkIdList = new FixedChunkNativeArray<int>();
-            collisionDistList = new FixedChunkNativeArray<float>();
-            //collisionLinkLocalPosList = new FixedChunkNativeArray<float3>();
-            //collisionLinkDirectionList = new FixedChunkNativeArray<float3>();
+            collisionNormalList = new FixedChunkNativeArray<float3>();
             nextPos0List = new FixedChunkNativeArray<float3>();
             nextPos1List = new FixedChunkNativeArray<float3>();
             nextRot0List = new FixedChunkNativeArray<quaternion>();
@@ -390,16 +436,19 @@ namespace MagicaCloth
             localPosList.Dispose();
             basePosList.Dispose();
             baseRotList.Dispose();
+            snapBasePosList.Dispose();
+            snapBaseRotList.Dispose();
+            oldBasePosList.Dispose();
+            oldBaseRotList.Dispose();
             depthList.Dispose();
             radiusList.Dispose();
             restoreTransformIndexList.Dispose();
             transformIndexList.Dispose();
             frictionList.Dispose();
+            staticFrictionList.Dispose();
             velocityList.Dispose();
             collisionLinkIdList.Dispose();
-            collisionDistList.Dispose();
-            //collisionLinkLocalPosList.Dispose();
-            //collisionLinkDirectionList.Dispose();
+            collisionNormalList.Dispose();
             nextPos0List.Dispose();
             nextPos1List.Dispose();
             nextRot0List.Dispose();
@@ -442,14 +491,17 @@ namespace MagicaCloth
             localPosList.Add(targetLocalPos);
             basePosList.Add(wpos);
             baseRotList.Add(wrot);
+            snapBasePosList.Add(wpos);
+            snapBaseRotList.Add(wrot);
+            oldBasePosList.Add(wpos);
+            oldBaseRotList.Add(wrot);
             depthList.Add(depth);
             radiusList.Add(radius);
             frictionList.Add(0.0f);
+            staticFrictionList.Add(0.0f);
             velocityList.Add(0);
             collisionLinkIdList.Add(0);
-            collisionDistList.Add(0);
-            //collisionLinkLocalPosList.Add(0);
-            //collisionLinkDirectionList.Add(0);
+            collisionNormalList.Add(0);
             nextPos0List.Add(0);
             nextPos1List.Add(0);
             nextRot0List.Add(quaternion.identity);
@@ -508,14 +560,17 @@ namespace MagicaCloth
             localPosList.AddChunk(count);
             basePosList.AddChunk(count);
             baseRotList.AddChunk(count);
+            snapBasePosList.AddChunk(count);
+            snapBaseRotList.AddChunk(count);
+            oldBasePosList.AddChunk(count);
+            oldBaseRotList.AddChunk(count);
             depthList.AddChunk(count);
             radiusList.AddChunk(count);
             frictionList.AddChunk(count);
+            staticFrictionList.AddChunk(count);
             velocityList.AddChunk(count);
             collisionLinkIdList.AddChunk(count);
-            collisionDistList.AddChunk(count);
-            //collisionLinkLocalPosList.AddChunk(count);
-            //collisionLinkDirectionList.AddChunk(count);
+            collisionNormalList.AddChunk(count);
             nextPos0List.AddChunk(count);
             nextPos1List.AddChunk(count);
             nextRot0List.AddChunk(count);
@@ -563,6 +618,10 @@ namespace MagicaCloth
                 localPosList[pindex] = tlpos;
                 basePosList[pindex] = wpos;
                 baseRotList[pindex] = wrot;
+                snapBasePosList[pindex] = wpos;
+                snapBaseRotList[pindex] = wrot;
+                oldBasePosList[pindex] = wpos;
+                oldBaseRotList[pindex] = wrot;
                 depthList[pindex] = depth;
                 radiusList[pindex] = radius;
                 restoreTransformIndexList[pindex] = restoreTransformIndex;
@@ -603,15 +662,18 @@ namespace MagicaCloth
             localPosList.RemoveChunk(c);
             basePosList.RemoveChunk(c);
             baseRotList.RemoveChunk(c);
+            snapBasePosList.RemoveChunk(c);
+            snapBaseRotList.RemoveChunk(c);
+            oldBasePosList.RemoveChunk(c);
+            oldBaseRotList.RemoveChunk(c);
             depthList.RemoveChunk(c);
             radiusList.RemoveChunk(c);
 
             frictionList.RemoveChunk(c);
+            staticFrictionList.RemoveChunk(c);
             velocityList.RemoveChunk(c);
             collisionLinkIdList.RemoveChunk(c);
-            collisionDistList.RemoveChunk(c);
-            //collisionLinkLocalPosList.RemoveChunk(c);
-            //collisionLinkDirectionList.RemoveChunk(c);
+            collisionNormalList.RemoveChunk(c);
             nextPos0List.RemoveChunk(c);
             nextPos1List.RemoveChunk(c);
             nextRot0List.RemoveChunk(c);
@@ -652,15 +714,7 @@ namespace MagicaCloth
                         var target = funcTarget(i);
                         if (target != null)
                         {
-                            // 復元トランスフォーム
-                            if (flag.IsRestoreTransform() && restoreTransformIndexList[index] == -1)
-                            {
-                                float3 lpos = funcLpos != null ? funcLpos(i) : 0;
-                                quaternion lrot = funcLrot != null ? funcLrot(i) : quaternion.identity;
-                                restoreTransformIndexList[index] = Bone.AddRestoreBone(target, lpos, lrot);
-                            }
-
-                            // 読み込みトランスフォーム
+                            // 読み込みトランスフォーム登録
                             if (flag.IsReadTransform() && transformIndexList[index] == -1)
                             {
                                 // パーティクル書き戻し判定
@@ -669,7 +723,20 @@ namespace MagicaCloth
                                 // 親トランスフォームの参照の有無
                                 bool parent = flag.IsParentTransform();
 
-                                transformIndexList[index] = Bone.AddBone(target, windex, parent);
+                                var transformIndex = Bone.AddBone(target, windex, parent);
+                                transformIndexList[index] = transformIndex;
+
+                                // ボーンのUnityPhysicsカウンタ
+                                if (flag.IsUnityPhysics())
+                                    Bone.ChangeUnityPhysicsCount(transformIndex, true);
+                            }
+
+                            // 復元トランスフォーム登録
+                            if (flag.IsRestoreTransform() && restoreTransformIndexList[index] == -1)
+                            {
+                                float3 lpos = funcLpos != null ? funcLpos(i) : 0;
+                                quaternion lrot = funcLrot != null ? funcLrot(i) : quaternion.identity;
+                                restoreTransformIndexList[index] = Bone.AddRestoreBone(target, lpos, lrot, transformIndexList[index]);
                             }
                         }
                     }
@@ -678,7 +745,7 @@ namespace MagicaCloth
                 {
                     // 無効化
                     // ボーン登録解除
-                    // 復元トランスフォーム
+                    // 復元トランスフォーム解除
                     if (flag.IsRestoreTransform())
                     {
                         var restoreTransformIndex = restoreTransformIndexList[index];
@@ -689,12 +756,17 @@ namespace MagicaCloth
                         }
                     }
 
-                    // 読み込み／書き込みトランスフォーム
+                    // 読み込み／書き込みトランスフォーム解除
                     if (flag.IsReadTransform())
                     {
                         var transformIndex = transformIndexList[index];
                         if (transformIndex >= 0)
                         {
+                            // ボーンのUnityPhysicsカウンタ
+                            if (flag.IsUnityPhysics())
+                                Bone.ChangeUnityPhysicsCount(transformIndex, false);
+
+                            // ボーン解除
                             int windex = flag.IsWriteTransform() ? index : -1;
                             Bone.RemoveBone(transformIndex, windex);
                             transformIndexList[index] = -1;
@@ -815,9 +887,8 @@ namespace MagicaCloth
         /// <param name="c"></param>
         public void ResetFuturePredictionTransform(ChunkData c)
         {
-            for (int i = 0; i < c.dataLength; i++)
+            for (int i = 0, index = c.startIndex; i < c.dataLength; i++, index++)
             {
-                int index = c.startIndex + i;
                 ResetFuturePredictionTransform(index);
             }
         }
@@ -907,6 +978,7 @@ namespace MagicaCloth
                 transformIndexList = transformIndexList.ToJobArray(),
                 localPosList = localPosList.ToJobArray(),
                 teamIdList = teamIdList.ToJobArray(),
+                velocityList = velocityList.ToJobArray(),
 
                 bonePosList = Bone.bonePosList.ToJobArray(),
                 boneRotList = Bone.boneRotList.ToJobArray(),
@@ -914,12 +986,17 @@ namespace MagicaCloth
 
                 posList = posList.ToJobArray(),
                 oldPosList = oldPosList.ToJobArray(),
+                oldRotList = oldRotList.ToJobArray(),
                 oldSlowPosList = oldSlowPosList.ToJobArray(),
 
                 rotList = rotList.ToJobArray(),
 
-                basePosList = basePosList.ToJobArray(),
-                baseRotList = baseRotList.ToJobArray(),
+                //basePosList = basePosList.ToJobArray(),
+                //baseRotList = baseRotList.ToJobArray(),
+                snapBasePosList = snapBasePosList.ToJobArray(),
+                snapBaseRotList = snapBaseRotList.ToJobArray(),
+                oldBasePosList = oldBasePosList.ToJobArray(),
+                oldBaseRotList = oldBaseRotList.ToJobArray(),
                 nextPosList = InNextPosList.ToJobArray(),
             };
             Compute.MasterJob = job.Schedule(Particle.Length, 64, Compute.MasterJob);
@@ -944,6 +1021,7 @@ namespace MagicaCloth
             public NativeArray<float3> localPosList;
             [Unity.Collections.ReadOnly]
             public NativeArray<int> teamIdList;
+            public NativeArray<float3> velocityList;
 
             // トランスフォームごと
             [Unity.Collections.ReadOnly]
@@ -956,14 +1034,22 @@ namespace MagicaCloth
             // パーティクルごと
             public NativeArray<float3> posList;
             public NativeArray<float3> oldPosList;
+            public NativeArray<quaternion> oldRotList;
             public NativeArray<float3> oldSlowPosList;
 
             [Unity.Collections.WriteOnly]
             public NativeArray<quaternion> rotList;
+            //[Unity.Collections.WriteOnly]
+            //public NativeArray<float3> basePosList;
+            //[Unity.Collections.WriteOnly]
+            //public NativeArray<quaternion> baseRotList;
             [Unity.Collections.WriteOnly]
-            public NativeArray<float3> basePosList;
+            public NativeArray<float3> snapBasePosList;
             [Unity.Collections.WriteOnly]
-            public NativeArray<quaternion> baseRotList;
+            public NativeArray<quaternion> snapBaseRotList;
+            public NativeArray<float3> oldBasePosList;
+            public NativeArray<quaternion> oldBaseRotList;
+
             [Unity.Collections.WriteOnly]
             public NativeArray<float3> nextPosList;
 
@@ -991,27 +1077,45 @@ namespace MagicaCloth
                 }
 
                 var oldpos = oldPosList[index];
-                //var pos = oldpos;
                 float3 offset = 0;
 
-                // 移動影響（無視する移動量は削除されている）
-                if (moveInfluence < 0.99f || rotInfluence < 0.99f)
+                // 最大移動／最大回転影響
                 {
-                    // 移動影響のオフセット位置をパーティクルに加える
-                    quaternion offrot = math.slerp(quaternion.identity, wdata.rotationOffset, (1.0f - rotInfluence));
-                    float3 offpos = wdata.moveOffset * (1.0f - moveInfluence);
+                    // 影響値
+                    float moveIgnoreRatio = wdata.moveIgnoreRatio;
+                    float rotationIgnoreRatio = wdata.rotationIgnoreRatio;
 
-                    //var pos = oldPosList[index];
-                    //var lpos = pos - wdata.oldPosition;
+                    // 移動影響
+                    float moveRatio = (1.0f - moveIgnoreRatio) * (1.0f - moveInfluence) + moveIgnoreRatio;
+                    float3 offpos = wdata.moveOffset * moveRatio;
+
+                    // 回転影響
+                    float rotRatio = (1.0f - rotationIgnoreRatio) * (1.0f - rotInfluence) + rotationIgnoreRatio;
+                    quaternion offrot = math.slerp(quaternion.identity, wdata.rotationOffset, rotRatio);
+
+                    // 一旦ローカル座標系に戻して計算
                     var lpos = oldpos - wdata.oldPosition;
                     lpos = math.mul(offrot, lpos);
+                    lpos += offpos;
                     var npos = wdata.oldPosition + lpos;
-                    npos += offpos;
                     offset = npos - oldpos;
-                }
 
-                // 無視する移動量
-                offset += wdata.moveIgnoreOffset;
+                    // 速度に回転影響を加える
+                    var vel = velocityList[index];
+                    vel = math.mul(offrot, vel);
+                    velocityList[index] = vel;
+
+                    // 回転影響を回転に加える
+                    var oldrot = oldRotList[index];
+                    oldrot = math.mul(offrot, oldrot);
+                    oldRotList[index] = oldrot;
+
+                    // 基準姿勢にも適用(v1.11.1)
+                    oldBasePosList[index] = oldBasePosList[index] + offset;
+                    var oldBaseRot = oldBaseRotList[index];
+                    oldBaseRot = math.mul(offrot, oldBaseRot);
+                    oldBaseRotList[index] = oldBaseRot;
+                }
 
                 oldPosList[index] = oldpos + offset;
                 oldSlowPosList[index] = oldSlowPosList[index] + offset;
@@ -1027,6 +1131,11 @@ namespace MagicaCloth
 
                 // トランスフォームの最新の姿勢を読み込む
                 var tindex = transformIndexList[index];
+                if (tindex < 0)
+                {
+                    // この状況はDisable状態で配置されたコンポーネントなどで発生する可能性あり！(v1.12.0)
+                    return;
+                }
                 var bpos = bonePosList[tindex];
                 var brot = boneRotList[tindex];
 
@@ -1040,8 +1149,10 @@ namespace MagicaCloth
                 // 原点として書き込み
                 if (flag.IsFlag(Flag_Transform_Read_Base))
                 {
-                    basePosList[index] = bpos;
-                    baseRotList[index] = brot;
+                    //basePosList[index] = bpos;
+                    //baseRotList[index] = brot;
+                    snapBasePosList[index] = bpos;
+                    snapBaseRotList[index] = brot;
                 }
 
                 // 現在値として書き込み
@@ -1072,8 +1183,12 @@ namespace MagicaCloth
                 flagList = flagList.ToJobArray(),
                 teamIdList = teamIdList.ToJobArray(),
 
+                snapBasePosList = snapBasePosList.ToJobArray(),
+                snapBaseRotList = snapBaseRotList.ToJobArray(),
                 basePosList = basePosList.ToJobArray(),
                 baseRotList = baseRotList.ToJobArray(),
+                oldBasePosList = oldBasePosList.ToJobArray(),
+                oldBaseRotList = oldBaseRotList.ToJobArray(),
 
                 posList = posList.ToJobArray(),
                 rotList = rotList.ToJobArray(),
@@ -1104,9 +1219,17 @@ namespace MagicaCloth
             public NativeArray<int> teamIdList;
 
             [Unity.Collections.ReadOnly]
-            public NativeArray<float3> basePosList;
+            public NativeArray<float3> snapBasePosList;
             [Unity.Collections.ReadOnly]
+            public NativeArray<quaternion> snapBaseRotList;
+            [Unity.Collections.WriteOnly]
+            public NativeArray<float3> basePosList;
+            [Unity.Collections.WriteOnly]
             public NativeArray<quaternion> baseRotList;
+            [Unity.Collections.WriteOnly]
+            public NativeArray<float3> oldBasePosList;
+            [Unity.Collections.WriteOnly]
+            public NativeArray<quaternion> oldBaseRotList;
 
             [Unity.Collections.WriteOnly]
             public NativeArray<float3> posList;
@@ -1138,11 +1261,21 @@ namespace MagicaCloth
                 int teamId = teamIdList[index];
                 var tdata = teamData[teamId];
 
+                if (tdata.IsPause())
+                    return;
+
                 // 姿勢リセット
                 if (tdata.IsFlag(PhysicsManagerTeamData.Flag_Reset_Position) || flag.IsFlag(Flag_Reset_Position))
                 {
-                    var basePos = basePosList[index];
-                    var baseRot = baseRotList[index];
+                    //var basePos = basePosList[index];
+                    //var baseRot = baseRotList[index];
+                    var basePos = snapBasePosList[index];
+                    var baseRot = snapBaseRotList[index];
+
+                    basePosList[index] = basePos;
+                    baseRotList[index] = baseRot;
+                    oldBasePosList[index] = basePos;
+                    oldBaseRotList[index] = baseRot;
 
                     posList[index] = basePos;
                     rotList[index] = baseRot;
@@ -1205,7 +1338,11 @@ namespace MagicaCloth
 
             // トランスフォームごと
             [Unity.Collections.ReadOnly]
-            public NativeMultiHashMap<int, int> transformParticleIndexMap;
+#if MAGICACLOTH_USE_COLLECTIONS_130
+            public NativeParallelMultiHashMap<int, int> transformParticleIndexMap;
+#else
+            public NativeParallelMultiHashMap<int, int> transformParticleIndexMap;
+#endif
             [Unity.Collections.ReadOnly]
             public NativeArray<int> writeBoneIndexList;
             [NativeDisableParallelForRestriction]
@@ -1219,7 +1356,11 @@ namespace MagicaCloth
             public void Execute(int index)
             {
                 int pindex;
-                NativeMultiHashMapIterator<int> iterator;
+#if MAGICACLOTH_USE_COLLECTIONS_130
+                NativeParallelMultiHashMapIterator<int> iterator;
+#else
+                NativeParallelMultiHashMapIterator<int> iterator;
+#endif
                 if (transformParticleIndexMap.TryGetFirstValue(index, out pindex, out iterator))
                 {
                     // パーティクルは登録されている中から最初にヒットしたものを採用する

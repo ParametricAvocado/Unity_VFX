@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEngine;
 
@@ -36,6 +36,15 @@ namespace MagicaCloth
         [SerializeField]
         private UpdateMode updateMode = UpdateMode.UnscaledTime;
 
+        // 更新場所(UnscaledTime/OncePerFrameのみ)
+        public enum UpdateLocation
+        {
+            AfterLateUpdate = 0,
+            BeforeLateUpdate = 1,
+        }
+        [SerializeField]
+        private UpdateLocation updateLocation = UpdateLocation.AfterLateUpdate;
+
         // グローバルタイムスケール
         private float timeScale = 1.0f;
 
@@ -53,7 +62,27 @@ namespace MagicaCloth
         private bool updateBoneScale = false;
 
 
+        private int fixedUpdateCount = 0;
+
         //=========================================================================================
+        public void ResetFixedUpdateCount()
+        {
+            fixedUpdateCount = 0;
+        }
+
+        public void AddFixedUpdateCount()
+        {
+            fixedUpdateCount++;
+        }
+
+        public int FixedUpdateCount
+        {
+            get
+            {
+                return fixedUpdateCount;
+            }
+        }
+
         /// <summary>
         /// アップデートモード取得
         /// </summary>
@@ -66,6 +95,20 @@ namespace MagicaCloth
         public void SetUpdateMode(UpdateMode mode)
         {
             updateMode = mode;
+        }
+
+        /// <summary>
+        /// 更新場所の取得
+        /// </summary>
+        /// <returns></returns>
+        public UpdateLocation GetUpdateLocation()
+        {
+            return updateLocation;
+        }
+
+        public void SetUpdateLocation(UpdateLocation location)
+        {
+            updateLocation = location;
         }
 
         /// <summary>
@@ -97,7 +140,7 @@ namespace MagicaCloth
 
         /// <summary>
         /// 更新力（90upsを基準とした倍数）
-        /// 60fps = 1.5 / 120fps = 0.75
+        /// 60fps = 1.5 / 90ups = 1.0f / 120fps = 0.75
         /// </summary>
         public float UpdatePower
         {
@@ -134,6 +177,14 @@ namespace MagicaCloth
             get
             {
                 return Time.deltaTime;
+            }
+        }
+
+        public float PhysicsDeltaTime
+        {
+            get
+            {
+                return Time.fixedDeltaTime * fixedUpdateCount;
             }
         }
 
@@ -197,6 +248,18 @@ namespace MagicaCloth
             set
             {
                 updateBoneScale = value;
+            }
+        }
+
+        /// <summary>
+        /// この端末が使用可能なワーカースレッド数
+        /// </summary>
+        /// <returns></returns>
+        public int WorkerMaximumCount
+        {
+            get
+            {
+                return Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerMaximumCount;
             }
         }
     }

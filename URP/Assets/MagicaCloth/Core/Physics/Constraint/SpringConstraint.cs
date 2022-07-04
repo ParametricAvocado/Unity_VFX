@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -97,7 +97,7 @@ namespace MagicaCloth
         /// <param name="dtime"></param>
         /// <param name="jobHandle"></param>
         /// <returns></returns>
-        public override JobHandle SolverConstraint(float dtime, float updatePower, int iteration, JobHandle jobHandle)
+        public override JobHandle SolverConstraint(int runCount, float dtime, float updatePower, int iteration, JobHandle jobHandle)
         {
             //if (ActiveCount == 0)
             if (groupList.Count == 0)
@@ -107,6 +107,7 @@ namespace MagicaCloth
             var job1 = new SpringJob()
             {
                 updatePower = updatePower,
+                runCount = runCount,
 
                 groupList = groupList.ToJobArray(),
 
@@ -131,6 +132,7 @@ namespace MagicaCloth
         struct SpringJob : IJobParallelFor
         {
             public float updatePower;
+            public int runCount;
 
             [Unity.Collections.ReadOnly]
             public NativeArray<GroupData> groupList;
@@ -161,7 +163,7 @@ namespace MagicaCloth
                 if (team.springGroupIndex < 0)
                     return;
                 // 更新確認
-                if (team.IsUpdate() == false)
+                if (team.IsUpdate(runCount) == false)
                     return;
 
                 // グループデータ

@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEditor;
 using UnityEngine;
@@ -26,14 +26,10 @@ namespace MagicaCloth
             if (obj == null)
                 return;
             rect.x += EditorStyles.label.CalcSize(obj.name).x;
-#if UNITY_2019
             rect.y += 1;
             rect.x += iconSize + 4;
             //rect.x += iconSize + 28;
-#elif UNITY_2018_3_OR_NEWER
-            rect.y += 2;
-            rect.x += iconSize;
-#endif
+
             foreach (var component in obj.GetComponents<Component>())
             {
                 if (component is MagicaRenderDeformer
@@ -47,6 +43,7 @@ namespace MagicaCloth
                     || component is MagicaPhysicsManager
                     || component is MagicaBoneSpring
                     || component is MagicaDirectionalWind
+                    || component is MagicaAreaWind
                     || component is MagicaAvatar
                     || component is MagicaAvatarParts
                     )

@@ -1,6 +1,7 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -91,6 +92,14 @@ namespace MagicaCloth
             Selection.activeGameObject = obj;
         }
 
+        [MenuItem("GameObject/Create Other/Magica Cloth/Magica Area Wind", priority = 200)]
+        static void AddAreaWind()
+        {
+            var obj = AddObject("Magica Area Wind", true);
+            obj.AddComponent<MagicaAreaWind>();
+            Selection.activeGameObject = obj;
+        }
+
         //=========================================================================================
         /// <summary>
         /// ヒエラルキーにオブジェクトを１つ追加する
@@ -118,6 +127,34 @@ namespace MagicaCloth
                 obj.transform.localScale = Vector3.one;
 
             return obj;
+        }
+
+        //=========================================================================================
+        [MenuItem("Assets/Magica Cloth/Clean up sub-assets", priority = 201)]
+        static void CleanUpSubAssets()
+        {
+            try
+            {
+                Debug.Log("Clean up MagicaCloth sub-asssets.");
+
+                if (Selection.activeGameObject == null)
+                    throw new Exception("No Object");
+                var obj = Selection.activeGameObject;
+                //Debug.Log(obj.name);
+
+                // プレハブ判定
+                if (PrefabUtility.IsPartOfAnyPrefab(obj) == false || PrefabUtility.IsPartOfPrefabAsset(obj) == false)
+                    throw new Exception("No Prefab");
+
+                // クリーンアップ
+                ShareDataPrefabExtension.CleanUpSubAssets(obj);
+
+                Debug.Log("Complete.");
+            }
+            catch
+            {
+                Debug.LogWarning("Run it against the Prefab in the Project window.");
+            }
         }
     }
 }

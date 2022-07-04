@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Mathematics;
 using UnityEngine;
@@ -23,6 +23,45 @@ namespace MagicaCloth
         /// </summary>
         [SerializeField]
         private float userBlendWeight = 1.0f;
+
+        /// <summary>
+        /// 更新モード
+        /// </summary>
+        public enum TeamUpdateMode
+        {
+            Normal = 0,
+            UnityPhysics = 1,
+        }
+        [SerializeField]
+        private TeamUpdateMode updateMode = TeamUpdateMode.Normal;
+
+        /// <summary>
+        /// カリングモード（数値が高いほど優先）
+        /// </summary>
+        public enum TeamCullingMode
+        {
+            Reset = 0,
+            Pause = 10,
+            Off = 100,
+        }
+        [SerializeField]
+        private TeamCullingMode cullingMode = TeamCullingMode.Reset;
+
+        /// <summary>
+        /// スキニングモード
+        /// さらにNone以外の設定では計算時にアニメーション化された姿勢を利用するようになる(旧UseAnimatedDistanceフラグ)
+        /// </summary>
+        public enum TeamSkinningMode
+        {
+            None = 0,
+            UserAnimation = 1,
+            //GenerateFromBones = 2,
+        }
+        [SerializeField]
+        private TeamSkinningMode skinningMode = TeamSkinningMode.UserAnimation;
+        //[SerializeField]
+        //private bool skinningUpdateFixed = false;
+
 
         //=========================================================================================
         /// <summary>
@@ -97,7 +136,55 @@ namespace MagicaCloth
             }
             set
             {
-                userBlendWeight = value;
+                userBlendWeight = Mathf.Clamp01(value);
+            }
+        }
+
+        public TeamUpdateMode UpdateMode
+        {
+            get
+            {
+                return updateMode;
+            }
+            protected set
+            {
+                updateMode = value;
+            }
+        }
+
+        public TeamCullingMode CullingMode
+        {
+            get
+            {
+                return cullingMode;
+            }
+            set
+            {
+                cullingMode = value;
+            }
+        }
+
+        public TeamSkinningMode SkinningMode
+        {
+            get => skinningMode;
+            set => skinningMode = value;
+        }
+
+        //public bool SkinningUpdateFixed
+        //{
+        //    get => skinningUpdateFixed;
+        //    set => skinningUpdateFixed = value;
+        //}
+
+        /// <summary>
+        /// 計算に使用する距離／回転を常にアニメーション後の姿勢から取得するかどうか
+        /// </summary>
+        internal bool UseAnimatedPose
+        {
+            get
+            {
+                //return skinningMode == TeamSkinningMode.UserAnimation || skinningMode == TeamSkinningMode.GenerateFromBones;
+                return skinningMode == TeamSkinningMode.UserAnimation;
             }
         }
 
@@ -140,13 +227,6 @@ namespace MagicaCloth
         {
             // チーム有効化
             MagicaPhysicsManager.Instance.Team.SetEnable(teamId, true);
-
-            // コライダーボーンの未来予測をリセットする
-            // 遅延実行＋再アクティブ時のみ
-            if (MagicaPhysicsManager.Instance.IsDelay && ActiveCount > 1)
-            {
-                MagicaPhysicsManager.Instance.Team.ResetFuturePredictionCollidere(TeamId);
-            }
         }
 
         /// <summary>
@@ -256,11 +336,8 @@ namespace MagicaCloth
             System.Func<int, uint> funcFlag,
             System.Func<int, float3> funcWpos,
             System.Func<int, quaternion> funcWrot,
-            //System.Func<int, float3> funcLpos = null,
-            //System.Func<int, quaternion> funcLrot = null,
             System.Func<int, float> funcDepth,
             System.Func<int, float3> funcRadius,
-            //System.Func<int, Transform> funcTarget = null,
             System.Func<int, float3> funcTargetLocalPos
             )
         {
@@ -270,11 +347,8 @@ namespace MagicaCloth
                 funcFlag,
                 funcWpos,
                 funcWrot,
-                //funcLpos,
-                //funcLrot,
                 funcDepth,
                 funcRadius,
-                //funcTarget,
                 funcTargetLocalPos
                 );
 

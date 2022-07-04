@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -9,7 +9,7 @@ using Unity.Mathematics;
 namespace MagicaCloth
 {
     /// <summary>
-    /// 回転クランプ拘束
+    /// 回転クランプ拘束[Algorithm 1]
     /// </summary>
     public class ClampRotationConstraint : PhysicsManagerConstraint
     {
@@ -48,6 +48,10 @@ namespace MagicaCloth
                 return vertexIndex > 0 || parentVertexIndex > 0;
             }
         }
+
+        //=========================================================================================
+        // Algorithm 1
+        //=========================================================================================
         FixedChunkNativeArray<ClampRotationData> dataList;
 
         [System.Serializable]
@@ -72,11 +76,6 @@ namespace MagicaCloth
             public CurveParam maxAngle;
 
             /// <summary>
-            /// 強さ
-            /// </summary>
-            //public CurveParam stiffness;
-
-            /// <summary>
             /// 速度影響
             /// </summary>
             public float velocityInfluence;
@@ -95,7 +94,6 @@ namespace MagicaCloth
         /// 拘束データごとの作業バッファ
         /// </summary>
         FixedChunkNativeArray<float> lengthBuffer;
-
 
         //=========================================================================================
         public override void Create()
@@ -121,7 +119,6 @@ namespace MagicaCloth
             int teamId,
             bool active,
             BezierParam maxAngle,
-            //BezierParam stiffness,
             float velocityInfluence,
             ClampRotationData[] dataArray,
             ClampRotationRootInfo[] rootInfoArray
@@ -130,13 +127,12 @@ namespace MagicaCloth
             if (dataArray == null || dataArray.Length == 0 || rootInfoArray == null || rootInfoArray.Length == 0)
                 return -1;
 
-            var teamData = MagicaPhysicsManager.Instance.Team.teamDataList[teamId];
+            //var teamData = MagicaPhysicsManager.Instance.Team.teamDataList[teamId];
 
             var gdata = new GroupData();
             gdata.teamId = teamId;
             gdata.active = active ? 1 : 0;
             gdata.maxAngle.Setup(maxAngle);
-            //gdata.stiffness.Setup(stiffness);
             gdata.velocityInfluence = velocityInfluence;
             gdata.dataChunk = dataList.AddChunk(dataArray.Length);
             gdata.rootInfoChunk = rootInfoList.AddChunk(rootInfoArray.Length);
@@ -160,29 +156,25 @@ namespace MagicaCloth
         public override void RemoveTeam(int teamId)
         {
             var teamData = MagicaPhysicsManager.Instance.Team.teamDataList[teamId];
-            int group = teamData.clampRotationGroupIndex;
-            if (group < 0)
-                return;
 
-            var cdata = groupList[group];
+            // Algorithm 1
+            int group1 = teamData.clampRotationGroupIndex;
+            if (group1 >= 0)
+            {
+                var cdata = groupList[group1];
 
-            // チャンクデータ削除
-            dataList.RemoveChunk(cdata.dataChunk);
-            rootInfoList.RemoveChunk(cdata.rootInfoChunk);
-            rootTeamList.RemoveChunk(cdata.rootInfoChunk);
-            lengthBuffer.RemoveChunk(cdata.dataChunk);
+                // チャンクデータ削除
+                dataList.RemoveChunk(cdata.dataChunk);
+                rootInfoList.RemoveChunk(cdata.rootInfoChunk);
+                rootTeamList.RemoveChunk(cdata.rootInfoChunk);
+                lengthBuffer.RemoveChunk(cdata.dataChunk);
 
-            // データ削除
-            groupList.Remove(group);
+                // データ削除
+                groupList.Remove(group1);
+            }
         }
 
-        public void ChangeParam(
-            int teamId,
-            bool active,
-            BezierParam maxAngle,
-            //BezierParam stiffness, 
-            float velocityInfluence
-            )
+        public void ChangeParam(int teamId, bool active, BezierParam maxAngle, float velocityInfluence)
         {
             var teamData = MagicaPhysicsManager.Instance.Team.teamDataList[teamId];
             int group = teamData.clampRotationGroupIndex;
@@ -192,7 +184,6 @@ namespace MagicaCloth
             var gdata = groupList[group];
             gdata.active = active ? 1 : 0;
             gdata.maxAngle.Setup(maxAngle);
-            //gdata.stiffness.Setup(stiffness);
             gdata.velocityInfluence = velocityInfluence;
             groupList[group] = gdata;
         }
@@ -204,48 +195,55 @@ namespace MagicaCloth
         /// <param name="dtime"></param>
         /// <param name="jobHandle"></param>
         /// <returns></returns>
-        public override JobHandle SolverConstraint(float dtime, float updatePower, int iteration, JobHandle jobHandle)
+        public override JobHandle SolverConstraint(int runCount, float dtime, float updatePower, int iteration, JobHandle jobHandle)
         {
-            if (groupList.Count == 0)
-                return jobHandle;
-
-            // 回転拘束（ルートラインごと）
-            var job1 = new ClampRotationJob()
+            //=======================================================
+            // Algorithm 1
+            //=======================================================
+            if (groupList.Count > 0)
             {
-                maxMoveLength = dtime * Define.Compute.ClampRotationMaxVelocity, // 最大1.0m/s
+                // 回転拘束（ルートラインごと）
+                var job1 = new ClampRotationJob()
+                {
+                    runCount = runCount,
+                    maxMoveLength = dtime * Define.Compute.ClampRotationMaxVelocity, // 最大1.0m/s
 
-                dataList = dataList.ToJobArray(),
-                rootInfoList = rootInfoList.ToJobArray(),
-                rootTeamList = rootTeamList.ToJobArray(),
-                groupList = groupList.ToJobArray(),
+                    dataList = dataList.ToJobArray(),
+                    rootInfoList = rootInfoList.ToJobArray(),
+                    rootTeamList = rootTeamList.ToJobArray(),
+                    groupList = groupList.ToJobArray(),
 
-                teamDataList = Manager.Team.teamDataList.ToJobArray(),
+                    teamDataList = Manager.Team.teamDataList.ToJobArray(),
 
-                flagList = Manager.Particle.flagList.ToJobArray(),
-                //basePosList = Manager.Particle.basePosList.ToJobArray(),
-                //baseRotList = Manager.Particle.baseRotList.ToJobArray(),
-                depthList = Manager.Particle.depthList.ToJobArray(),
-                frictionList = Manager.Particle.frictionList.ToJobArray(),
+                    flagList = Manager.Particle.flagList.ToJobArray(),
+                    //basePosList = Manager.Particle.basePosList.ToJobArray(),
+                    //baseRotList = Manager.Particle.baseRotList.ToJobArray(),
+                    depthList = Manager.Particle.depthList.ToJobArray(),
+                    frictionList = Manager.Particle.frictionList.ToJobArray(),
 
-                nextPosList = Manager.Particle.InNextPosList.ToJobArray(),
-                nextRotList = Manager.Particle.InNextRotList.ToJobArray(),
+                    nextPosList = Manager.Particle.InNextPosList.ToJobArray(),
+                    nextRotList = Manager.Particle.InNextRotList.ToJobArray(),
 
-                posList = Manager.Particle.posList.ToJobArray(),
+                    posList = Manager.Particle.posList.ToJobArray(),
 
-                lengthBuffer = lengthBuffer.ToJobArray(),
-            };
-            jobHandle = job1.Schedule(rootTeamList.Length, 8, jobHandle);
+                    lengthBuffer = lengthBuffer.ToJobArray(),
+                };
+                jobHandle = job1.Schedule(rootTeamList.Length, 8, jobHandle);
+            }
 
             return jobHandle;
         }
 
-
+        //=========================================================================================
+        // Algorithm 1
+        //=========================================================================================
         /// <summary>
         /// 回転クランプ拘束ジョブ
         /// </summary>
         [BurstCompile]
         struct ClampRotationJob : IJobParallelFor
         {
+            public int runCount;
             public float maxMoveLength;
 
             [Unity.Collections.ReadOnly]
@@ -295,7 +293,7 @@ namespace MagicaCloth
                     return;
 
                 // 更新確認
-                if (team.IsUpdate() == false)
+                if (team.IsUpdate(runCount) == false)
                     return;
 
                 // グループデータ
@@ -393,7 +391,6 @@ namespace MagicaCloth
                     {
                         if (angle > maxAngle)
                         {
-                            //v = MathUtility.ClampAngle(v, tv, maxAngle);
                             MathUtility.ClampAngle(v, tv, maxAngle, out v);
                         }
 
@@ -401,11 +398,6 @@ namespace MagicaCloth
 
                         // 最大速度クランプ
                         mv = MathUtility.ClampVector(mv, 0.0f, maxMoveLength);
-
-                        // debug
-                        //var ln = math.length(mv);
-                        //if (ln >= maxMoveLength)
-                        //    Debug.Log($"mv={ln}");
 
                         var fpos = npos + mv;
 
@@ -427,8 +419,6 @@ namespace MagicaCloth
                     }
 
                     // 回転補正
-                    //nrot = math.mul(prot, localRot);
-                    //nrot = math.mul(prot, data.localRot); // v1.7.0
                     nrot = math.mul(prot, new quaternion(data.localRot.value * team.quaternionScale)); // マイナススケール対応(v1.7.6)
                     var q = MathUtility.FromToRotation(tv, v);
                     nrot = math.mul(q, nrot);

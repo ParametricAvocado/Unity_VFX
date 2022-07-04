@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 #if UNITY_EDITOR
 using UnityEditor;
@@ -34,32 +34,44 @@ namespace MagicaCloth
             var importer = AssetImporter.GetAtPath(path) as ModelImporter;
             if (importer)
             {
-#if UNITY_2018
-                if (importer.optimizeMesh)
-                    flag = Define.OptimizeMesh.Unity2018_On;
-                else
-                    flag = Define.OptimizeMesh.Nothing;
-#else
                 if (importer.optimizeMeshPolygons)
                     flag |= Define.OptimizeMesh.Unity2019_PolygonOrder;
                 if (importer.optimizeMeshVertices)
                     flag |= Define.OptimizeMesh.Unity2019_VertexOrder;
                 if (flag == 0)
                     flag = Define.OptimizeMesh.Nothing;
-#endif
             }
             else
             {
                 // インポーターが取得できない場合はビルドインのメッシュ
-#if UNITY_2018
-                flag = Define.OptimizeMesh.Unity2018_On;
-#else
                 flag |= Define.OptimizeMesh.Unity2019_PolygonOrder;
                 flag |= Define.OptimizeMesh.Unity2019_VertexOrder;
-#endif
             }
 
             return flag;
+        }
+
+        /// <summary>
+        /// メッシュがKeepQuadsでインポートされているか判定する
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <returns></returns>
+        internal static bool IsKeepQuadsMesh(Mesh mesh)
+        {
+            if (mesh == null)
+                return false;
+
+            // アセットパス
+            var path = AssetDatabase.GetAssetPath(mesh);
+            if (string.IsNullOrEmpty(path))
+                return false;
+
+            // モデルインポーターを取得
+            var importer = AssetImporter.GetAtPath(path) as ModelImporter;
+            if (importer)
+                return importer.keepQuads;
+            else
+                return false;
         }
     }
 }

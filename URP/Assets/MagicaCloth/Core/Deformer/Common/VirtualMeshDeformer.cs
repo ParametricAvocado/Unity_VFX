@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEngine;
@@ -34,14 +34,14 @@ namespace MagicaCloth
         /// 結合する頂点距離（この距離以内の頂点はすべて１つにまとめられる）
         /// </summary>
         [SerializeField]
-        [Range(0.0f, 0.1f)]
+        [Range(0.0f, 0.3f)]
         private float mergeVertexDistance = 0.001f;
 
         /// <summary>
         /// 結合するトライアングル接続距離（この距離以内の頂点はすべて１つにまとめられる）
         /// </summary>
         [SerializeField]
-        [Range(0.0f, 0.1f)]
+        [Range(0.0f, 0.3f)]
         private float mergeTriangleDistance = 0.0f;
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace MagicaCloth
         /// </summary>
         [SerializeField]
         [Range(1, 4)]
-        private int maxWeightCount = 3; // (4->3:v1.5.2)
+        private int maxWeightCount = 4;
 
         [SerializeField]
         [Range(1.0f, 5.0f)]
@@ -268,23 +268,29 @@ namespace MagicaCloth
             }
         }
 
-        /// <summary>
-        /// メッシュ座標書き込み
-        /// </summary>
-        public override void Finish(int bufferIndex)
-        {
-        }
+        internal override void MeshCalculation(int bufferIndex) { }
+
+        internal override void NormalWriting(int bufferIndex) { }
 
         //=========================================================================================
         /// <summary>
         /// ボーンを置換する
         /// </summary>
-        public void ReplaceBone(Dictionary<Transform, Transform> boneReplaceDict)
+        public void ReplaceBone<T>(Dictionary<T, Transform> boneReplaceDict) where T : class
         {
             for (int i = 0; i < boneList.Count; i++)
             {
                 boneList[i] = MeshUtility.GetReplaceBone(boneList[i], boneReplaceDict);
             }
+        }
+
+        /// <summary>
+        /// 現在使用しているボーンを格納して返す
+        /// </summary>
+        /// <returns></returns>
+        public HashSet<Transform> GetUsedBones()
+        {
+            return new HashSet<Transform>(boneList);
         }
 
         //=========================================================================================
@@ -473,6 +479,26 @@ namespace MagicaCloth
             MagicaPhysicsManager.Instance.Mesh.ResetFuturePredictionVirtualMeshBone(MeshIndex);
         }
 
+        /// <summary>
+        /// UnityPhysicsでの利用を設定する
+        /// </summary>
+        /// <param name="sw"></param>
+        public override void ChangeUseUnityPhysics(bool sw)
+        {
+            if (status.IsInitSuccess)
+            {
+                MagicaPhysicsManager.Instance.Mesh.ChangeVirtualMeshUseUnityPhysics(MeshIndex, sw);
+            }
+        }
+
+        public void ChangeCalculation(bool sw)
+        {
+            if (status.IsInitSuccess)
+            {
+                MagicaPhysicsManager.Instance.Mesh.SetVirtualMeshFlag(MeshIndex, PhysicsManagerMeshData.Meshflag_Pause, !sw);
+            }
+        }
+
         //=========================================================================================
         /// <summary>
         /// メッシュのワールド座標/法線/接線を返す（エディタ設定用）
@@ -626,6 +652,8 @@ namespace MagicaCloth
             {
                 // OK
                 StaticStringBuilder.AppendLine("Active: ", Status.IsActive);
+                StaticStringBuilder.AppendLine($"Visible: {Parent.IsVisible}");
+                StaticStringBuilder.AppendLine($"Calculation:{Parent.IsCalculate}");
                 StaticStringBuilder.AppendLine("Vertex: ", MeshData.VertexCount);
                 StaticStringBuilder.AppendLine("Line: ", MeshData.LineCount);
                 StaticStringBuilder.AppendLine("Triangle: ", MeshData.TriangleCount);

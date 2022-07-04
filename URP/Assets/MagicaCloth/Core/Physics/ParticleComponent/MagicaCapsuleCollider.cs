@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Mathematics;
 using UnityEngine;
@@ -47,29 +47,36 @@ namespace MagicaCloth
         private void OnValidate()
         {
             if (Application.isPlaying)
+                DataUpdate();
+        }
+
+        /// <summary>
+        /// パーティクルのデータ更新処理
+        /// </summary>
+        internal override void DataUpdate()
+        {
+            base.DataUpdate();
+
+            foreach (var c in particleDict.Values)
             {
-                // 変更
-                foreach (var c in particleDict.Values)
+                for (int i = 0; i < c.dataLength; i++)
                 {
-                    for (int i = 0; i < c.dataLength; i++)
-                    {
-                        int pindex = c.startIndex + i;
+                    int pindex = c.startIndex + i;
 
-                        // カプセルデータ
-                        float3 radius = new float3(length, startRadius, endRadius);
-                        MagicaPhysicsManager.Instance.Particle.SetRadius(pindex, radius);
+                    // カプセルデータ
+                    float3 radius = new float3(length, startRadius, endRadius);
+                    MagicaPhysicsManager.Instance.Particle.SetRadius(pindex, radius);
 
-                        // localPos
-                        MagicaPhysicsManager.Instance.Particle.SetLocalPos(pindex, Center);
+                    // localPos
+                    MagicaPhysicsManager.Instance.Particle.SetLocalPos(pindex, Center);
 
-                        // カプセルフラグ再設定
-                        var flag = MagicaPhysicsManager.Instance.Particle.flagList[pindex];
-                        flag.SetFlag(PhysicsManagerParticleData.Flag_CapsuleX, false);
-                        flag.SetFlag(PhysicsManagerParticleData.Flag_CapsuleY, false);
-                        flag.SetFlag(PhysicsManagerParticleData.Flag_CapsuleZ, false);
-                        flag.SetFlag(GetCapsuleFlag(), true);
-                        MagicaPhysicsManager.Instance.Particle.flagList[pindex] = flag;
-                    }
+                    // カプセルフラグ再設定
+                    var flag = MagicaPhysicsManager.Instance.Particle.flagList[pindex];
+                    flag.SetFlag(PhysicsManagerParticleData.Flag_CapsuleX, false);
+                    flag.SetFlag(PhysicsManagerParticleData.Flag_CapsuleY, false);
+                    flag.SetFlag(PhysicsManagerParticleData.Flag_CapsuleZ, false);
+                    flag.SetFlag(GetCapsuleFlag(), true);
+                    MagicaPhysicsManager.Instance.Particle.flagList[pindex] = flag;
                 }
             }
         }
@@ -98,6 +105,7 @@ namespace MagicaCloth
             set
             {
                 axis = value;
+                ReserveDataUpdate();
             }
         }
 
@@ -110,6 +118,7 @@ namespace MagicaCloth
             set
             {
                 length = value;
+                ReserveDataUpdate();
             }
         }
 
@@ -122,6 +131,7 @@ namespace MagicaCloth
             set
             {
                 startRadius = value;
+                ReserveDataUpdate();
             }
         }
 
@@ -134,6 +144,7 @@ namespace MagicaCloth
             set
             {
                 endRadius = value;
+                ReserveDataUpdate();
             }
         }
 
@@ -160,7 +171,8 @@ namespace MagicaCloth
                 Center
                 );
 
-            MagicaPhysicsManager.Instance.Team.AddCollider(teamId, c.startIndex);
+            if (c.IsValid())
+                MagicaPhysicsManager.Instance.Team.AddCollider(teamId, c.startIndex);
 
             return c;
         }

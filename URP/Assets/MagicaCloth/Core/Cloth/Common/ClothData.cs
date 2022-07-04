@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -22,6 +22,13 @@ namespace MagicaCloth
         // 頂点フラグ
         public const uint VertexFlag_End = 0x00010000; // 末端の頂点
         public const uint VertexFlag_TriangleRotation = 0x00020000; // Triangle回転補間頂点
+
+        /// <summary>
+        /// 各アルゴリズムタイプ(v1.11.0より)
+        /// </summary>
+        public ClothParams.Algorithm triangleBendAlgorithm;
+        public ClothParams.Algorithm restoreRotationAlgorithm;
+        public ClothParams.Algorithm clampRotationAlgorithm;
 
         /// <summary>
         /// メッシュの利用する頂点インデックスのリスト
@@ -99,17 +106,29 @@ namespace MagicaCloth
         public ClampDistance2Constraint.ClampDistance2RootInfo[] clampDistance2RootInfoList;
 
         /// <summary>
-        /// 回転復元拘束
+        /// 回転復元拘束[Algorithm 1]
         /// 復元ローカルベクトルリスト
         /// </summary>
         public RestoreRotationConstraint.RotationData[] restoreRotationDataList;
         public ReferenceDataIndex[] restoreRotationReferenceList;
 
         /// <summary>
-        /// 最大回転拘束
+        /// 最大回転拘束[Algorithm 1]
         /// </summary>
         public ClampRotationConstraint.ClampRotationData[] clampRotationDataList;
         public ClampRotationConstraint.ClampRotationRootInfo[] clampRotationRootInfoList;
+
+        /// <summary>
+        /// 複合回転拘束(v1.11.0)
+        /// </summary>
+        public CompositeRotationConstraint.RotationData[] compositeRotationDataList;
+        public CompositeRotationConstraint.RootInfo[] compositeRotationRootInfoList;
+
+        /// <summary>
+        /// ねじれ拘束
+        /// </summary>
+        public TwistConstraint.TwistData[] twistDataList;
+        public ReferenceDataIndex[] twistReferenceList;
 
         /// <summary>
         /// 回転調整拘束
@@ -161,12 +180,14 @@ namespace MagicaCloth
         /// </summary>
         public PenetrationConstraint.PenetrationData[] penetrationDataList;
         public ReferenceDataIndex[] penetrationReferenceList;
+        public float3[] penetrationDirectionDataList;
         public ClothParams.PenetrationMode penetrationMode; // データの型
 
         /// <summary>
         /// ベーススキニングデータ
         /// </summary>
-        //public BaseSkinningWorker.BaseSkinningData[] baseSkinningDataList;
+        public BaseSkinningWorker.BaseSkinningData[] baseSkinningDataList;
+        public float4x4[] baseSkinningBindPoseList;
 
         /// <summary>
         /// 設計時のスケール(WorldInfluenceのInfluenceTargetが基準)
@@ -181,6 +202,10 @@ namespace MagicaCloth
         public override int GetDataHash()
         {
             int hash = 0;
+            hash += triangleBendAlgorithm.GetDataHash();
+            hash += restoreRotationAlgorithm.GetDataHash();
+            hash += clampRotationAlgorithm.GetDataHash();
+
             hash += VertexUseCount.GetDataHash();
             hash += selectionData.Count.GetDataHash();
             hash += maxLevel.GetDataHash();
@@ -200,6 +225,7 @@ namespace MagicaCloth
             hash += TriangleBendConstraintCount.GetDataHash();
             hash += VolumeConstraintCount.GetDataHash();
             hash += LineRotationWorkerCount.GetDataHash();
+            hash += TwistConstraintCount.GetDataHash();
 
             hash += initScale.GetDataHash();
 
@@ -287,6 +313,7 @@ namespace MagicaCloth
         /// <summary>
         /// 回転制限拘束数
         /// </summary>
+        /// 
         public int ClampRotationConstraintDataCount
         {
             get
@@ -314,6 +341,28 @@ namespace MagicaCloth
             get
             {
                 return adjustRotationDataList != null ? adjustRotationDataList.Length : 0;
+            }
+        }
+
+        /// <summary>
+        /// 複合回転拘束数
+        /// </summary>
+        public int CompositeRotationCount
+        {
+            get
+            {
+                return compositeRotationDataList != null ? compositeRotationDataList.Length : 0;
+            }
+        }
+
+        /// <summary>
+        /// ねじれ補正拘束数
+        /// </summary>
+        public int TwistConstraintCount
+        {
+            get
+            {
+                return twistDataList != null ? twistDataList.Length : 0;
             }
         }
 
@@ -377,20 +426,59 @@ namespace MagicaCloth
         {
             get
             {
-                return penetrationDataList != null ? penetrationDataList.Length : 0;
+                if (penetrationDataList != null && penetrationDataList.Length > 0)
+                    return penetrationDataList.Length;
+                if (penetrationDirectionDataList != null && penetrationDirectionDataList.Length > 0)
+                    return penetrationDirectionDataList.Length;
+                return 0;
+                //return penetrationDataList != null ? penetrationDataList.Length : 0;
             }
         }
 
         /// <summary>
         /// ベーススキニングデータ数
         /// </summary>
-        //public int BaseSkinningCount
-        //{
-        //    get
-        //    {
-        //        return baseSkinningDataList != null ? baseSkinningDataList.Length : 0;
-        //    }
-        //}
+        public int BaseSkinningCount
+        {
+            get
+            {
+                return baseSkinningDataList != null ? baseSkinningDataList.Length : 0;
+            }
+        }
+
+        /// <summary>
+        /// 現在使用中アルゴリズムのClampRotationデータ数
+        /// </summary>
+        /// <returns></returns>
+        public int GetClampRotationCount()
+        {
+            switch (clampRotationAlgorithm)
+            {
+                case ClothParams.Algorithm.Algorithm_1:
+                    return ClampRotationConstraintDataCount;
+                case ClothParams.Algorithm.Algorithm_2:
+                    return CompositeRotationCount;
+                default:
+                    return 0;
+            }
+        }
+
+        /// <summary>
+        /// 現在使用中アルゴリズムのRestoreRotationデータ数
+        /// </summary>
+        /// <returns></returns>
+        public int GetRestoreRotationCount()
+        {
+            switch (restoreRotationAlgorithm)
+            {
+                case ClothParams.Algorithm.Algorithm_1:
+                    return RestoreRotationConstraintCount;
+                case ClothParams.Algorithm.Algorithm_2:
+                    return CompositeRotationCount;
+                default:
+                    return 0;
+            }
+        }
 
         /// <summary>
         /// 選択頂点が無効か判定
@@ -509,10 +597,26 @@ namespace MagicaCloth
         }
 
         //=========================================================================================
+        // 作業用
         private class RestoreDistanceWork
         {
             public uint vertexPair;
             public float dist;
+        }
+
+        private class PenetrationBone
+        {
+            public Transform bone;
+            public Transform childBone;
+        }
+
+        private class PenetrationWork
+        {
+            public Transform bone;
+            public Transform childBone;
+            public int boneIndex;
+            public float distance;
+            public float weight;
         }
 
         //=========================================================================================
@@ -563,6 +667,11 @@ namespace MagicaCloth
                 extensionAction(useVertexList, selectionData, wposList, wnorList, wtanList, triangleList, lineList);
                 vertexCount = wposList.Count;
             }
+
+            // 使用アルゴリズム
+            triangleBendAlgorithm = clothParams.AlgorithmType;
+            restoreRotationAlgorithm = clothParams.AlgorithmType;
+            clampRotationAlgorithm = clothParams.AlgorithmType;
 
             // 頂点データ作成
             CreateVertexData(vertexCount, lineList, triangleList);
@@ -728,6 +837,12 @@ namespace MagicaCloth
             edgeCollisionDataList = null;
             edgeCollisionReferenceList = null;
             edgeCollisionWriteBufferCount = 0;
+            twistDataList = null;
+            compositeRotationDataList = null;
+            compositeRotationRootInfoList = null;
+            penetrationDataList = null;
+            penetrationReferenceList = null;
+            penetrationDirectionDataList = null;
             //teamSelfCollisionDataList = null;
             if (vertexCount == 0)
                 return;
@@ -794,6 +909,10 @@ namespace MagicaCloth
             // 重力方向減衰
             //var directionalDampingTarget = clothParams.DirectionalDampingObject ? clothParams.DirectionalDampingObject : team.transform;
             //directionalDampingUpDir = directionalDampingTarget.InverseTransformDirection(Vector3.up);
+
+            // スキニング情報の作成（必要な場合のみ）
+            // 一旦休眠
+            //(var baseSkinningData, var bindPoses, var penetrationDirections) = CreateSkinningData(team, teamData, clothParams, wposList, wnorList, wtanList);
 
             // 構造距離拘束リスト作成（構造接続）
             var restoreDistanceData = new List<RestoreDistanceConstraint.RestoreDistanceData>();
@@ -1145,81 +1264,142 @@ namespace MagicaCloth
             }
 #endif
 
-            // 回転復元拘束（親ラインに対して）
-            var restoreRotationData = new List<RestoreRotationConstraint.RotationData>();
-            if (clothParams.UseRestoreRotation)
+            // 回転復元拘束[Algorithm 1]
+            // （親ラインに対して）
+            if (restoreRotationAlgorithm == ClothParams.Algorithm.Algorithm_1)
             {
-                for (int i = 0; i < useVertexList.Count; i++)
+                var restoreRotationData = new List<RestoreRotationConstraint.RotationData>();
+                if (clothParams.UseRestoreRotation)
                 {
-                    if (IsInvalidVertex(i) || IsExtendVertex(i))
-                        continue;
-                    if (IsMoveVertex(i) == false)
-                        continue;
-
-                    int pindex = parentList[i];
-                    if (pindex >= 0)
+                    for (int i = 0; i < useVertexList.Count; i++)
                     {
-                        // 事前計算(v1.7.0)
-                        int vindex = useVertexList[i];
-                        int pvindex = useVertexList[pindex];
-                        Vector3 v = wposList[vindex] - wposList[pvindex];
-                        var q = Quaternion.LookRotation(wnorList[pvindex], wtanList[pvindex]);
-                        var iq = Quaternion.Inverse(q);
-                        var lpos = iq * v;
+                        if (IsMoveVertex(i) == false)
+                            continue;
 
-                        // 登録
-                        var data = new RestoreRotationConstraint.RotationData();
-                        data.vertexIndex = (ushort)i;
-                        data.targetVertexIndex = (ushort)pindex;
-                        data.localPos = lpos; // v1.7.0
-                        restoreRotationData.Add(data);
-                    }
-                }
-            }
-            if (restoreRotationData.Count > 0)
-            {
-                // ジョブシステム用にデータを加工して登録
-                var builder = new ReferenceDataBuilder<RestoreRotationConstraint.RotationData>();
-                builder.Init(useVertexList.Count);
-                foreach (var data in restoreRotationData)
-                {
-                    builder.AddData(data, data.vertexIndex);
-                }
-                (var refDataList, var dataList) = builder.GetDirectReferenceData();
-                this.restoreRotationDataList = dataList.ToArray();
-                this.restoreRotationReferenceList = refDataList.ToArray();
-            }
-
-            // 回転角度拘束（ルートラインごと）
-            var clampRotationData = new List<ClampRotationConstraint.ClampRotationData>();
-            var clampRotationRootInfo = new List<ClampRotationConstraint.ClampRotationRootInfo>();
-            if (clothParams.UseClampRotation)
-            {
-                foreach (var lineIndexList in rootLineList)
-                {
-                    if (lineIndexList.Count <= 1)
-                        continue;
-
-                    var info = new ClampRotationConstraint.ClampRotationRootInfo();
-                    info.startIndex = (ushort)clampRotationData.Count;
-                    info.dataLength = (ushort)lineIndexList.Count;
-
-                    for (int i = 0; i < lineIndexList.Count; i++)
-                    {
-                        int index = lineIndexList[i];
-                        int pindex = parentList[index];
-
-                        var data = new ClampRotationConstraint.ClampRotationData();
-                        data.vertexIndex = index;
-                        data.parentVertexIndex = pindex;
-
+                        int pindex = parentList[i];
                         if (pindex >= 0)
                         {
+                            int vindex = useVertexList[i];
+                            int pvindex = useVertexList[pindex];
+                            Vector3 v = wposList[vindex] - wposList[pvindex];
+                            var q = Quaternion.LookRotation(wnorList[pvindex], wtanList[pvindex]);
+                            var iq = Quaternion.Inverse(q);
+                            var lpos = iq * v;
+
+                            // 登録
+                            var data = new RestoreRotationConstraint.RotationData();
+                            data.vertexIndex = (ushort)i;
+                            data.targetVertexIndex = (ushort)pindex;
+                            data.localPos = lpos;
+                            restoreRotationData.Add(data);
+                        }
+                    }
+                }
+                if (restoreRotationData.Count > 0)
+                {
+                    // ジョブシステム用にデータを加工して登録
+                    var builder = new ReferenceDataBuilder<RestoreRotationConstraint.RotationData>();
+                    builder.Init(useVertexList.Count);
+                    foreach (var data in restoreRotationData)
+                    {
+                        builder.AddData(data, data.vertexIndex);
+                    }
+                    (var refDataList, var dataList) = builder.GetDirectReferenceData();
+                    this.restoreRotationDataList = dataList.ToArray();
+                    this.restoreRotationReferenceList = refDataList.ToArray();
+                }
+            }
+
+            // 回転角度拘束[Algorithm 1]
+            // （ルートラインごと）
+            if (clothParams.AlgorithmType == ClothParams.Algorithm.Algorithm_1)
+            {
+                var clampRotationData = new List<ClampRotationConstraint.ClampRotationData>();
+                var clampRotationRootInfo = new List<ClampRotationConstraint.ClampRotationRootInfo>();
+                if (clothParams.UseClampRotation)
+                {
+                    // Algorithm 1 (old style)
+                    foreach (var lineIndexList in rootLineList)
+                    {
+                        if (lineIndexList.Count <= 1)
+                            continue;
+
+                        var info = new ClampRotationConstraint.ClampRotationRootInfo();
+                        info.startIndex = (ushort)clampRotationData.Count;
+                        info.dataLength = (ushort)lineIndexList.Count;
+
+                        for (int i = 0; i < lineIndexList.Count; i++)
+                        {
+                            int index = lineIndexList[i];
+                            int pindex = parentList[index];
+
+                            var data = new ClampRotationConstraint.ClampRotationData();
+                            data.vertexIndex = index;
+                            data.parentVertexIndex = pindex;
+
+                            if (pindex >= 0)
+                            {
+                                int vindex = useVertexList[index];
+                                int pvindex = useVertexList[pindex];
+
+                                Vector3 v = wposList[vindex] - wposList[pvindex];
+                                v.Normalize();
+                                var pq = Quaternion.LookRotation(wnorList[pvindex], wtanList[pvindex]);
+                                var ipq = Quaternion.Inverse(pq);
+                                Vector3 lpos = ipq * v;
+
+                                var q = Quaternion.LookRotation(wnorList[vindex], wtanList[vindex]);
+                                Quaternion lrot = ipq * q;
+
+                                data.localPos = lpos;
+                                data.localRot = lrot;
+                            }
+
+                            clampRotationData.Add(data);
+                        }
+                        clampRotationRootInfo.Add(info);
+                    }
+                }
+                if (clampRotationData.Count > 0)
+                {
+                    this.clampRotationDataList = clampRotationData.ToArray();
+                    this.clampRotationRootInfoList = clampRotationRootInfo.ToArray();
+                }
+            }
+
+            // 複合回転拘束[Algorithm 2]
+            // ClampRotation + RestoreRotationの複合
+            // （ルートラインごと）
+            if (clothParams.AlgorithmType == ClothParams.Algorithm.Algorithm_2)
+            {
+                var compositeRotationData = new List<CompositeRotationConstraint.RotationData>();
+                var compositeRotationRootInfo = new List<CompositeRotationConstraint.RootInfo>();
+                if (clothParams.UseClampRotation || clothParams.UseRestoreRotation)
+                {
+                    foreach (var lineIndexList in rootLineList)
+                    {
+                        if (lineIndexList.Count <= 1)
+                            continue;
+
+                        var info = new CompositeRotationConstraint.RootInfo();
+                        info.startIndex = (ushort)compositeRotationData.Count;
+
+                        int cnt = 0;
+                        for (int i = 0; i < lineIndexList.Count; i++)
+                        {
+                            int index = lineIndexList[i];
+                            int pindex = parentList[index];
+                            if (pindex < 0)
+                                continue;
+
+                            var data = new CompositeRotationConstraint.RotationData();
+                            data.vertexIndex = index;
+                            data.parentVertexIndex = pindex;
+
                             int vindex = useVertexList[index];
                             int pvindex = useVertexList[pindex];
 
                             Vector3 v = wposList[vindex] - wposList[pvindex];
-                            //float dist = v.magnitude;
                             v.Normalize();
                             var pq = Quaternion.LookRotation(wnorList[pvindex], wtanList[pvindex]);
                             var ipq = Quaternion.Inverse(pq);
@@ -1230,23 +1410,155 @@ namespace MagicaCloth
 
                             data.localPos = lpos;
                             data.localRot = lrot;
-                            //data.length = dist;
+
+                            compositeRotationData.Add(data);
+                            cnt++;
                         }
 
-                        clampRotationData.Add(data);
+                        if (cnt > 0)
+                        {
+                            info.dataLength = (ushort)cnt;
+                            compositeRotationRootInfo.Add(info);
+                        }
                     }
-                    clampRotationRootInfo.Add(info);
+                }
+                if (compositeRotationData.Count > 0)
+                {
+                    this.compositeRotationDataList = compositeRotationData.ToArray();
+                    this.compositeRotationRootInfoList = compositeRotationRootInfo.ToArray();
                 }
             }
-            if (clampRotationData.Count > 0)
+
+            // ねじれ拘束[Algorithm 2]
+            if (clothParams.UseTriangleBend && clothParams.GetUseTwistCorrection(clothParams.AlgorithmType) && triangleList.Count > 0)
             {
-                this.clampRotationDataList = clampRotationData.ToArray();
-                this.clampRotationRootInfoList = clampRotationRootInfo.ToArray();
+                var twistData = new List<TwistConstraint.TwistData>();
+                for (int index0 = 0; index0 < useVertexList.Count; index0++)
+                {
+                    if (IsMoveVertex(index0) == false)
+                        continue;
+
+                    int vindex0 = useVertexList[index0];
+                    float depth0 = vertexDepthList[index0];
+
+                    var vlist = meshVLink[vindex0];
+                    foreach (var vindex1 in vlist)
+                    {
+                        int index1 = useVertexList.IndexOf(vindex1);
+                        if (index1 < 0)
+                            continue;
+
+                        // デプスが同じか判定する
+                        float depth1 = vertexDepthList[index1];
+                        if (depth0 == depth1)
+                        {
+                            // この２つの頂点をねじれ復元として登録する
+                            //Debug.Log($"Twist ({index0}-{index1})");
+                            var data = new TwistConstraint.TwistData()
+                            {
+                                vertexIndex0 = (ushort)index0,
+                                vertexIndex1 = (ushort)index1
+                            };
+                            twistData.Add(data);
+                        }
+                    }
+                }
+                if (twistData.Count > 0)
+                {
+                    // ジョブシステム用にデータを加工して登録
+                    var builder = new ReferenceDataBuilder<TwistConstraint.TwistData>();
+                    builder.Init(useVertexList.Count);
+                    foreach (var data in twistData)
+                    {
+                        builder.AddData(data, data.vertexIndex0);
+                    }
+                    (var refDataList, var dataList) = builder.GetDirectReferenceData();
+                    this.twistDataList = dataList.ToArray();
+                    this.twistReferenceList = refDataList.ToArray();
+                }
             }
+#if false
+            var twistData = new List<TwistConstraint.TwistData>();
+            if (clothParams.UseTriangleBend && clothParams.UseTriangleBendTwistCorrection && triangleList.Count > 0)
+            {
+                // エッジをキーとした隣接トライアングル
+                Dictionary<uint, List<int>> triangleEdgeDict = MeshUtility.GetTriangleEdgePair(triangleList);
+
+                int tcnt = triangleList.Count / 3;
+                for (int i = 0; i < tcnt; i++)
+                {
+                    int index = i * 3;
+                    int v0 = triangleList[index];
+                    int v1 = triangleList[index + 1];
+                    int v2 = triangleList[index + 2];
+                    int i0 = useVertexList.IndexOf(v0);
+                    int i1 = useVertexList.IndexOf(v1);
+                    int i2 = useVertexList.IndexOf(v2);
+                    if (i0 < 0 || i1 < 0 || i2 < 0)
+                        continue;
+                    if (IsMoveVertex(i0) == false && IsMoveVertex(i1) == false && IsMoveVertex(i2) == false)
+                        continue;
+
+                    uint edge01 = DataUtility.PackPair(v0, v1);
+                    uint edge02 = DataUtility.PackPair(v0, v2);
+                    uint edge12 = DataUtility.PackPair(v1, v2);
+                    int edgeCnt01 = triangleEdgeDict[edge01].Count;
+                    int edgeCnt02 = triangleEdgeDict[edge02].Count;
+                    int edgeCnt12 = triangleEdgeDict[edge12].Count;
+
+                    // v0
+                    if (edgeCnt01 == 1 && edgeCnt02 == 1 && parentList[i1] == i0 && parentList[i2] == i0)
+                    {
+                        if (IsMoveVertex(i1) && IsMoveVertex(i2))
+                        {
+                            Debug.Log($"Twist: ({i0}-{i1}-{i2})");
+                            var data = new TwistConstraint.TwistData()
+                            {
+                                vertexIndex0 = (ushort)i1,
+                                vertexIndex1 = (ushort)i2
+                            };
+                            twistData.Add(data);
+                        }
+                    }
+                    // v1
+                    if (edgeCnt01 == 1 && edgeCnt12 == 1 && parentList[i0] == i1 && parentList[i2] == i1)
+                    {
+                        if (IsMoveVertex(i0) && IsMoveVertex(i2))
+                        {
+                            Debug.Log($"Twist: ({i1}-{i0}-{i2})");
+                            var data = new TwistConstraint.TwistData()
+                            {
+                                vertexIndex0 = (ushort)i0,
+                                vertexIndex1 = (ushort)i2
+                            };
+                            twistData.Add(data);
+                        }
+                    }
+                    // v2
+                    if (edgeCnt02 == 1 && edgeCnt12 == 1 && parentList[i0] == i2 && parentList[i1] == i2)
+                    {
+                        if (IsMoveVertex(i0) && IsMoveVertex(i1))
+                        {
+                            Debug.Log($"Twist: ({i2}-{i0}-{i1})");
+                            var data = new TwistConstraint.TwistData()
+                            {
+                                vertexIndex0 = (ushort)i0,
+                                vertexIndex1 = (ushort)i1
+                            };
+                            twistData.Add(data);
+                        }
+                    }
+                }
+            }
+            if (twistData.Count > 0)
+            {
+                this.twistDataList = twistData.ToArray();
+            }
+#endif
 
             // トライアングル回転調整（BoneClothのGrid接続時のみ）
             var boneCloth = team as MagicaBoneCloth;
-            if (boneCloth != null && boneCloth.ClothTarget.Connection == BoneClothTarget.ConnectionMode.Mesh && triangleList.Count > 0)
+            if (boneCloth != null && boneCloth.ClothTarget.IsMeshConnection && triangleList.Count > 0)
             {
                 // これは計算の有無に関係なく全頂点分登録する
                 var triangleRotationData = new List<TriangleWorker.TriangleRotationData>();
@@ -1359,22 +1671,18 @@ namespace MagicaCloth
             var lineRotationRootInfo = new List<LineWorker.LineRotationRootInfo>();
             if (lineList.Count > 0)
             {
+                // ラインとして利用されている頂点インデックス
+                var useLineVertexSet = new HashSet<int>();
+                foreach (var vindex in lineList)
+                    useLineVertexSet.Add(vindex);
+
                 // 頂点（親子構造）情報リスト
                 var infoList = GetUseVertexInfoList(parentList);
 
-                var compSet = new HashSet<int>();
-
-                // ラインデータ基準
-                for (int i = 0; i < lineList.Count; i++)
+                for (int i = 0; i < useVertexList.Count; i++)
                 {
-                    int vindex = lineList[i];
-                    if (compSet.Contains(vindex))
-                        continue; // 処理済み
-                    compSet.Add(vindex);
-
-                    int index = useVertexList.IndexOf(vindex);
-                    if (index < 0)
-                        continue;
+                    int index = i;
+                    int vindex = useVertexList[i];
 
                     var vinfo = infoList[index];
                     if (vinfo.parentVertexIndex >= 0)
@@ -1386,8 +1694,10 @@ namespace MagicaCloth
                     info.startIndex = (ushort)lineRotationData.Count;
                     int startIndex = lineRotationData.Count;
                     int cnt = 0;
+                    int useLineCount = 0;
                     var tempLineRotationData = new List<LineWorker.LineRotationData>();
 
+                    //var vinfo = infoList[index];
                     var vqueue = new Queue<VertexInfo>();
                     vqueue.Enqueue(vinfo);
                     while (vqueue.Count > 0)
@@ -1401,6 +1711,11 @@ namespace MagicaCloth
                         //data.parentVertexIndex = -1;
                         data.localPos = float3.zero;
                         data.localRot = quaternion.identity;
+
+                        // ラインとして利用されているかチェック
+                        if (useLineVertexSet.Contains(useVertexList[index]))
+                            useLineCount++;
+
                         if (vinfo.parentInfo != null)
                         {
                             // parent index
@@ -1443,27 +1758,17 @@ namespace MagicaCloth
                     }
                     info.dataLength = (ushort)cnt;
 
+                    // このデータブロックが１つもラインとして利用されていない場合は無効
+                    if (useLineCount == 0)
+                        continue;
+
                     // データカウント１以下は無効
                     if (cnt <= 1)
                         continue;
 
-                    // 作成されたラインデータを調べ、すべてがトライアングル回転制御である場合はこのデータは破棄する
-                    bool useLineRotation = false;
-                    foreach (var data in tempLineRotationData)
-                    {
-                        if (IsFlag(data.vertexIndex, VertexFlag_TriangleRotation) == false)
-                        {
-                            useLineRotation = true;
-                            break;
-                        }
-                    }
-
                     // 登録
-                    if (useLineRotation)
-                    {
-                        lineRotationData.AddRange(tempLineRotationData);
-                        lineRotationRootInfo.Add(info);
-                    }
+                    lineRotationData.AddRange(tempLineRotationData);
+                    lineRotationRootInfo.Add(info);
                 }
             }
             if (lineRotationData.Count > 0)
@@ -1474,7 +1779,7 @@ namespace MagicaCloth
 
             // トライアングルベンド拘束
             var triangleBendData = new List<TriangleBendConstraint.TriangleBendData>();
-            if (clothParams.UseTriangleBend)
+            if (clothParams.UseTriangleBend && triangleList.Count > 0)
             {
                 Dictionary<uint, List<int>> triangleEdgeDict = MeshUtility.GetTriangleEdgePair(triangleList);
                 foreach (var keyVal in triangleEdgeDict)
@@ -1499,7 +1804,7 @@ namespace MagicaCloth
                     for (int i = 0; i < (tlist.Count - 1); i++)
                     {
                         int tindex0 = tlist[i];
-                        int vindex0 = RestTriangleVertex(tindex0, vindex2, vindex3, triangleList);
+                        int vindex0 = MeshUtility.RestTriangleVertex(tindex0, vindex2, vindex3, triangleList);
 
                         int v0 = useVertexList.IndexOf(vindex0);
                         if (v0 < 0)
@@ -1511,7 +1816,7 @@ namespace MagicaCloth
                         for (int j = i + 1; j < tlist.Count; j++)
                         {
                             int tindex1 = tlist[j];
-                            int vindex1 = RestTriangleVertex(tindex1, vindex2, vindex3, triangleList);
+                            int vindex1 = MeshUtility.RestTriangleVertex(tindex1, vindex2, vindex3, triangleList);
                             int v1 = useVertexList.IndexOf(vindex1);
 
                             if (v1 < 0)
@@ -1527,25 +1832,183 @@ namespace MagicaCloth
                             //     \|/
                             //   v3 +
                             // v2-v3が接続辺
-
-                            // 復元角度を求める
-                            float restAngle;
-                            if (CalcTriangleBendRestAngle(wposList[vindex0], wposList[vindex1], wposList[vindex2], wposList[vindex3], out restAngle))
-                            {
-                                var data = new TriangleBendConstraint.TriangleBendData();
-                                data.vindex0 = v0;
-                                data.vindex1 = v1;
-                                data.vindex2 = v2;
-                                data.vindex3 = v3;
-
-                                data.restAngle = restAngle;
-                                data.depth = (vertexDepthList[v2] + vertexDepthList[v3]) * 0.5f;
-
-                                triangleBendData.Add(data);
-                            }
+                            RegistTriangleBend(v0, v1, v2, v3, wposList, clothParams, triangleBendData);
                         }
                     }
                 }
+
+#if true
+                // TriangleのX型補強
+                if (clothParams.GetUseTwistCorrection(clothParams.AlgorithmType))
+                {
+                    var vtdict = MeshUtility.GetVertexToTriangles(triangleList);
+                    foreach (var kv in vtdict)
+                    {
+                        // 頂点に接続するトライアングルが２
+                        var tset = kv.Value;
+                        if (tset.Count != 2)
+                            continue;
+
+                        // トライアングルの接続がX型か判定する
+                        var tlist = new List<int>(tset);
+                        for (int i = 0; i < tlist.Count - 1; i++)
+                        {
+                            int tindex0 = tlist[i];
+                            int tindex1 = tlist[i + 1];
+
+                            // ２つのトライアングルが隣接していない判定
+                            if (MeshUtility.CheckAdjacentTriangle(tindex0, tindex1, triangleList))
+                                continue;
+
+                            // この２つのトライアングルはX型
+                            int v0 = kv.Key;
+                            int v1, v2, v3, v4;
+                            MeshUtility.RestTriangleVertex(tindex0, v0, triangleList, out v1, out v2);
+                            MeshUtility.RestTriangleVertex(tindex1, v0, triangleList, out v3, out v4);
+
+                            // トライアングルベンド形成
+                            int index0 = useVertexList.IndexOf(v0);
+                            int index1 = useVertexList.IndexOf(v1);
+                            int index2 = useVertexList.IndexOf(v2);
+                            int index3 = useVertexList.IndexOf(v3);
+                            int index4 = useVertexList.IndexOf(v4);
+                            if (index0 < 0 || index1 < 0 || index2 < 0 || index3 < 0 || index4 < 0)
+                                continue;
+                            if (IsMoveVertex(index0) == false)
+                                continue;
+
+                            // 登録
+                            //   v2 +
+                            //     /|\
+                            // v0 + | + v1
+                            //     \|/
+                            //   v3 +
+                            // v2-v3が接続辺
+                            RegistTriangleBend(index1, index4, index0, index2, wposList, clothParams, triangleBendData);
+                            RegistTriangleBend(index2, index3, index0, index4, wposList, clothParams, triangleBendData);
+                            RegistTriangleBend(index4, index1, index0, index3, wposList, clothParams, triangleBendData);
+                            RegistTriangleBend(index3, index2, index0, index1, wposList, clothParams, triangleBendData);
+                            //Debug.Log($"X Triangle Bend: T0({index0}-{index1}-{index2}), T1({index0}-{index3}-{index4}) ");
+                        }
+                    }
+                }
+#endif
+#if true
+                // Line-Triangle補正
+                if (clothParams.GetUseTwistCorrection(clothParams.AlgorithmType) && lineList.Count > 0)
+                {
+                    var compIndexSet = new HashSet<int>();
+
+                    for (int i = 0; i < triangleList.Count; i++)
+                    {
+                        int tvindex0 = triangleList[i];
+                        if (compIndexSet.Contains(tvindex0))
+                            continue;
+                        compIndexSet.Add(tvindex0);
+
+                        // 接続するラインの判定
+                        int lineIndex0 = lineList.IndexOf(tvindex0);
+                        if (lineIndex0 < 0)
+                            continue;
+
+                        // 接続するもう片方のライン頂点
+                        int lineIndex1 = lineIndex0 % 2 == 0 ? lineIndex0 + 1 : lineIndex0 - 1;
+                        int lvindex0 = tvindex0;
+                        int lvindex1 = lineList[lineIndex1];
+
+                        // このラインがトライアングルとして利用されている場合は駄目
+                        uint linePair = DataUtility.PackPair(lvindex0, lvindex1);
+                        if (triangleEdgeDict.ContainsKey(linePair))
+                            continue;
+
+                        // トライアングルの残りの２点
+                        int localIndex = i % 3;
+                        int tvindex1 = -1;
+                        int tvindex2 = -1;
+                        if (localIndex == 0)
+                        {
+                            tvindex1 = triangleList[i + 1];
+                            tvindex2 = triangleList[i + 2];
+                        }
+                        else if (localIndex == 1)
+                        {
+                            tvindex1 = triangleList[i + 1];
+                            tvindex2 = triangleList[i - 1];
+                        }
+                        else
+                        {
+                            tvindex1 = triangleList[i - 1];
+                            tvindex2 = triangleList[i - 2];
+                        }
+
+                        // トライアングルベンド形成
+                        int tindex0 = useVertexList.IndexOf(tvindex0);
+                        int tindex1 = useVertexList.IndexOf(tvindex1);
+                        int tindex2 = useVertexList.IndexOf(tvindex2);
+                        int lindex0 = useVertexList.IndexOf(lvindex0);
+                        int lindex1 = useVertexList.IndexOf(lvindex1);
+                        if (tindex0 < 0 || tindex1 < 0 || tindex2 < 0 || lindex0 < 0 || lindex1 < 0)
+                            continue;
+                        if (IsMoveVertex(tindex0) == false && IsMoveVertex(tindex1) == false && IsMoveVertex(tindex2) == false)
+                            continue;
+
+                        // 登録
+                        //   v2 +
+                        //     /|\
+                        // v0 + | + v1
+                        //     \|/
+                        //   v3 +
+                        // v2-v3が接続辺
+                        RegistTriangleBend(tindex1, tindex2, tindex0, lindex1, wposList, clothParams, triangleBendData);
+                        RegistTriangleBend(lindex1, tindex1, tindex0, tindex2, wposList, clothParams, triangleBendData);
+                        RegistTriangleBend(lindex1, tindex2, tindex0, tindex1, wposList, clothParams, triangleBendData);
+                        //Debug.Log($"Add Triangle Bend: T({tindex0}-{tindex1}-{tindex2}) L({lindex0}-{lindex1})");
+                    }
+                }
+#endif
+#if false
+                // 固定を含むトライアングルの特殊復元(IncludeFixed)
+                // このデータはチェックの有無に関わらず常に作成される
+                int tcnt = triangleList.Count / 3;
+                for (int i = 0; i < tcnt; i++)
+                {
+                    int v0 = triangleList[i * 3];
+                    int v1 = triangleList[i * 3 + 1];
+                    int v2 = triangleList[i * 3 + 2];
+
+                    int i0 = useVertexList.IndexOf(v0);
+                    int i1 = useVertexList.IndexOf(v1);
+                    int i2 = useVertexList.IndexOf(v2);
+
+                    if (i0 < 0 || i1 < 0 || i2 < 0)
+                        continue;
+
+                    // 移動頂点の数
+                    int moveCnt = (IsMoveVertex(i0) ? 1 : 0) + (IsMoveVertex(i1) ? 1 : 0) + (IsMoveVertex(i2) ? 1 : 0);
+
+                    // 移動が１つか２つのトライアングルのみ登録する
+                    if (moveCnt == 1 || moveCnt == 2)
+                    {
+                        // 登録
+                        //   v0 +
+                        //     / \
+                        // v1 +---+ v2
+                        //     
+                        //   v3 = -1
+                        //Debug.Log($"special triangle ({v0}-{v1}-{v2})");
+                        var data = new TriangleBendConstraint.TriangleBendData();
+                        data.vindex0 = i0;
+                        data.vindex1 = i1;
+                        data.vindex2 = i2;
+                        data.vindex3 = -1;
+
+                        data.restAngle = 0.0f;
+                        data.depth = 0.0f;
+
+                        triangleBendData.Add(data);
+                    }
+                }
+#endif
             }
             if (triangleBendData.Count > 0)
             {
@@ -1554,7 +2017,13 @@ namespace MagicaCloth
                 builder.Init(useVertexList.Count);
                 foreach (var data in triangleBendData)
                 {
-                    builder.AddData(data, data.vindex0, data.vindex1, data.vindex2, data.vindex3);
+                    if (data.IsPositionBend())
+                    {
+                        //Debug.Log($"add data ({data.vindex0}-{data.vindex1}-{data.vindex2})");
+                        builder.AddData(data, data.vindex0, data.vindex1, data.vindex2);
+                    }
+                    else
+                        builder.AddData(data, data.vindex0, data.vindex1, data.vindex2, data.vindex3);
                 }
                 (var refDataList, var dataIndexList, var dataToDataIndexList) = builder.GetIndirectReferenceData();
                 for (int i = 0; i < triangleBendData.Count; i++)
@@ -1563,7 +2032,10 @@ namespace MagicaCloth
                     data.writeIndex0 = dataToDataIndexList[i][0];
                     data.writeIndex1 = dataToDataIndexList[i][1];
                     data.writeIndex2 = dataToDataIndexList[i][2];
-                    data.writeIndex3 = dataToDataIndexList[i][3];
+                    if (data.IsPositionBend())
+                        data.writeIndex3 = -1;
+                    else
+                        data.writeIndex3 = dataToDataIndexList[i][3];
                     triangleBendData[i] = data;
                 }
                 this.triangleBendDataList = triangleBendData.ToArray();
@@ -1572,197 +2044,178 @@ namespace MagicaCloth
             }
 
             // 浸透制限拘束
-            var penetrationData = new List<PenetrationConstraint.PenetrationData>();
             if (clothParams.UsePenetration)
             {
-                for (int i = 0; i < useVertexList.Count; i++)
+                var mode = clothParams.GetPenetrationMode();
+
+                if (mode == ClothParams.PenetrationMode.SurfacePenetration || mode == ClothParams.PenetrationMode.ColliderPenetration)
                 {
-                    // 移動頂点以外は不要
-                    if (IsMoveVertex(i) == false)
-                        continue;
+                    var penetrationData = new List<PenetrationConstraint.PenetrationData>();
 
-                    int vindex = useVertexList[i];
-                    var pos = wposList[vindex];
-                    float depth = vertexDepthList[i];
-
-                    // 拘束データは１パーティクルにつき２つ固定
-                    var dataList = new List<PenetrationConstraint.PenetrationData>();
-
-                    if (clothParams.GetPenetrationMode() == ClothParams.PenetrationMode.SurfacePenetration)
+                    for (int i = 0; i < useVertexList.Count; i++)
                     {
-                        // サーフェス浸透
-                        if (depth <= clothParams.PenetrationMaxDepth)
+                        // 移動頂点以外は不要
+                        if (IsMoveVertex(i) == false)
+                            continue;
+
+                        int vindex = useVertexList[i];
+                        var pos = wposList[vindex];
+                        float depth = vertexDepthList[i];
+
+                        // 拘束データは１パーティクルにつき２つ固定
+                        var dataList = new List<PenetrationConstraint.PenetrationData>();
+
+                        if (mode == ClothParams.PenetrationMode.SurfacePenetration)
                         {
-                            // 浸透軸
-                            Vector3 dir = Vector3.zero;
-                            switch (clothParams.GetPenetrationAxis())
+                            // サーフェス浸透
+                            if (depth <= clothParams.PenetrationMaxDepth)
                             {
-                                case ClothParams.PenetrationAxis.X:
-                                    dir = Vector3.right;
-                                    break;
-                                case ClothParams.PenetrationAxis.Y:
-                                    dir = Vector3.up;
-                                    break;
-                                case ClothParams.PenetrationAxis.Z:
-                                    dir = Vector3.forward;
-                                    break;
-                                case ClothParams.PenetrationAxis.InverseX:
-                                    dir = Vector3.left;
-                                    break;
-                                case ClothParams.PenetrationAxis.InverseY:
-                                    dir = Vector3.down;
-                                    break;
-                                case ClothParams.PenetrationAxis.InverseZ:
-                                    dir = Vector3.back;
-                                    break;
-                            }
-                            var data = new PenetrationConstraint.PenetrationData();
-                            data.vertexIndex = (short)i;
-                            data.localDir = dir;
-                            dataList.Add(data);
-                        }
-                    }
-                    else if (clothParams.GetPenetrationMode() == ClothParams.PenetrationMode.ColliderPenetration)
-                    {
-                        // コライダー浸透
-                        if (depth <= clothParams.PenetrationMaxDepth)
-                        {
-                            // 全コライダーループ
-                            for (int j = 0; j < teamData.ColliderCount; j++)
-                            {
-                                var col = teamData.ColliderList[j];
-                                if (col == null)
-                                    continue;
-
-                                // 無視リストチェック
-                                if (teamData.PenetrationIgnoreColliderList.Contains(col))
-                                    continue;
-
-                                // コライダーへの最近接点を求める
-                                Vector3 p, dir, d;
-                                if (col.CalcNearPoint(pos, out p, out dir, out d, false) == false)
-                                    continue;
-
-                                // 距離判定
-                                var dist = Vector3.Distance(pos, p);
-                                //if (dist > clothParams.PenetrationLength)
-                                //    continue;
-                                if (dist > clothParams.GetPenetrationConnectDistance().Evaluate(depth))
-                                    continue;
-
+                                // 浸透軸
+                                Vector3 dir = Vector3.zero;
+                                switch (clothParams.GetPenetrationAxis())
+                                {
+                                    case ClothParams.PenetrationAxis.X:
+                                        dir = Vector3.right;
+                                        break;
+                                    case ClothParams.PenetrationAxis.Y:
+                                        dir = Vector3.up;
+                                        break;
+                                    case ClothParams.PenetrationAxis.Z:
+                                        dir = Vector3.forward;
+                                        break;
+                                    case ClothParams.PenetrationAxis.InverseX:
+                                        dir = Vector3.left;
+                                        break;
+                                    case ClothParams.PenetrationAxis.InverseY:
+                                        dir = Vector3.down;
+                                        break;
+                                    case ClothParams.PenetrationAxis.InverseZ:
+                                        dir = Vector3.back;
+                                        break;
+                                }
                                 var data = new PenetrationConstraint.PenetrationData();
                                 data.vertexIndex = (short)i;
-                                data.colliderIndex = (short)j;
-                                //data.localPos = col.transform.InverseTransformPoint(p); // 衝突地点
-                                //data.localPos = col.transform.InverseTransformPoint(p + dir * 0.02f); // 衝突地点
-                                //data.localPos = col.transform.InverseTransformPoint(d + dir * 0.01f); // 中心軸
-                                data.localPos = col.transform.InverseTransformPoint(d); // 中心軸
-                                                                                        //data.localPos = col.transform.InverseTransformPoint((p + d) * 0.5f); // 衝突位置と中心軸の真ん中
-                                                                                        //data.localDir = col.transform.InverseTransformDirection(dir);
-                                data.localDir = col.transform.InverseTransformDirection(pos - d); // 一旦このベクトルで収める
-                                data.distance = dist;
+                                data.localDir = dir;
                                 dataList.Add(data);
                             }
-
-                            // 距離の昇順でソート
-                            if (dataList.Count >= 2)
-                                dataList.Sort((a, b) => a.distance < b.distance ? -1 : 1);
                         }
-
-#if false
-                        // 方向がほぼ同じ場合は１つに絞り込む
-                        if (dataList.Count >= 2)
+                        else if (mode == ClothParams.PenetrationMode.ColliderPenetration)
                         {
+                            // コライダー浸透
+                            if (depth <= clothParams.PenetrationMaxDepth)
+                            {
+                                // 全コライダーループ
+                                for (int j = 0; j < teamData.ColliderCount; j++)
+                                {
+                                    var col = teamData.ColliderList[j];
+                                    if (col == null)
+                                        continue;
+
+                                    // 無視リストチェック
+                                    if (teamData.PenetrationIgnoreColliderList.Contains(col))
+                                        continue;
+
+                                    // コライダーへの最近接点を求める
+                                    Vector3 p, dir, d;
+                                    if (col.CalcNearPoint(pos, out p, out dir, out d, false) == false)
+                                        continue;
+
+                                    // 距離判定
+                                    var dist = Vector3.Distance(pos, p);
+                                    //if (dist > clothParams.PenetrationLength)
+                                    //    continue;
+                                    if (dist > clothParams.GetPenetrationConnectDistance().Evaluate(depth))
+                                        continue;
+
+                                    var data = new PenetrationConstraint.PenetrationData();
+                                    data.vertexIndex = (short)i;
+                                    data.colliderIndex = (short)j;
+                                    //data.localPos = col.transform.InverseTransformPoint(p); // 衝突地点
+                                    //data.localPos = col.transform.InverseTransformPoint(p + dir * 0.02f); // 衝突地点
+                                    //data.localPos = col.transform.InverseTransformPoint(d + dir * 0.01f); // 中心軸
+                                    data.localPos = col.transform.InverseTransformPoint(d); // 中心軸
+                                                                                            //data.localPos = col.transform.InverseTransformPoint((p + d) * 0.5f); // 衝突位置と中心軸の真ん中
+                                                                                            //data.localDir = col.transform.InverseTransformDirection(dir);
+                                    data.localDir = col.transform.InverseTransformDirection(pos - d); // 一旦このベクトルで収める
+                                    data.distance = dist;
+                                    dataList.Add(data);
+                                }
+
+                                // 距離の昇順でソート
+                                if (dataList.Count >= 2)
+                                    dataList.Sort((a, b) => a.distance < b.distance ? -1 : 1);
+                            }
+
+                            // ２つ目がある場合はその距離倍率でキャンセル判定
+                            if (dataList.Count >= 2)
+                            {
+                                const float distmul = 1.5f;
+                                float dist = dataList[0].distance * distmul;
+                                for (int j = 1; j < dataList.Count;)
+                                {
+                                    if (dataList[j].distance > dist)
+                                    {
+                                        dataList.RemoveAt(j);
+                                        continue;
+                                    }
+                                    j++;
+                                }
+                            }
+
+                            // データ最大数
+                            const int PenetrationMaxDataCount = 2;
+                            if (dataList.Count > PenetrationMaxDataCount)
+                            {
+                                dataList.RemoveRange(2, dataList.Count - 2);
+                            }
+
+                            // データ整形
                             for (int j = 0; j < dataList.Count; j++)
                             {
                                 var data = dataList[j];
-                                var col = teamData.ColliderList[data.colliderIndex];
-                                var dir = col.transform.TransformDirection(data.localDir);
-
-                                for (int k = j + 1; k < dataList.Count;)
-                                {
-                                    var data2 = dataList[k];
-                                    var col2 = teamData.ColliderList[data2.colliderIndex];
-                                    var dir2 = col.transform.TransformDirection(data2.localDir);
-
-                                    if (Vector3.Angle(dir, dir2) <= 5.0f)
-                                    {
-                                        dataList.RemoveAt(k);
-                                        continue;
-                                    }
-
-                                    k++;
-                                }
-
+                                data.distance = math.length(data.localDir);
+                                data.localDir = math.normalize(data.localDir);
+                                dataList[j] = data;
                             }
-                        }
-#endif
 
-                        // ２つ目がある場合はその距離倍率でキャンセル判定
-                        if (dataList.Count >= 2)
+                            //Debug.Log($"[{vindex}] dcnt={dataList.Count}");
+                        }
+
+                        // データ追加
+                        foreach (var data in dataList)
                         {
-                            const float distmul = 1.5f;
-                            float dist = dataList[0].distance * distmul;
-                            for (int j = 1; j < dataList.Count;)
-                            {
-                                if (dataList[j].distance > dist)
-                                {
-                                    dataList.RemoveAt(j);
-                                    continue;
-                                }
-                                j++;
-                            }
+                            penetrationData.Add(data);
                         }
-
-#if false
-                        // ２つある場合はその２つの距離の差が僅かならばキャンセルする（安定性のため）
-                        if (dataList.Count >= 2)
-                        {
-                            var dr = Mathf.Abs(dataList[0].distance - dataList[1].distance) / dataList[0].distance;
-                            if (dr < 0.03f) // 0.2f?
-                                dataList.Clear();
-                        }
-#endif
-
-                        // データ最大数
-                        const int PenetrationMaxDataCount = 2;
-                        if (dataList.Count > PenetrationMaxDataCount)
-                        {
-                            dataList.RemoveRange(2, dataList.Count - 2);
-                        }
-
-                        // データ整形
-                        for (int j = 0; j < dataList.Count; j++)
-                        {
-                            var data = dataList[j];
-                            data.distance = math.length(data.localDir);
-                            data.localDir = math.normalize(data.localDir);
-                            dataList[j] = data;
-                        }
-
-                        //Debug.Log($"[{vindex}] dcnt={dataList.Count}");
                     }
 
-                    // データ追加
-                    foreach (var data in dataList)
+                    // データ格納
+                    if (penetrationData.Count > 0)
                     {
-                        penetrationData.Add(data);
+                        // ジョブシステム用にデータを加工して登録
+                        var builder = new ReferenceDataBuilder<PenetrationConstraint.PenetrationData>();
+                        builder.Init(useVertexList.Count);
+                        foreach (var data in penetrationData)
+                        {
+                            builder.AddData(data, data.vertexIndex);
+                        }
+                        (var refDataList, var dataList) = builder.GetDirectReferenceData();
+                        this.penetrationDataList = dataList.ToArray();
+                        this.penetrationReferenceList = refDataList.ToArray();
+                        this.penetrationMode = clothParams.GetPenetrationMode(); // 作成時のモードを記録
                     }
                 }
-            }
-            if (penetrationData.Count > 0)
-            {
-                // ジョブシステム用にデータを加工して登録
-                var builder = new ReferenceDataBuilder<PenetrationConstraint.PenetrationData>();
-                builder.Init(useVertexList.Count);
-                foreach (var data in penetrationData)
+#if false // 一旦休眠
+                else if (mode == ClothParams.PenetrationMode.BonePenetration)
                 {
-                    builder.AddData(data, data.vertexIndex);
+                    // Bone Penetration
+                    // すでにデータは作られている
+                    if (penetrationDirections.Count > 0)
+                    {
+                        this.penetrationDirectionDataList = penetrationDirections.ToArray();
+                        this.penetrationMode = clothParams.GetPenetrationMode(); // 作成時のモードを記録
+                    }
                 }
-                (var refDataList, var dataList) = builder.GetDirectReferenceData();
-                this.penetrationDataList = dataList.ToArray();
-                this.penetrationReferenceList = refDataList.ToArray();
-                this.penetrationMode = clothParams.GetPenetrationMode(); // 作成時のモードを記録
+#endif
             }
 
 #if false
@@ -1828,174 +2281,16 @@ namespace MagicaCloth
             }
 #endif
 
-#if false
+#if false // 一旦休眠
             // ベーススキニング
-            var baseSkinningData = new List<BaseSkinningWorker.BaseSkinningData>();
-            if (clothParams.UseBaseSkinning)
+            if (team.SkinningMode == PhysicsTeam.TeamSkinningMode.GenerateFromBones && teamData.SkinningBoneList.Count > 0)
             {
-                for (int i = 0; i < useVertexList.Count; i++)
+                // すでにデータは作られている
+                if (baseSkinningData.Count > 0 && bindPoses.Count > 0)
                 {
-                    int vindex = useVertexList[i];
-                    var pos = wposList[vindex];
-                    var nor = wnorList[vindex];
-                    var tan = wtanList[vindex];
-
-                    var dataList = new List<BaseSkinningWorker.BaseSkinningData>();
-
-#if true
-                    // コライダーループ
-                    for (int j = 0; j < teamData.ColliderCount; j++)
-                    {
-                        var col = teamData.ColliderList[j];
-                        if (col == null)
-                            continue;
-
-                        // 無視リストチェック
-                        if (teamData.SkinningIgnoreColliderList.Contains(col))
-                            continue;
-
-                        // コライダーへの最近接点を求める
-                        Vector3 p, dir, d;
-                        if (col.CalcNearPoint(pos, out p, out dir, out d, true) == false)
-                            continue;
-
-                        // 距離判定
-                        var dist = Vector3.Distance(pos, p);
-
-                        var data = new BaseSkinningWorker.BaseSkinningData();
-                        data.boneIndex = j;
-                        var bone = col.transform;
-                        data.localPos = bone.InverseTransformPoint(pos);
-                        data.localNor = bone.InverseTransformDirection(nor);
-                        data.localTan = bone.InverseTransformDirection(tan);
-                        data.weight = dist; // 距離:一時的
-
-                        dataList.Add(data);
-                    }
-#else
-                    // ボーンループ
-                    for (int j = 0; j < teamData.SkinningBoneList.Count; j++)
-                    {
-                        var bone = teamData.SkinningBoneList[j];
-                        if (bone == null)
-                            continue;
-
-                        // ボーンのすべての子ラインへの最近接点を求める
-                        Vector3 d;
-                        float dist = MeshUtility.ClosestPtBoneLine(pos, bone, 0.03f, out d);
-
-                        var data = new BaseSkinningWorker.BaseSkinningData();
-                        data.boneIndex = j;
-                        data.localPos = bone.InverseTransformPoint(pos);
-                        data.localNor = bone.InverseTransformDirection(nor);
-                        data.localTan = bone.InverseTransformDirection(tan);
-                        data.weight = dist; // 距離:一時的
-
-                        dataList.Add(data);
-                    }
-#endif
-
-                    // 距離の昇順でソート
-                    if (dataList.Count >= 2)
-                        dataList.Sort((a, b) => a.weight < b.weight ? -1 : 1);
-
-                    // 最大数
-                    while (dataList.Count > Define.Compute.BaseSkinningWeightCount)
-                        dataList.RemoveAt(dataList.Count - 1);
-
-                    // ２つ目以降の距離が倍以上離れていた場合は無効
-                    if (dataList.Count > 1)
-                    {
-                        const float ignoreDistMul = 1.5f; // 2.0?
-                        float dist = dataList[0].weight * ignoreDistMul;
-                        for (int j = 1; j < dataList.Count;)
-                        {
-                            if (dataList[j].weight > dist)
-                            {
-                                // 削除
-                                dataList.RemoveAt(j);
-                                continue;
-                            }
-                            j++;
-                        }
-                        //if (dataList[1].weight > dataList[0].weight * ignoreDistMul)
-                        //{
-                        //    // 削除
-                        //    dataList.RemoveAt(1);
-                        //}
-                    }
-
-                    // ウエイト算出
-                    //if (dataList.Count == 1)
-                    //{
-                    //    var data = dataList[0];
-                    //    data.weight = 1;
-                    //    dataList[0] = data;
-                    //}
-                    //else
-                    //{
-                    //    const float pow = 1.0f; // 距離減衰率 10.0?
-                    //    float total = dataList.Sum(x => Mathf.Pow(x.weight, pow));
-                    //    for (int j = 0; j < dataList.Count; j++)
-                    //    {
-                    //        var data = dataList[j];
-                    //        var w = Mathf.Clamp01(1.0f - Mathf.Pow(data.weight, pow) / total);
-                    //        data.weight = w;
-
-                    //        dataList[j] = data;
-                    //    }
-                    //}
-
-                    // ウエイト２
-                    if (dataList.Count == 1)
-                    {
-                        var data = dataList[0];
-                        data.weight = 1;
-                        dataList[0] = data;
-                    }
-                    else
-                    {
-                        const float distpow = 1.0f; // 距離減衰率 10.0?
-                        for (int j = 0; j < dataList.Count; j++)
-                        {
-                            var data = dataList[j];
-                            data.weight = Mathf.Pow(data.weight, distpow);
-                            dataList[j] = data;
-                        }
-                        float total = dataList.Sum(x => x.weight);
-                        for (int j = 0; j < dataList.Count; j++)
-                        {
-                            var data = dataList[j];
-                            data.weight = 1.0f - data.weight / total;
-                            dataList[j] = data;
-                        }
-                        total = dataList.Sum(x => x.weight);
-                        for (int j = 0; j < dataList.Count; j++)
-                        {
-                            var data = dataList[j];
-                            data.weight = data.weight / total;
-                            dataList[j] = data;
-                        }
-                    }
-
-
-                    // 最大数まで採用、ない場合は無効データを挿入
-                    for (int j = 0; j < Define.Compute.BaseSkinningWeightCount; j++)
-                    {
-                        if (dataList.Count > j)
-                            baseSkinningData.Add(dataList[j]);
-                        else
-                        {
-                            // 無効データ
-                            var data = new BaseSkinningWorker.BaseSkinningData();
-                            baseSkinningData.Add(data);
-                        }
-                    }
+                    this.baseSkinningDataList = baseSkinningData.ToArray();
+                    this.baseSkinningBindPoseList = bindPoses.ToArray();
                 }
-            }
-            if (baseSkinningData.Count > 0)
-            {
-                this.baseSkinningDataList = baseSkinningData.ToArray();
             }
 #endif
 
@@ -2126,6 +2421,294 @@ namespace MagicaCloth
 #endif
         }
 
+#if false // 一旦休眠
+        /// <summary>
+        /// BoneListからスキニング情報を作成する
+        /// </summary>
+        /// <param name="team"></param>
+        /// <param name="teamData"></param>
+        /// <param name="wposList"></param>
+        /// <param name="wnorList"></param>
+        /// <param name="wtanList"></param>
+        /// <returns></returns>
+        (List<BaseSkinningWorker.BaseSkinningData>, List<float4x4>, List<float3>) CreateSkinningData(
+            PhysicsTeam team,
+            PhysicsTeamData teamData,
+            ClothParams clothParams,
+            List<Vector3> wposList,
+            List<Vector3> wnorList,
+            List<Vector3> wtanList
+            )
+        {
+            var baseSkinningData = new List<BaseSkinningWorker.BaseSkinningData>();
+            var bindPoses = new List<float4x4>();
+            var penetrationDirections = new List<float3>();
+
+            // 作成判定
+            bool create = false;
+            if (team.SkinningMode == PhysicsTeam.TeamSkinningMode.GenerateFromBones)
+                create = true;
+            if (clothParams.UsePenetration && clothParams.GetPenetrationMode() == ClothParams.PenetrationMode.BonePenetration)
+                create = true;
+            if (teamData.SkinningBoneList.Count == 0)
+                create = false;
+            if (create == false)
+                return (baseSkinningData, bindPoses, penetrationDirections);
+
+            // ボーン情報
+            var boneInfos = new List<PenetrationBone>();
+            var boneList = teamData.SkinningBoneList;
+            foreach (var bone in boneList)
+            {
+                if (bone != null)
+                {
+                    for (int i = 0; i < bone.childCount; i++)
+                    {
+                        var cbone = bone.GetChild(i);
+                        if (boneList.Contains(cbone))
+                        {
+                            float dist = Vector3.Distance(bone.position, cbone.position);
+                            if (dist > 0.001f)
+                            {
+                                var boneInfo = new PenetrationBone();
+                                boneInfo.bone = bone;
+                                boneInfo.childBone = cbone;
+                                boneInfos.Add(boneInfo);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (boneInfos.Count > 0)
+            {
+                var t = team.transform;
+                var tLtoW = t.localToWorldMatrix;
+
+                // バインドポーズの算出
+                foreach (var bone in boneList)
+                {
+                    float4x4 bindPose = bone.worldToLocalMatrix * tLtoW;
+                    bindPoses.Add(bindPose);
+                }
+
+                // データは全頂点分作成する
+                var workList = new List<PenetrationWork>();
+                for (int i = 0; i < useVertexList.Count; i++)
+                {
+                    var data = new BaseSkinningWorker.BaseSkinningData();
+
+                    int vindex = useVertexList[i];
+                    var pos = wposList[vindex];
+                    var nor = wnorList[vindex];
+                    var tan = wtanList[vindex];
+
+                    // 接続ボーンとウエイト
+                    workList.Clear();
+
+                    // 各ボーンへの距離を求める
+                    foreach (var boneInfo in boneInfos)
+                    {
+                        float3 bpos0 = boneInfo.bone.position;
+                        float3 bpos1 = boneInfo.childBone.position;
+                        float3 d = MathUtility.ClosestPtPointSegment(pos, bpos0, bpos1);
+                        float dist = math.distance(pos, d);
+                        var work = new PenetrationWork();
+                        work.bone = boneInfo.bone;
+                        work.childBone = boneInfo.childBone;
+                        work.boneIndex = teamData.SkinningBoneList.IndexOf(boneInfo.bone);
+
+                        float3 pos2 = pos;
+                        var v = pos2 - d;
+                        var bv = bpos1 - bpos0;
+                        //float ang = Vector3.Angle(v, bv);
+                        float dot = math.dot(math.normalize(v), math.normalize(bv));
+                        //float ratio = 1.0f - math.abs(ang);
+                        //dist = dist * (math.abs(dot) + 1e-06f);
+                        //dist = dist * (math.abs(dot) + 0.3f);
+                        dist = dist * (math.abs(dot) * 0.3f + 0.7f);
+
+                        work.distance = dist;
+                        workList.Add(work);
+                    }
+
+                    // 昇順にソートする
+                    workList.Sort((a, b) => a.distance < b.distance ? -1 : 1);
+
+#if true
+                    // 同じボーンは詰める
+                    for (int j = 1; j < workList.Count;)
+                    {
+                        var work = workList[j];
+                        int index = workList.FindIndex(x => x.bone == work.bone);
+                        if (index < j)
+                        {
+                            workList.RemoveAt(j);
+                        }
+                        else
+                            j++;
+                    }
+#endif
+
+                    // 最大４つにクランプ
+                    if (workList.Count > 4)
+                        workList.RemoveRange(4, workList.Count - 4);
+
+                    // ウエイト算出
+                    // (0)最小距離のn%を減算する
+                    const float lengthWeight = 0.8f; // 0.8/0.65
+                    float mindist = workList[0].distance * lengthWeight;
+                    foreach (var work in workList)
+                        work.weight = work.distance - mindist;
+
+                    // (1)distanceをn乗する
+                    const float pow = 2.0f; // 2.0f/3.0
+                    foreach (var work in workList)
+                        work.weight = Mathf.Pow(work.weight, pow);
+                    // (2)最小値の逆数にする
+                    float min = Mathf.Max(workList[0].weight, 1e-06f);
+                    //Debug.Assert(min > 1e-06f);
+                    float sum = 0;
+                    foreach (var work in workList)
+                    {
+                        work.weight = min / work.weight;
+                        sum += work.weight;
+                    }
+                    // (3)割合を出す
+                    foreach (var work in workList)
+                        work.weight /= sum;
+                    // (4)極小のウエイトは削除する
+                    sum = 0;
+                    for (int j = 0; j < workList.Count;)
+                    {
+                        if (workList[j].weight < 0.01f)
+                            workList.RemoveAt(j);
+                        else
+                        {
+                            sum += workList[j].weight;
+                            j++;
+                        }
+                    }
+                    Debug.Assert(sum > 0);
+                    // (5)再度1.0に平均化
+                    foreach (var work in workList)
+                        work.weight /= sum;
+
+                    // コンポーネントのローカル座標へ変換
+                    var lpos = t.InverseTransformPoint(pos);
+                    var lnor = t.InverseTransformDirection(nor);
+                    var ltan = t.InverseTransformDirection(tan);
+
+                    // データ作成
+                    data.localPos = lpos;
+                    data.localNor = lnor;
+                    data.localTan = ltan;
+                    for (int j = 0; j < workList.Count; j++)
+                    {
+                        data.boneIndices[j] = workList[j].boneIndex;
+                        data.weights[j] = workList[j].weight;
+                    }
+                    data.weightCount = (short)workList.Count;
+
+                    baseSkinningData.Add(data);
+
+                    // Bone Penetration用の浸透方向を求める
+                    float3 pv = 0;
+                    foreach (var work in workList)
+                    {
+                        var bpos0 = work.bone.position;
+                        var bpos1 = work.childBone.position;
+                        Vector3 d = MathUtility.ClosestPtPointSegmentNoClamp(pos, bpos0, bpos1);
+                        float3 v = (pos - d).normalized * work.weight;
+                        pv += v;
+                    }
+                    quaternion rot = quaternion.LookRotation(nor, tan);
+                    float3 lpv = math.mul(math.inverse(rot), pv);
+                    lpv = math.normalize(lpv);
+                    penetrationDirections.Add(lpv);
+                }
+            }
+
+            return (baseSkinningData, bindPoses, penetrationDirections);
+        }
+#endif
+
+        /// <summary>
+        /// トライアングルベンドの登録
+        /// </summary>
+        /// <param name="v0"></param>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <param name="v3"></param>
+        /// <param name="wposList"></param>
+        /// <param name="clothParams"></param>
+        /// <param name="triangleBendData"></param>
+        void RegistTriangleBend(
+            int v0, int v1, int v2, int v3,
+            List<Vector3> wposList,
+            ClothParams clothParams,
+            List<TriangleBendConstraint.TriangleBendData> triangleBendData
+            )
+        {
+            // 登録
+            //   v2 +
+            //     /|\
+            // v0 + | + v1
+            //     \|/
+            //   v3 +
+            // v2-v3が接続辺
+
+            int vindex0 = useVertexList[v0];
+            int vindex1 = useVertexList[v1];
+            int vindex2 = useVertexList[v2];
+            int vindex3 = useVertexList[v3];
+
+            float restAngle;
+            var p0 = wposList[vindex0];
+            var p1 = wposList[vindex1];
+            var p2 = wposList[vindex2];
+            var p3 = wposList[vindex3];
+
+            if (CalcTriangleBendRestAngle(p0, p1, p2, p3, out restAngle))
+            {
+                var data = new TriangleBendConstraint.TriangleBendData();
+                data.vindex0 = v0;
+                data.vindex1 = v1;
+                data.vindex2 = v2;
+                data.vindex3 = v3;
+                data.restAngle = restAngle;
+                data.depth = (vertexDepthList[v2] + vertexDepthList[v3]) * 0.5f;
+
+                switch (clothParams.AlgorithmType)
+                {
+                    case ClothParams.Algorithm.Algorithm_1:
+                        // 双方向 (旧式)
+                        triangleBendData.Add(data);
+                        break;
+                    case ClothParams.Algorithm.Algorithm_2:
+                        // 厳密
+                        // 内角制限：すべてに適用すると振動がひどくなる
+                        //Debug.Log($"restAngle={Mathf.Rad2Deg * restAngle}");
+                        if (math.degrees(restAngle) >= 90.0f)
+                        {
+                            //Debug.Log($"skip! ({v0}-{v1}-{v2}-{v3})");
+                            return;
+                        }
+
+                        // Strict用データ作成
+                        // 方向性
+                        float3 e = p3 - p2;
+                        var n1 = MathUtility.TriangleNormal(p0, p2, p3);
+                        var n2 = MathUtility.TriangleNormal(p1, p3, p2);
+                        var dir = math.dot(math.cross(n1, n2), e);
+                        dir = dir == 0.0f ? 1 : dir;
+                        data.direction = dir;
+                        data.restAngle = restAngle * math.sign(data.direction);
+                        triangleBendData.Add(data);
+                        break;
+                }
+            }
+        }
         List<int> SortTetra(int v0, int v1, int v2, int v3, List<float> meshVertexDepthList)
         {
             List<int> result = new List<int>();
@@ -2261,27 +2844,6 @@ namespace MagicaCloth
             restAngle = Mathf.Acos(dot);
 
             return true;
-        }
-
-        /// <summary>
-        /// ポリゴン番号とその２つの頂点を与え、残り１つの頂点番号を返す
-        /// </summary>
-        /// <param name="tindex"></param>
-        /// <param name="v0"></param>
-        /// <param name="v1"></param>
-        /// <param name="triangleList"></param>
-        /// <returns></returns>
-        int RestTriangleVertex(int tindex, int v0, int v1, List<int> triangleList)
-        {
-            int index = tindex * 3;
-            for (int i = 0; i < 3; i++)
-            {
-                int n = triangleList[index + i];
-                if (n != v0 && n != v1)
-                    return n;
-            }
-
-            return 0;
         }
 
         /// <summary>

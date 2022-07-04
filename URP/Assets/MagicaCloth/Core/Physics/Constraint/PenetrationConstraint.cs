@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -58,6 +58,12 @@ namespace MagicaCloth
         FixedChunkNativeArray<ReferenceDataIndex> refDataList;
 
         /// <summary>
+        /// BonePenetration用データ
+        /// 頂点に対するローカル浸透方向
+        /// </summary>
+        FixedChunkNativeArray<float3> bonePenetrationDataList;
+
+        /// <summary>
         /// グループごとの拘束データ
         /// </summary>
         public struct GroupData
@@ -66,17 +72,17 @@ namespace MagicaCloth
             public int active;
 
             /// <summary>
-            /// (0=Surface, 1=Collider)
+            /// (0=Surface, 1=Collider, 2=Bone)
             /// </summary>
             public int mode;
 
-            public ChunkData dataChunk;
-
-            public ChunkData refDataChunk;
-
+            public float maxDepth;
             public CurveParam radius;
-
             public CurveParam distance;
+
+            public ChunkData dataChunk;
+            public ChunkData refDataChunk;
+            public ChunkData bonePenetrationDataChunk;
         }
         public FixedNativeList<GroupData> groupList;
 
@@ -86,6 +92,7 @@ namespace MagicaCloth
             groupList = new FixedNativeList<GroupData>();
             dataList = new FixedChunkNativeArray<PenetrationData>();
             refDataList = new FixedChunkNativeArray<ReferenceDataIndex>();
+            bonePenetrationDataList = new FixedChunkNativeArray<float3>();
         }
 
         public override void Release()
@@ -93,11 +100,22 @@ namespace MagicaCloth
             groupList.Dispose();
             dataList.Dispose();
             refDataList.Dispose();
+            bonePenetrationDataList.Dispose();
         }
 
-        public int AddGroup(int teamId, bool active, ClothParams.PenetrationMode mode, BezierParam distance, BezierParam radius, PenetrationData[] moveLimitDataList, ReferenceDataIndex[] refDataArray)
+        public int AddGroup(
+            int teamId,
+            bool active,
+            ClothParams.PenetrationMode mode,
+            BezierParam distance,
+            BezierParam radius,
+            float maxDepth,
+            PenetrationData[] moveLimitDataList,
+            ReferenceDataIndex[] refDataArray,
+            float3[] bonePenetrationDataArray
+            )
         {
-            var teamData = MagicaPhysicsManager.Instance.Team.teamDataList[teamId];
+            //var teamData = MagicaPhysicsManager.Instance.Team.teamDataList[teamId];
 
             var gdata = new GroupData();
             gdata.teamId = teamId;
@@ -105,12 +123,22 @@ namespace MagicaCloth
             gdata.mode = (int)mode;
             gdata.distance.Setup(distance);
             gdata.radius.Setup(radius);
-            gdata.dataChunk = dataList.AddChunk(moveLimitDataList.Length);
-            gdata.refDataChunk = refDataList.AddChunk(refDataArray.Length);
+            gdata.maxDepth = maxDepth;
+            if (moveLimitDataList != null && moveLimitDataList.Length > 0)
+            {
+                gdata.dataChunk = dataList.AddChunk(moveLimitDataList.Length);
+                gdata.refDataChunk = refDataList.AddChunk(refDataArray.Length);
 
-            // チャンクデータコピー
-            dataList.ToJobArray().CopyFromFast(gdata.dataChunk.startIndex, moveLimitDataList);
-            refDataList.ToJobArray().CopyFromFast(gdata.refDataChunk.startIndex, refDataArray);
+                // チャンクデータコピー
+                dataList.ToJobArray().CopyFromFast(gdata.dataChunk.startIndex, moveLimitDataList);
+                refDataList.ToJobArray().CopyFromFast(gdata.refDataChunk.startIndex, refDataArray);
+            }
+            if (bonePenetrationDataArray != null && bonePenetrationDataArray.Length > 0)
+            {
+                gdata.bonePenetrationDataChunk = bonePenetrationDataList.AddChunk(bonePenetrationDataArray.Length);
+                // チャンクデータコピー
+                bonePenetrationDataList.ToJobArray().CopyFromFast(gdata.bonePenetrationDataChunk.startIndex, bonePenetrationDataArray);
+            }
 
             int group = groupList.Add(gdata);
             return group;
@@ -129,12 +157,13 @@ namespace MagicaCloth
             // チャンクデータ削除
             dataList.RemoveChunk(gdata.dataChunk);
             refDataList.RemoveChunk(gdata.refDataChunk);
+            bonePenetrationDataList.RemoveChunk(gdata.bonePenetrationDataChunk);
 
             // データ削除
             groupList.Remove(group);
         }
 
-        public void ChangeParam(int teamId, bool active, BezierParam distance, BezierParam radius)
+        public void ChangeParam(int teamId, bool active, BezierParam distance, BezierParam radius, float maxDepth)
         {
             var teamData = Manager.Team.teamDataList[teamId];
             int group = teamData.penetrationGroupIndex;
@@ -145,11 +174,12 @@ namespace MagicaCloth
             gdata.active = active ? 1 : 0;
             gdata.distance.Setup(distance);
             gdata.radius.Setup(radius);
+            gdata.maxDepth = maxDepth;
             groupList[group] = gdata;
         }
 
         //=========================================================================================
-        public override JobHandle SolverConstraint(float dtime, float updatePower, int iteration, JobHandle jobHandle)
+        public override JobHandle SolverConstraint(int runCount, float dtime, float updatePower, int iteration, JobHandle jobHandle)
         {
             if (groupList.Count == 0)
                 return jobHandle;
@@ -157,9 +187,12 @@ namespace MagicaCloth
             // 移動制限拘束
             var job1 = new PenetrationJob()
             {
+                runCount = runCount,
+
                 groupList = groupList.ToJobArray(),
                 dataList = dataList.ToJobArray(),
                 refDataList = refDataList.ToJobArray(),
+                bonePenetrationDataList = bonePenetrationDataList.ToJobArray(),
 
                 flagList = Manager.Particle.flagList.ToJobArray(),
                 teamIdList = Manager.Particle.teamIdList.ToJobArray(),
@@ -172,9 +205,12 @@ namespace MagicaCloth
 
                 colliderList = Manager.Team.colliderList.ToJobArray(),
 
+                bonePosList = Manager.Bone.bonePosList.ToJobArray(),
+                boneRotList = Manager.Bone.boneRotList.ToJobArray(),
                 boneSclList = Manager.Bone.boneSclList.ToJobArray(),
 
                 teamDataList = Manager.Team.teamDataList.ToJobArray(),
+                skinningBoneList = Manager.Team.skinningBoneList.ToJobArray(),
 
                 outNextPosList = Manager.Particle.OutNextPosList.ToJobArray(),
                 posList = Manager.Particle.posList.ToJobArray(),
@@ -194,12 +230,16 @@ namespace MagicaCloth
         [BurstCompile]
         struct PenetrationJob : IJobParallelFor
         {
+            public int runCount;
+
             [Unity.Collections.ReadOnly]
             public NativeArray<GroupData> groupList;
             [Unity.Collections.ReadOnly]
             public NativeArray<PenetrationData> dataList;
             [Unity.Collections.ReadOnly]
             public NativeArray<ReferenceDataIndex> refDataList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> bonePenetrationDataList;
 
             [Unity.Collections.ReadOnly]
             public NativeArray<PhysicsManagerParticleData.ParticleFlag> flagList;
@@ -221,11 +261,19 @@ namespace MagicaCloth
             [Unity.Collections.ReadOnly]
             public NativeArray<int> colliderList;
 
+            // bone
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> bonePosList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<quaternion> boneRotList;
             [Unity.Collections.ReadOnly]
             public NativeArray<float3> boneSclList;
 
+            // team
             [Unity.Collections.ReadOnly]
             public NativeArray<PhysicsManagerTeamData.TeamData> teamDataList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<int> skinningBoneList;
 
             [Unity.Collections.WriteOnly]
             public NativeArray<float3> outNextPosList;
@@ -251,7 +299,7 @@ namespace MagicaCloth
                 if (teamData.penetrationGroupIndex < 0)
                     return;
                 // 更新確認
-                if (teamData.IsUpdate() == false)
+                if (teamData.IsUpdate(runCount) == false)
                     return;
 
                 // グループデータ
@@ -259,11 +307,8 @@ namespace MagicaCloth
                 if (gdata.active == 0)
                     return;
 
-                // データ参照情報
                 int vindex = index - teamData.particleChunk.startIndex;
-                var refdata = refDataList[gdata.refDataChunk.startIndex + vindex];
-                if (refdata.count == 0)
-                    return;
+                var oldpos = nextpos;
 
                 // depth
                 var depth = depthList[index];
@@ -279,25 +324,101 @@ namespace MagicaCloth
                 float teamScale = teamData.scaleRatio;
                 distance *= teamScale;
                 moveradius *= teamScale;
+                //Debug.Log(teamScale);
 
                 // モード別処理
-                var oldpos = nextpos;
                 if (gdata.mode == 0)
                 {
                     // Surface Penetration
-                    // ベース位置から算出する
-                    var bpos = basePosList[index];
-                    var brot = baseRotList[index];
-                    int dindex = refdata.startIndex;
-                    var data = dataList[gdata.dataChunk.startIndex + dindex];
-
-                    if (data.IsValid())
+                    // データ参照情報
+                    var refdata = refDataList[gdata.refDataChunk.startIndex + vindex];
+                    if (refdata.count > 0)
                     {
-                        //float3 n = math.mul(brot, data.localDir);
-                        float3 n = math.mul(brot, data.localDir * scaleDirection); // マイナススケール対応
+                        // ベース位置から算出する
+                        var bpos = basePosList[index];
+                        var brot = baseRotList[index];
+                        int dindex = refdata.startIndex;
+                        var data = dataList[gdata.dataChunk.startIndex + dindex];
 
+                        if (data.IsValid())
+                        {
+                            //float3 n = math.mul(brot, data.localDir);
+                            float3 n = math.mul(brot, data.localDir * scaleDirection); // マイナススケール対応
+
+                            // 球の位置
+                            var c = bpos + n * (distance - moveradius);
+
+                            // 球内部制限
+                            var v = nextpos - c;
+                            var len = math.length(v);
+                            if (len > moveradius)
+                            {
+                                v *= (moveradius / len);
+                                nextpos = c + v;
+                            }
+                        }
+                    }
+                }
+                else if (gdata.mode == 1)
+                {
+                    // Collider Penetration
+                    // データ参照情報
+                    var refdata = refDataList[gdata.refDataChunk.startIndex + vindex];
+                    if (refdata.count > 0)
+                    {
+                        // 球内制限
+                        float3 c = 0;
+                        int ccnt = 0;
+
+                        int dindex = refdata.startIndex;
+                        for (int i = 0; i < refdata.count; i++, dindex++)
+                        {
+                            var data = dataList[gdata.dataChunk.startIndex + dindex];
+                            if (data.IsValid())
+                            {
+                                int cindex = colliderList[teamData.colliderChunk.startIndex + data.colliderIndex];
+
+                                var cflag = flagList[cindex];
+                                if (cflag.IsValid() == false)
+                                    continue;
+
+                                // 球内部制限
+                                c += InverseSpherePosition(ref data, teamScale, scaleDirection, distance, cindex, moveradius);
+                                ccnt++;
+                            }
+                        }
+
+                        if (ccnt > 0)
+                        {
+                            c /= ccnt;
+                            var opos = InverseSpherePenetration(c, moveradius, nextpos);
+                            var addv = (opos - nextpos);
+
+                            // stiffness test
+                            //addv *= 0.25f;
+
+                            // 摩擦を入れてみる
+                            //float friction = math.length(addv) * 10.0f;
+                            //frictionList[index] = math.max(friction, frictionList[index]); // 大きい方
+
+                            nextpos += addv;
+                        }
+                    }
+                }
+                else if (gdata.mode == 2)
+                {
+                    // Bone Penetration
+                    if (depth <= gdata.maxDepth)
+                    {
+                        float3 basePos = basePosList[index];
+                        quaternion baseRot = baseRotList[index];
+                        float3 ln = bonePenetrationDataList[gdata.bonePenetrationDataChunk.startIndex + vindex];
+                        float3 n = math.mul(baseRot, ln);
+
+#if true
                         // 球の位置
-                        var c = bpos + n * (distance - moveradius);
+                        var c = basePos + n * (moveradius - math.min(distance, moveradius));
+                        //var c = basePos + n * (-distance + moveradius);
 
                         // 球内部制限
                         var v = nextpos - c;
@@ -307,95 +428,35 @@ namespace MagicaCloth
                             v *= (moveradius / len);
                             nextpos = c + v;
                         }
-                    }
-                }
-                else if (gdata.mode == 1)
-                {
-                    // Collider Penetration
-#if true
-                    // 球内制限
-                    float3 c = 0;
-                    int ccnt = 0;
-
-                    int dindex = refdata.startIndex;
-                    for (int i = 0; i < refdata.count; i++, dindex++)
-                    {
-                        var data = dataList[gdata.dataChunk.startIndex + dindex];
-                        if (data.IsValid())
-                        {
-                            int cindex = colliderList[teamData.colliderChunk.startIndex + data.colliderIndex];
-
-                            var cflag = flagList[cindex];
-                            if (cflag.IsValid() == false)
-                                continue;
-
-                            // 球内部制限
-                            c += InverseSpherePosition(ref data, teamScale, scaleDirection, distance, cindex, moveradius);
-                            ccnt++;
-                        }
-                    }
-
-                    if (ccnt > 0)
-                    {
-                        c /= ccnt;
-                        var opos = InverseSpherePenetration(c, moveradius, nextpos);
-                        var addv = (opos - nextpos);
-
-                        // stiffness test
-                        //addv *= 0.25f;
-
-                        // 摩擦を入れてみる
-                        //float friction = math.length(addv) * 10.0f;
-                        //frictionList[index] = math.max(friction, frictionList[index]); // 大きい方
-
-                        nextpos += addv;
-                    }
-#else
-                    // 平面制限
-                    float3 c = 0;
-                    float3 n = 0;
-                    int ccnt = 0;
-                    int dindex = refdata.startIndex;
-                    for (int i = 0; i < refdata.count; i++, dindex++)
-                    {
-                        var data = dataList[gdata.dataChunk.startIndex + dindex];
-                        if (data.IsValid())
-                        {
-                            int cindex = colliderList[teamData.colliderChunk.startIndex + data.colliderIndex];
-
-                            // プレーン制限（今のところあまり有効性なし）
-                            float3 center, dir;
-                            InversePlanePosition(ref data, teamScale, distance, cindex, out center, out dir);
-                            c += center;
-                            n += dir;
-                            ccnt++;
-                        }
-                    }
-
-                    if (ccnt > 0)
-                    {
-                        c /= ccnt;
-                        n = math.normalize(n);
-
-                        // c = 平面位置
-                        // n = 平面方向
-                        // 平面衝突判定と押し出し
-                        float3 opos;
-                        MathUtility.IntersectPointPlane(c, n, nextpos, out opos);
-
-                        var addv = (opos - nextpos);
-
-                        // stiffness test
-                        //addv *= 0.25f;
-
-                        nextpos += addv;
-                    }
-
 #endif
-                }
+#if false
+                        // 平面押し出し
+                        var c = basePos - n * (distance);
+                        MathUtility.IntersectPointPlane(c, n, nextpos, out nextpos);
+#endif
+#if false
+                        // 逆バンク
+                        // 球の位置
+                        var c = basePos - n * (distance + moveradius);
 
-                // 速度影響はなし
-                //posList[index] += (nextpos - oldpos); // 取りやめ、影響は100%にする(v1.8.0)
+                        // 球外部制限
+                        var v = nextpos - c;
+                        var len = math.length(v);
+                        if (len < moveradius)
+                        {
+                            v *= (moveradius / len);
+                            nextpos = c + v;
+                        }
+#endif
+
+                        // test
+                        //nextpos = basePos;
+
+                        // 速度影響
+                        const float velocityInfluence = (1.0f - 0.3f); // 0.2f?
+                        posList[index] += (nextpos - oldpos) * velocityInfluence;
+                    }
+                }
 
                 // 書き戻し
                 outNextPosList[index] = nextpos;

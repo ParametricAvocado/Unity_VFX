@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -23,20 +23,7 @@ namespace MagicaCloth
 
         public void ChangeParam(int teamId, bool useCollision)
         {
-            //var teamData = Manager.Team.teamDataList[teamId];
-
             Manager.Team.SetFlag(teamId, PhysicsManagerTeamData.Flag_Collision, useCollision);
-
-            //var pstart = teamData.particleChunk.startIndex;
-            //for (int i = 0; i < teamData.particleChunk.dataLength; i++)
-            //{
-            //    int pindex = pstart + i;
-            //    var flag = Manager.Particle.flagList[pindex];
-            //    if (flag.IsKinematic() == false)
-            //    {
-            //        Manager.Particle.SetCollision(pindex, useCollision);
-            //    }
-            //}
         }
 
         public override void Release()
@@ -44,7 +31,7 @@ namespace MagicaCloth
         }
 
         //=========================================================================================
-        public override JobHandle SolverConstraint(float dtime, float updatePower, int iteration, JobHandle jobHandle)
+        public override JobHandle SolverConstraint(int runCount, float dtime, float updatePower, int iteration, JobHandle jobHandle)
         {
             if (Manager.Particle.ColliderCount <= 0)
                 return jobHandle;
@@ -52,6 +39,8 @@ namespace MagicaCloth
             // コリジョン拘束
             var job1 = new CollisionJob()
             {
+                runCount = runCount,
+
                 flagList = Manager.Particle.flagList.ToJobArray(),
                 teamIdList = Manager.Particle.teamIdList.ToJobArray(),
                 radiusList = Manager.Particle.radiusList.ToJobArray(),
@@ -70,15 +59,12 @@ namespace MagicaCloth
 
                 teamDataList = Manager.Team.teamDataList.ToJobArray(),
 
-                outNextPosList = Manager.Particle.OutNextPosList.ToJobArray(),
                 frictionList = Manager.Particle.frictionList.ToJobArray(),
-                //velocityList = Manager.Particle.velocityList.ToJobArray(),
 
                 collisionLinkIdList = Manager.Particle.collisionLinkIdList.ToJobArray(),
-                collisionDistList = Manager.Particle.collisionDistList.ToJobArray(),
+                collisionNormalList = Manager.Particle.collisionNormalList.ToJobArray(),
             };
             jobHandle = job1.Schedule(Manager.Particle.Length, 64, jobHandle);
-            Manager.Particle.SwitchingNextPosList();
 
             return jobHandle;
         }
@@ -91,13 +77,15 @@ namespace MagicaCloth
         [BurstCompile]
         struct CollisionJob : IJobParallelFor
         {
+            public int runCount;
+
             [Unity.Collections.ReadOnly]
             public NativeArray<PhysicsManagerParticleData.ParticleFlag> flagList;
             [Unity.Collections.ReadOnly]
             public NativeArray<int> teamIdList;
             [Unity.Collections.ReadOnly]
             public NativeArray<float3> radiusList;
-            [Unity.Collections.ReadOnly]
+            [NativeDisableParallelForRestriction]
             public NativeArray<float3> nextPosList;
             [Unity.Collections.ReadOnly]
             public NativeArray<quaternion> nextRotList;
@@ -123,28 +111,17 @@ namespace MagicaCloth
             [Unity.Collections.ReadOnly]
             public NativeArray<PhysicsManagerTeamData.TeamData> teamDataList;
 
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> outNextPosList;
             public NativeArray<float> frictionList;
-            //public NativeArray<float3> velocityList;
 
             [Unity.Collections.WriteOnly]
             public NativeArray<int> collisionLinkIdList;
             [Unity.Collections.WriteOnly]
-            public NativeArray<float> collisionDistList;
+            public NativeArray<float3> collisionNormalList;
 
             // パーティクルごと
             public void Execute(int index)
             {
-                // 初期化コピー
-                float3 nextpos = nextPosList[index];
-                outNextPosList[index] = nextpos;
-
-                // アフターコリジョン用
-                //velocityList[index] = nextpos;
-
                 var flag = flagList[index];
-                //if (flag.IsValid() == false || flag.IsCollision() == false || flag.IsCollider())
                 if (flag.IsValid() == false || flag.IsFixed() || flag.IsCollider())
                     return;
 
@@ -156,11 +133,12 @@ namespace MagicaCloth
                 if (teamData.IsFlag(PhysicsManagerTeamData.Flag_Collision) == false)
                     return;
                 // 更新確認
-                if (teamData.IsUpdate() == false)
+                if (teamData.IsUpdate(runCount) == false)
                     return;
 
+                float3 nextpos = nextPosList[index];
                 var radius = radiusList[index].x;
-                var basepos = basePosList[index];
+                //var basepos = basePosList[index];
 
                 // チームスケール倍率
                 radius *= teamData.scaleRatio;
@@ -171,16 +149,15 @@ namespace MagicaCloth
                 // コライダーとの距離
                 float mindist = 100.0f;
 
-                // 接触コライダーID
+                // 接触コライダー情報
                 int collisionColliderId = 0;
+                float3 collisionNormal = 0;
+                float3 n = 0;
 
                 for (int i = 0; i < 2; i++)
                 {
                     // チーム内のコライダーをループ
                     var c = teamDataList[colliderTeam].colliderChunk;
-
-                    // 形状キープフラグ
-                    bool keep = i > 0 && teamData.IsFlag(PhysicsManagerTeamData.Flag_Collision_KeepShape);
 
                     int dataIndex = c.startIndex;
                     for (int j = 0; j < c.useLength; j++, dataIndex++)
@@ -195,22 +172,22 @@ namespace MagicaCloth
                         if (cflag.IsFlag(PhysicsManagerParticleData.Flag_Plane))
                         {
                             // 平面コライダー判定
-                            dist = PlaneColliderDetection(ref nextpos, radius, cindex);
+                            dist = PlaneColliderDetection(ref nextpos, radius, cindex, out n);
                         }
                         else if (cflag.IsFlag(PhysicsManagerParticleData.Flag_CapsuleX))
                         {
                             // カプセルコライダー判定
-                            dist = CapsuleColliderDetection(ref nextpos, basepos, radius, cindex, new float3(1, 0, 0), keep);
+                            dist = CapsuleColliderDetection(ref nextpos, radius, cindex, new float3(1, 0, 0), out n);
                         }
                         else if (cflag.IsFlag(PhysicsManagerParticleData.Flag_CapsuleY))
                         {
                             // カプセルコライダー判定
-                            dist = CapsuleColliderDetection(ref nextpos, basepos, radius, cindex, new float3(0, 1, 0), keep);
+                            dist = CapsuleColliderDetection(ref nextpos, radius, cindex, new float3(0, 1, 0), out n);
                         }
                         else if (cflag.IsFlag(PhysicsManagerParticleData.Flag_CapsuleZ))
                         {
                             // カプセルコライダー判定
-                            dist = CapsuleColliderDetection(ref nextpos, basepos, radius, cindex, new float3(0, 0, 1), keep);
+                            dist = CapsuleColliderDetection(ref nextpos, radius, cindex, new float3(0, 0, 1), out n);
                         }
                         else if (cflag.IsFlag(PhysicsManagerParticleData.Flag_Box))
                         {
@@ -220,18 +197,16 @@ namespace MagicaCloth
                         else
                         {
                             // 球コライダー判定
-                            dist = SphereColliderDetection(ref nextpos, basepos, radius, cindex, keep);
+                            dist = SphereColliderDetection(ref nextpos, radius, cindex, out n);
                         }
 
                         // 押し出し（接触）あり
-                        //if (dist <= 0.0f)
-                        if (dist < mindist && dist <= Define.Compute.ColliderExtrusionDist)
+                        if (dist < mindist && dist <= Define.Compute.CollisionFrictionRange)
                         {
                             collisionColliderId = cindex;
+                            collisionNormal = n;
+                            mindist = dist;
                         }
-
-                        // コライダーとの距離
-                        mindist = math.min(mindist, dist);
                     }
 
                     // 自身のチームに切り替え
@@ -241,36 +216,22 @@ namespace MagicaCloth
                         break;
                 }
 
-                // 摩擦係数
-                // 衝突判定の有無に関わらずコライダーとの距離が一定以内ならば摩擦を発生させる
-                const float frictionMul = 1.0f / Define.Compute.CollisionFrictionRange;
-                if (mindist < Define.Compute.CollisionFrictionRange)
-                {
-                    //var friction = math.saturate(1.0f - mindist * frictionMul); // マイナスの場合、摩擦は1.0
-                    //friction = math.pow(friction, Define.Compute.FrictionPower); // 減衰
-                    // v1.8.0
-                    var friction = math.max(1.0f - mindist * frictionMul, 0.0f); // マイナスの場合、摩擦を大きくする
-                    friction = math.pow(friction, mindist > 0.0f ? Define.Compute.FrictionPower : 1.0f); // 減衰
-
-                    friction *= teamData.friction; // チーム摩擦係数
-                    frictionList[index] = math.max(friction, frictionList[index]); // 大きい方
-                }
-
-                // 接触コライダーを記録する
+                // 摩擦係数(friction)計算
                 if (collisionColliderId > 0)
                 {
-                    collisionLinkIdList[index] = collisionColliderId;
-                    collisionDistList[index] = mindist;
+                    // コライダーから一定距離内にいる
+                    // 摩擦係数計算（コライダーからの距離により変化.0.0～接地面1.0～深くめり込む場合は1.0を超える)
+                    //var friction = math.max(1.0f - mindist / Define.Compute.CollisionFrictionRange, 0.0f); // ★この実装では振動が酷くなるので却下！
 
-                    //Debug.Log($"collisionColliderId [{vindex}] -> {collisionColliderId}");
+                    // コライダーからの距離により変化(0.0～接地面1.0)
+                    var friction = 1.0f - math.saturate(mindist / Define.Compute.CollisionFrictionRange);
+                    frictionList[index] = math.max(friction, frictionList[index]); // 大きい方
                 }
+                collisionLinkIdList[index] = collisionColliderId;
+                collisionNormalList[index] = collisionNormal;
 
                 // 書き戻し
-                outNextPosList[index] = nextpos;
-                //flagList[index] = flag;
-
-                // 後処理用
-                //velocityList[index] = nextpos;
+                nextPosList[index] = nextpos;
 
                 // コリジョンの速度影響は100%にしておく
                 // コリジョン衝突による速度影響は非常に重要！
@@ -287,7 +248,7 @@ namespace MagicaCloth
             /// <param name="cindex"></param>
             /// <param name="friction"></param>
             /// <returns></returns>
-            float SphereColliderDetection(ref float3 nextpos, float3 basepos, float radius, int cindex, bool keep)
+            float SphereColliderDetection(ref float3 nextpos, float radius, int cindex, out float3 normal)
             {
                 var cpos = nextPosList[cindex];
                 var cradius = radiusList[cindex];
@@ -299,23 +260,13 @@ namespace MagicaCloth
 
                 // 移動前のコライダーに対するローカル位置から移動後コライダーの押し出し平面を求める
                 float3 c = 0, n = 0, v = 0;
-                if (keep)
-                {
-                    // 形状キープ
-                    // 物理OFFの基本状態から拘束を決定
-                    var cbasepos = basePosList[cindex];
-                    v = basepos - cbasepos;
-                    var iq = math.inverse(baseRotList[cindex]);
-                    var lv = math.mul(iq, v);
-                    v = math.mul(nextRotList[cindex], lv);
-                }
-                else
-                {
-                    var coldpos = posList[cindex];
-                    v = nextpos - coldpos;
-                }
+                var coldpos = posList[cindex];
+                v = nextpos - coldpos;
                 n = math.normalize(v);
                 c = cpos + n * (cradius.x + radius);
+
+                // 衝突法線
+                normal = n;
 
                 // c = 平面位置
                 // n = 平面方向
@@ -333,7 +284,7 @@ namespace MagicaCloth
             /// <param name="dir"></param>
             /// <param name="friction"></param>
             /// <returns></returns>
-            float CapsuleColliderDetection(ref float3 nextpos, float3 basepos, float radius, int cindex, float3 dir, bool keep)
+            float CapsuleColliderDetection(ref float3 nextpos, float radius, int cindex, float3 dir, out float3 normal)
             {
                 var cpos = nextPosList[cindex];
                 var crot = nextRotList[cindex];
@@ -341,7 +292,6 @@ namespace MagicaCloth
                 // x = 長さ（片側）
                 // y = 始点半径
                 // z = 終点半径
-                //var lpos = localPosList[cindex];
                 var cradius = radiusList[cindex];
 
                 // スケール
@@ -352,71 +302,37 @@ namespace MagicaCloth
 
                 float3 c = 0, n = 0;
 
-                if (keep)
-                {
-                    // 形状キープ
-                    // 物理OFFの基本状態から拘束を決定
-                    var cbasepos = basePosList[cindex];
-                    var cbaserot = baseRotList[cindex];
+                var coldpos = posList[cindex];
+                var coldrot = rotList[cindex];
 
-                    // カプセル始点と終点
-                    float3 l = math.mul(cbaserot, dir * cradius.x);
-                    float3 spos = cbasepos - l;
-                    float3 epos = cbasepos + l;
-                    float sr = cradius.y;
-                    float er = cradius.z;
+                // カプセル始点と終点
+                float3 l = math.mul(coldrot, dir * cradius.x);
+                float3 spos = coldpos - l;
+                float3 epos = coldpos + l;
+                float sr = cradius.y;
+                float er = cradius.z;
 
-                    // 移動前のコライダー位置から押し出し平面を割り出す
-                    float t = MathUtility.ClosestPtPointSegmentRatio(basepos, spos, epos);
-                    float r = math.lerp(sr, er, t);
-                    float3 d = math.lerp(spos, epos, t);
-                    float3 v = basepos - d;
+                // 移動前のコライダー位置から押し出し平面を割り出す
+                float t = MathUtility.ClosestPtPointSegmentRatio(nextpos, spos, epos);
+                float r = math.lerp(sr, er, t);
+                float3 d = math.lerp(spos, epos, t);
+                float3 v = nextpos - d;
 
-                    // 移動前コライダーのローカルベクトル
-                    var iq = math.inverse(cbaserot);
-                    float3 lv = math.mul(iq, v);
+                // 移動前コライダーのローカルベクトル
+                var iq = math.inverse(coldrot);
+                float3 lv = math.mul(iq, v);
 
-                    // 移動後コライダーに変換
-                    l = math.mul(crot, dir * cradius.x);
-                    spos = cpos - l;
-                    epos = cpos + l;
-                    d = math.lerp(spos, epos, t);
-                    v = math.mul(crot, lv);
-                    n = math.normalize(v);
-                    c = d + n * (r + radius);
-                }
-                else
-                {
-                    var coldpos = posList[cindex];
-                    var coldrot = rotList[cindex];
+                // 移動後コライダーに変換
+                l = math.mul(crot, dir * cradius.x);
+                spos = cpos - l;
+                epos = cpos + l;
+                d = math.lerp(spos, epos, t);
+                v = math.mul(crot, lv);
+                n = math.normalize(v);
+                c = d + n * (r + radius);
 
-                    // カプセル始点と終点
-                    float3 l = math.mul(coldrot, dir * cradius.x);
-                    float3 spos = coldpos - l;
-                    float3 epos = coldpos + l;
-                    float sr = cradius.y;
-                    float er = cradius.z;
-
-                    // 移動前のコライダー位置から押し出し平面を割り出す
-                    float t = MathUtility.ClosestPtPointSegmentRatio(nextpos, spos, epos);
-                    float r = math.lerp(sr, er, t);
-                    float3 d = math.lerp(spos, epos, t);
-                    float3 v = nextpos - d;
-
-                    // 移動前コライダーのローカルベクトル
-                    var iq = math.inverse(coldrot);
-                    float3 lv = math.mul(iq, v);
-
-                    // 移動後コライダーに変換
-                    l = math.mul(crot, dir * cradius.x);
-                    spos = cpos - l;
-                    epos = cpos + l;
-                    d = math.lerp(spos, epos, t);
-                    v = math.mul(crot, lv);
-                    n = math.normalize(v);
-                    c = d + n * (r + radius);
-                }
-
+                // 衝突法線
+                normal = n;
 
                 // c = 平面位置
                 // n = 平面方向
@@ -430,7 +346,7 @@ namespace MagicaCloth
             /// <param name="nextpos"></param>
             /// <param name="radius"></param>
             /// <param name="cindex"></param>
-            float PlaneColliderDetection(ref float3 nextpos, float radius, int cindex)
+            float PlaneColliderDetection(ref float3 nextpos, float radius, int cindex, out float3 normal)
             {
                 // 平面姿勢
                 var cpos = nextPosList[cindex];
@@ -441,6 +357,9 @@ namespace MagicaCloth
 
                 // パーティクル半径分オフセット
                 cpos += n * radius;
+
+                // 衝突法線
+                normal = n;
 
                 // c = 平面位置
                 // n = 平面方向

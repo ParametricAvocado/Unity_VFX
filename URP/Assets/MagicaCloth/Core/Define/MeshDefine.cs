@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 
 namespace MagicaCloth
@@ -18,6 +18,18 @@ namespace MagicaCloth
 
             public const int Unity2019_PolygonOrder = 0x00000100;
             public const int Unity2019_VertexOrder = 0x00000200;
+        }
+
+        //=========================================================================================
+        /// <summary>
+        /// レンダーメッシュ用
+        /// </summary>
+        public static class RenderMesh
+        {
+            /// <summary>
+            /// レンダーメッシュのローカル変換を頂点ごとに実行するか判定するワーカー数の倍率
+            /// </summary>
+            public const int WorkerMultiplesOfVertexCollection = 3;
         }
     }
 }

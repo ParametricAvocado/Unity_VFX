@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using Unity.Burst;
@@ -19,9 +19,21 @@ namespace MagicaCloth
     {
         //=========================================================================================
         /// <summary>
+        /// ボーン制御フラグ
+        /// </summary>
+        public const byte Flag_Reset = 0x01; // リセット
+        public const byte Flag_Restore = 0x10;  // 復元許可フラグ
+        public const byte Flag_Write = 0x20; // 書き込み許可フラグ
+
+        /// <summary>
         /// 管理ボーンリスト
         /// </summary>
         public FixedTransformAccessArray boneList;
+
+        /// <summary>
+        /// ボーンフラグリスト
+        /// </summary>
+        public FixedNativeList<byte> boneFlagList;
 
         /// <summary>
         /// ボーンワールド位置リスト（※未来予測により補正される場合あり）
@@ -53,6 +65,21 @@ namespace MagicaCloth
         /// </summary>
         public FixedNativeList<quaternion> baseRotList;
 
+        /// <summary>
+        /// ボーンがUnityPhysicsで動作するかの参照カウンタ（１以上で動作）
+        /// </summary>
+        public FixedNativeList<short> boneUnityPhysicsList;
+
+        /// <summary>
+        /// ボーン未来予測位置リスト
+        /// </summary>
+        public FixedNativeList<float3> futurePosList;
+
+        /// <summary>
+        /// ボーン未来予測回転リスト
+        /// </summary>
+        public FixedNativeList<quaternion> futureRotList;
+
         //=========================================================================================
         /// <summary>
         /// 復元ボーンリスト
@@ -68,6 +95,11 @@ namespace MagicaCloth
         /// 復元ボーンの復元ローカル回転リスト
         /// </summary>
         public FixedNativeList<quaternion> restoreBoneLocalRotList;
+
+        /// <summary>
+        /// 復元ボーンの参照ボーンインデックス
+        /// </summary>
+        public FixedNativeList<int> restoreBoneIndexList;
 
         //=========================================================================================
         // ここはライトボーンごと
@@ -121,16 +153,21 @@ namespace MagicaCloth
         public override void Create()
         {
             boneList = new FixedTransformAccessArray();
+            boneFlagList = new FixedNativeList<byte>();
             bonePosList = new FixedNativeList<float3>();
             boneRotList = new FixedNativeList<quaternion>();
             boneSclList = new FixedNativeList<float3>();
             boneParentIndexList = new FixedNativeList<int>();
             basePosList = new FixedNativeList<float3>();
             baseRotList = new FixedNativeList<quaternion>();
+            boneUnityPhysicsList = new FixedNativeList<short>();
+            futurePosList = new FixedNativeList<float3>();
+            futureRotList = new FixedNativeList<quaternion>();
 
             restoreBoneList = new FixedTransformAccessArray();
             restoreBoneLocalPosList = new FixedNativeList<float3>();
             restoreBoneLocalRotList = new FixedNativeList<quaternion>();
+            restoreBoneIndexList = new FixedNativeList<int>();
 
             writeBoneList = new FixedTransformAccessArray();
             writeBoneIndexList = new FixedNativeList<int>();
@@ -151,16 +188,21 @@ namespace MagicaCloth
                 return;
 
             boneList.Dispose();
+            boneFlagList.Dispose();
             bonePosList.Dispose();
             boneRotList.Dispose();
             boneSclList.Dispose();
             boneParentIndexList.Dispose();
             basePosList.Dispose();
             baseRotList.Dispose();
+            boneUnityPhysicsList.Dispose();
+            futurePosList.Dispose();
+            futureRotList.Dispose();
 
             restoreBoneList.Dispose();
             restoreBoneLocalPosList.Dispose();
             restoreBoneLocalRotList.Dispose();
+            restoreBoneIndexList.Dispose();
 
             writeBoneList.Dispose();
             writeBoneIndexList.Dispose();
@@ -177,7 +219,7 @@ namespace MagicaCloth
         /// <param name="lpos"></param>
         /// <param name="lrot"></param>
         /// <returns></returns>
-        public int AddRestoreBone(Transform target, float3 lpos, quaternion lrot)
+        public int AddRestoreBone(Transform target, float3 lpos, quaternion lrot, int boneIndex)
         {
             int restoreBoneIndex;
             if (restoreBoneList.Exist(target))
@@ -191,6 +233,7 @@ namespace MagicaCloth
                 restoreBoneIndex = restoreBoneList.Add(target);
                 restoreBoneLocalPosList.Add(lpos);
                 restoreBoneLocalRotList.Add(lrot);
+                restoreBoneIndexList.Add(boneIndex);
                 hasBoneChanged = true;
             }
 
@@ -204,11 +247,13 @@ namespace MagicaCloth
         public void RemoveRestoreBone(int restoreBoneIndex)
         {
             restoreBoneList.Remove(restoreBoneIndex);
+
             if (restoreBoneList.Exist(restoreBoneIndex) == false)
             {
                 // データも削除
                 restoreBoneLocalPosList.Remove(restoreBoneIndex);
                 restoreBoneLocalRotList.Remove(restoreBoneIndex);
+                restoreBoneIndexList.Remove(restoreBoneIndex);
                 hasBoneChanged = true;
             }
         }
@@ -239,34 +284,32 @@ namespace MagicaCloth
             {
                 // 参照カウンタ＋
                 boneIndex = boneList.Add(target);
-                if (addParent && boneParentIndexList[boneIndex] < 0)
+                // 親ボーンは後登録優先の上書き方式にする(v1.10.2)
+                if (addParent)
                 {
                     boneParentIndexList[boneIndex] = boneList.GetIndex(target.parent);
                 }
-                basePosList[boneIndex] = new float3(0, -1000000, 0); // 未来予測位置リセット用の数値
+                boneFlagList.Add(Flag_Reset); // 姿勢リセット
             }
             else
             {
                 // 新規
-                //var pos = target.position;
-                //var rot = target.rotation;
                 var pos = float3.zero;
                 var rot = quaternion.identity;
                 boneIndex = boneList.Add(target);
+                boneFlagList.Add(Flag_Reset); // 姿勢リセット
                 bonePosList.Add(pos);
                 boneRotList.Add(rot);
-#if (UNITY_2018 || UNITY_2019_1 || UNITY_2019_2_1 || UNITY_2019_2_2 || UNITY_2019_2_3 || UNITY_2019_2_4 || UNITY_2019_2_5 || UNITY_2019_2_6 || UNITY_2019_2_7 || UNITY_2019_2_8 || UNITY_2019_2_9 || UNITY_2019_2_10 || UNITY_2019_2_11 || UNITY_2019_2_12 || UNITY_2019_2_13)
-                // Unity2019.2.13までは現在ランタイムスケールは未対応
-                boneSclList.Add(target.lossyScale);
-#else
                 boneSclList.Add(float3.zero);
-#endif
                 if (addParent)
                     boneParentIndexList.Add(boneList.GetIndex(target.parent));
                 else
                     boneParentIndexList.Add(-1);
-                basePosList.Add(new float3(0, -1000000, 0)); // 未来予測位置リセット用の数値
+                basePosList.Add(pos);
                 baseRotList.Add(rot);
+                boneUnityPhysicsList.Add(0);
+                futurePosList.Add(pos);
+                futureRotList.Add(rot);
                 hasBoneChanged = true;
             }
 
@@ -325,12 +368,16 @@ namespace MagicaCloth
             if (boneList.Exist(boneIndex) == false)
             {
                 // データも削除
+                boneFlagList.Remove(boneIndex);
                 bonePosList.Remove(boneIndex);
                 boneRotList.Remove(boneIndex);
                 boneSclList.Remove(boneIndex);
                 boneParentIndexList.Remove(boneIndex);
                 basePosList.Remove(boneIndex);
                 baseRotList.Remove(boneIndex);
+                boneUnityPhysicsList.Remove(boneIndex);
+                futurePosList.Remove(boneIndex);
+                futureRotList.Remove(boneIndex);
                 hasBoneChanged = true;
                 del = true;
             }
@@ -350,10 +397,23 @@ namespace MagicaCloth
                 if (writeBoneList.Exist(writeIndex) == false)
                 {
                     boneToWriteIndexDict.Remove(boneIndex);
+                    //Debug.Log("RemoveWriteBone: index:" + boneIndex);
                 }
             }
 
             return del;
+        }
+
+        /// <summary>
+        /// ボーンのUnityPhysics利用カウンタを増減させる
+        /// </summary>
+        /// <param name="boneIndex"></param>
+        /// <param name="sw"></param>
+        public void ChangeUnityPhysicsCount(int boneIndex, bool sw)
+        {
+            //Debug.Log($"Change Bone Physics Count [{boneIndex}]->{sw}");
+            boneUnityPhysicsList[boneIndex] += (short)(sw ? 1 : -1);
+            Debug.Assert(boneUnityPhysicsList[boneIndex] >= 0);
         }
 
         /// <summary>
@@ -362,7 +422,10 @@ namespace MagicaCloth
         /// <param name="boneIndex"></param>
         public void ResetFuturePrediction(int boneIndex)
         {
-            basePosList[boneIndex] = new float3(0, -1000000, 0);
+            //Debug.Log($"ResetFuturePrediction:{boneIndex} F:{Time.frameCount}");
+            var flag = boneFlagList[boneIndex];
+            flag |= Flag_Reset;
+            boneFlagList[boneIndex] = flag;
         }
 
         /// <summary>
@@ -391,15 +454,19 @@ namespace MagicaCloth
         /// <summary>
         /// ボーン情報のリセット
         /// </summary>
-        public void ResetBoneFromTransform()
+        public void ResetBoneFromTransform(bool fixedUpdate)
         {
             // ボーン姿勢リセット
             if (RestoreBoneCount > 0)
             {
                 var job = new RestoreBoneJob()
                 {
-                    localPosList = restoreBoneLocalPosList.ToJobArray(),
-                    localRotList = restoreBoneLocalRotList.ToJobArray(),
+                    fixedUpdate = fixedUpdate,
+                    boneUnityPhysicsList = boneUnityPhysicsList.ToJobArray(),
+                    boneFlagList = boneFlagList.ToJobArray(),
+                    restoreBoneLocalPosList = restoreBoneLocalPosList.ToJobArray(),
+                    restoreBoneLocalRotList = restoreBoneLocalRotList.ToJobArray(),
+                    restoreBoneIndexList = restoreBoneIndexList.ToJobArray(),
                 };
                 Compute.MasterJob = job.Schedule(restoreBoneList.GetTransformAccessArray(), Compute.MasterJob);
             }
@@ -411,16 +478,35 @@ namespace MagicaCloth
         [BurstCompile]
         struct RestoreBoneJob : IJobParallelForTransform
         {
+            public bool fixedUpdate;
+
             [Unity.Collections.ReadOnly]
-            public NativeArray<float3> localPosList;
+            public NativeArray<short> boneUnityPhysicsList;
             [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> localRotList;
+            public NativeArray<byte> boneFlagList;
+
+
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> restoreBoneLocalPosList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<quaternion> restoreBoneLocalRotList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<int> restoreBoneIndexList;
 
             // 復元ボーンごと
             public void Execute(int index, TransformAccess transform)
             {
-                transform.localPosition = localPosList[index];
-                transform.localRotation = localRotList[index];
+                var bindex = restoreBoneIndexList[index];
+                bool isUnityPhysics = boneUnityPhysicsList[bindex] > 0;
+                if (isUnityPhysics == fixedUpdate)
+                {
+                    var flag = boneFlagList[bindex];
+                    if ((flag & Flag_Restore) == 0)
+                        return;
+
+                    transform.localPosition = restoreBoneLocalPosList[index];
+                    transform.localRotation = restoreBoneLocalRotList[index];
+                }
             }
         }
 
@@ -435,24 +521,6 @@ namespace MagicaCloth
             {
                 var updateTime = manager.UpdateTime;
 
-#if true
-                // ★遅延実行時でもボーンの未来予測読み込みは必要なし、逆に振動を引き起こすため。(1.8.3)
-
-                // ボーンから姿勢読み込み（ルートが別れていないとジョブが並列化できないので注意！）
-                var job = new ReadBoneJob0()
-                {
-                    bonePosList = bonePosList.ToJobArray(),
-                    boneRotList = boneRotList.ToJobArray(),
-#if !(UNITY_2018 || UNITY_2019_1 || UNITY_2019_2_1 || UNITY_2019_2_2 || UNITY_2019_2_3 || UNITY_2019_2_4 || UNITY_2019_2_5 || UNITY_2019_2_6 || UNITY_2019_2_7 || UNITY_2019_2_8 || UNITY_2019_2_9 || UNITY_2019_2_10 || UNITY_2019_2_11 || UNITY_2019_2_12 || UNITY_2019_2_13)
-                    boneSclList = boneSclList.ToJobArray(),
-#endif
-                    basePosList = basePosList.ToJobArray(),
-                    baseRotList = baseRotList.ToJobArray(),
-                };
-                Compute.MasterJob = job.Schedule(boneList.GetTransformAccessArray(), Compute.MasterJob);
-#else
-
-
                 // 未来予測補間率
                 float futureRate = updateTime.IsDelay ? updateTime.FuturePredictionRate : 0.0f;
 
@@ -462,38 +530,61 @@ namespace MagicaCloth
                     // ボーンから姿勢読み込み（ルートが別れていないとジョブが並列化できないので注意！）
                     var job = new ReadBoneJob0()
                     {
+                        fixedUpdateCount = updateTime.FixedUpdateCount,
+
                         bonePosList = bonePosList.ToJobArray(),
                         boneRotList = boneRotList.ToJobArray(),
-#if !(UNITY_2018 || UNITY_2019_1 || UNITY_2019_2_1 || UNITY_2019_2_2 || UNITY_2019_2_3 || UNITY_2019_2_4 || UNITY_2019_2_5 || UNITY_2019_2_6 || UNITY_2019_2_7 || UNITY_2019_2_8 || UNITY_2019_2_9 || UNITY_2019_2_10 || UNITY_2019_2_11 || UNITY_2019_2_12 || UNITY_2019_2_13)
                         boneSclList = boneSclList.ToJobArray(),
-#endif
                         basePosList = basePosList.ToJobArray(),
                         baseRotList = baseRotList.ToJobArray(),
+                        futurePosList = futurePosList.ToJobArray(),
+                        futureRotList = futureRotList.ToJobArray(),
+
+                        boneUnityPhysicsList = boneUnityPhysicsList.ToJobArray(),
+                        boneFlagList = boneFlagList.ToJobArray(),
                     };
                     Compute.MasterJob = job.Schedule(boneList.GetTransformAccessArray(), Compute.MasterJob);
                 }
                 else
                 {
                     // 未来予測あり
-                    // 補間率を求める
-                    // 急なカクつきで未来予測が大幅にずれる問題を平均deltaTimeを使い緩和させる
-                    float ratio = math.saturate(updateTime.AverageDeltaTime / updateTime.DeltaTime) * futureRate;
+                    // Update更新での未来予測補間率を求める
+                    float normalFutureRatio = updateTime.DeltaTime > Define.Compute.Epsilon ?
+                        math.clamp((updateTime.AverageDeltaTime / updateTime.DeltaTime) * futureRate, 0.0f, 2.0f) : 0.0f;
+
+                    // FixedUpdate更新での未来予測補間率を求める
+                    float fixedFutureRatio = updateTime.FixedUpdateCount > 0 ? (1.0f / updateTime.FixedUpdateCount) * futureRate : 0.0f;
+#if true
+                    // 次に予想されるフレーム時間を加算することにより実行されるFixedUpdateの回数を予測する
+                    float fixedNextTime = Time.time + Time.smoothDeltaTime;
+                    float fixedInterval = fixedNextTime - Time.fixedTime;
+                    int nextFixedCount = math.max((int)(fixedInterval / Time.fixedDeltaTime), 1);
+                    fixedFutureRatio *= nextFixedCount;
+#endif
+
+                    //Debug.Log($"normalFutureRatio = {normalFutureRatio}");
 
                     // ボーンから姿勢読み込み（ルートが別れていないとジョブが並列化できないので注意！）
                     var job = new ReadBoneJob1()
                     {
-                        ratio = ratio,
+                        fixedUpdateCount = updateTime.FixedUpdateCount,
+                        normalFutureRatio = normalFutureRatio,
+                        fixedFutureRatio = fixedFutureRatio,
+                        normalDeltaTime = Time.smoothDeltaTime,
+                        fixedDeltaTime = Time.fixedDeltaTime,
+
                         bonePosList = bonePosList.ToJobArray(),
                         boneRotList = boneRotList.ToJobArray(),
-#if !(UNITY_2018 || UNITY_2019_1 || UNITY_2019_2_1 || UNITY_2019_2_2 || UNITY_2019_2_3 || UNITY_2019_2_4 || UNITY_2019_2_5 || UNITY_2019_2_6 || UNITY_2019_2_7 || UNITY_2019_2_8 || UNITY_2019_2_9 || UNITY_2019_2_10 || UNITY_2019_2_11 || UNITY_2019_2_12 || UNITY_2019_2_13)
                         boneSclList = boneSclList.ToJobArray(),
-#endif
                         basePosList = basePosList.ToJobArray(),
                         baseRotList = baseRotList.ToJobArray(),
+                        boneUnityPhysicsList = boneUnityPhysicsList.ToJobArray(),
+                        futurePosList = futurePosList.ToJobArray(),
+                        futureRotList = futureRotList.ToJobArray(),
+                        boneFlagList = boneFlagList.ToJobArray(),
                     };
                     Compute.MasterJob = job.Schedule(boneList.GetTransformAccessArray(), Compute.MasterJob);
                 }
-#endif
             }
         }
 
@@ -503,134 +594,196 @@ namespace MagicaCloth
         [BurstCompile]
         struct ReadBoneJob0 : IJobParallelForTransform
         {
+            public int fixedUpdateCount;
+
             [Unity.Collections.WriteOnly]
             public NativeArray<float3> bonePosList;
             [Unity.Collections.WriteOnly]
             public NativeArray<quaternion> boneRotList;
-#if !(UNITY_2018 || UNITY_2019_1 || UNITY_2019_2_1 || UNITY_2019_2_2 || UNITY_2019_2_3 || UNITY_2019_2_4 || UNITY_2019_2_5 || UNITY_2019_2_6 || UNITY_2019_2_7 || UNITY_2019_2_8 || UNITY_2019_2_9 || UNITY_2019_2_10 || UNITY_2019_2_11 || UNITY_2019_2_12 || UNITY_2019_2_13)
             [Unity.Collections.WriteOnly]
             public NativeArray<float3> boneSclList;
-#endif
 
-            [Unity.Collections.WriteOnly]
+            //[Unity.Collections.WriteOnly]
             public NativeArray<float3> basePosList;
-            [Unity.Collections.WriteOnly]
+            //[Unity.Collections.WriteOnly]
             public NativeArray<quaternion> baseRotList;
+            [Unity.Collections.WriteOnly]
+            public NativeArray<float3> futurePosList;
+            [Unity.Collections.WriteOnly]
+            public NativeArray<quaternion> futureRotList;
+
+            [Unity.Collections.ReadOnly]
+            public NativeArray<short> boneUnityPhysicsList;
+            public NativeArray<byte> boneFlagList;
 
             // 読み込みボーンごと
             public void Execute(int index, TransformAccess transform)
             {
-                float3 pos = transform.position;
-                quaternion rot = transform.rotation;
-                bonePosList[index] = pos;
-                boneRotList[index] = rot;
+                // UnityPhysicsモードで今回更新が無い場合は前回のTransfrom姿勢をボーン姿勢に設定して終了する
+                bool unityPhysics = boneUnityPhysicsList[index] > 0;
+                var flag = boneFlagList[index];
+                bool reset = (flag & Flag_Reset) != 0;
 
-#if !(UNITY_2018 || UNITY_2019_1 || UNITY_2019_2_1 || UNITY_2019_2_2 || UNITY_2019_2_3 || UNITY_2019_2_4 || UNITY_2019_2_5 || UNITY_2019_2_6 || UNITY_2019_2_7 || UNITY_2019_2_8 || UNITY_2019_2_9 || UNITY_2019_2_10 || UNITY_2019_2_11 || UNITY_2019_2_12 || UNITY_2019_2_13)
-                // lossyScale取得(現在はUnity2019.2.14以上のみ)
-                // マトリックスから正確なスケール値を算出する（これはTransform.lossyScaleと等価）
-                float4x4 m = transform.localToWorldMatrix;
-                var irot = math.inverse(rot);
-                var m2 = math.mul(new float4x4(irot, float3.zero), m);
-                var scl = new float3(m2.c0.x, m2.c1.y, m2.c2.z);
-                boneSclList[index] = scl;
-#endif
+                if (unityPhysics == false || fixedUpdateCount > 0 || reset)
+                {
+                    // 通常更新
+                    // UnityPhysics更新かつフレーム更新ありの場合
+                    // ボーンリセット時
+                    float3 pos = transform.position;
+                    quaternion rot = transform.rotation;
 
-                basePosList[index] = pos;
-                baseRotList[index] = rot;
+                    bonePosList[index] = pos;
+                    boneRotList[index] = rot;
+
+                    basePosList[index] = pos;
+                    baseRotList[index] = rot;
+
+                    futurePosList[index] = pos;
+                    futureRotList[index] = rot;
+
+                    // lossyScale取得(現在はUnity2019.2.14以上のみ)
+                    // マトリックスから正確なスケール値を算出する（これはTransform.lossyScaleと等価）
+                    float4x4 m = transform.localToWorldMatrix;
+                    var irot = math.inverse(rot);
+                    var m2 = math.mul(new float4x4(irot, float3.zero), m);
+                    var scl = new float3(m2.c0.x, m2.c1.y, m2.c2.z);
+                    boneSclList[index] = scl;
+                }
+                else
+                {
+                    // UnityPhysics更新かつフレーム更新なしの場合
+                    bonePosList[index] = basePosList[index];
+                    boneRotList[index] = baseRotList[index];
+                }
+
+                // リセットフラグクリア
+                if (reset && (unityPhysics == false || fixedUpdateCount > 0))
+                {
+                    flag = (byte)(flag & ~Flag_Reset);
+                    boneFlagList[index] = flag;
+                }
             }
         }
 
-#if false
         /// <summary>
         /// ボーン姿勢の読込み（未来予測あり）
         /// </summary>
         [BurstCompile]
         struct ReadBoneJob1 : IJobParallelForTransform
         {
-            public float ratio;
+            public int fixedUpdateCount;
+            public float normalFutureRatio;
+            public float fixedFutureRatio;
+            public float normalDeltaTime;
+            public float fixedDeltaTime;
 
             [Unity.Collections.WriteOnly]
             public NativeArray<float3> bonePosList;
             [Unity.Collections.WriteOnly]
             public NativeArray<quaternion> boneRotList;
-#if !(UNITY_2018 || UNITY_2019_1 || UNITY_2019_2_1 || UNITY_2019_2_2 || UNITY_2019_2_3 || UNITY_2019_2_4 || UNITY_2019_2_5 || UNITY_2019_2_6 || UNITY_2019_2_7 || UNITY_2019_2_8 || UNITY_2019_2_9 || UNITY_2019_2_10 || UNITY_2019_2_11 || UNITY_2019_2_12 || UNITY_2019_2_13)
             [Unity.Collections.WriteOnly]
             public NativeArray<float3> boneSclList;
-#endif
 
             public NativeArray<float3> basePosList;
             public NativeArray<quaternion> baseRotList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<short> boneUnityPhysicsList;
+            public NativeArray<float3> futurePosList;
+            public NativeArray<quaternion> futureRotList;
+            public NativeArray<byte> boneFlagList;
 
             // 読み込みボーンごと
             public void Execute(int index, TransformAccess transform)
             {
-                float3 pos = transform.position;
-                quaternion rot = transform.rotation;
-                var oldPos = basePosList[index];
-                var oldRot = baseRotList[index];
+                bool unityPhysics = boneUnityPhysicsList[index] > 0;
+                var flag = boneFlagList[index];
+                bool reset = (flag & Flag_Reset) != 0;
 
-                if (oldPos.y < -900000)
+                if (unityPhysics == false || fixedUpdateCount > 0 || reset)
                 {
-                    // リセット
-                    basePosList[index] = pos;
-                    baseRotList[index] = rot;
+                    // 通常更新
+                    // UnityPhysics更新かつフレーム更新ありの場合
+                    // ボーンリセット時
+                    float3 pos = transform.position;
+                    quaternion rot = transform.rotation;
 
-                    bonePosList[index] = pos;
-                    boneRotList[index] = rot;
+                    if (reset)
+                    {
+                        // リセット
+                        //Debug.Log($"reset bone :{index}");
+                        basePosList[index] = pos;
+                        baseRotList[index] = rot;
+
+                        bonePosList[index] = pos;
+                        boneRotList[index] = rot;
+
+                        futurePosList[index] = pos;
+                        futureRotList[index] = rot;
+                    }
+                    else
+                    {
+                        // 更新：未来予測
+                        //Debug.Log($"read bone :{index}");
+                        var oldPos = basePosList[index];
+                        var oldRot = baseRotList[index];
+
+                        basePosList[index] = pos;
+                        baseRotList[index] = rot;
+
+                        // 速度制限(v1.11.1)
+                        float moveRatio = 0;
+                        float angRatio = 0;
+                        float deltaLength = math.distance(oldPos, pos);
+                        float deltaAngle = math.degrees(math.abs(MathUtility.Angle(oldRot, rot)));
+                        float dtime = unityPhysics ? fixedDeltaTime : normalDeltaTime;
+                        if (dtime > Define.Compute.Epsilon)
+                        {
+                            float moveSpeed = deltaLength / dtime;
+                            float angSpeed = deltaAngle / dtime;
+                            //if (deltaLength > 1e-06f)
+                            //    Debug.Log($"read bone :{index}, movesp:{moveSpeed}, angsp:{angSpeed}");
+                            const float maxMoveSpeed = 1.0f;
+                            moveRatio = moveSpeed > maxMoveSpeed ? maxMoveSpeed / moveSpeed : 1.0f;
+                            const float maxAngleSpeed = 360.0f; // deg
+                            angRatio = angSpeed > maxAngleSpeed ? maxAngleSpeed / angSpeed : 1.0f;
+                        }
+
+                        // 未来予測
+                        float ratio = unityPhysics ? fixedFutureRatio : normalFutureRatio; // ボーンの更新モードにより変化
+                        pos = math.lerp(oldPos, pos, 1.0f + ratio * moveRatio);
+                        rot = math.slerp(oldRot, rot, 1.0f + ratio * angRatio);
+                        rot = math.normalize(rot);
+
+                        bonePosList[index] = pos;
+                        boneRotList[index] = rot;
+
+                        // 未来予測姿勢を記録しておく
+                        futurePosList[index] = pos;
+                        futureRotList[index] = rot;
+                    }
+
+                    // lossyScale取得(現在はUnity2019.2.14以上のみ)
+                    // マトリックスから正確なスケール値を算出する（これはTransform.lossyScaleと等価）
+                    float4x4 m = transform.localToWorldMatrix;
+                    var irot = math.inverse(rot);
+                    var m2 = math.mul(new float4x4(irot, float3.zero), m);
+                    var scl = new float3(m2.c0.x, m2.c1.y, m2.c2.z);
+                    boneSclList[index] = scl;
                 }
                 else
                 {
-                    // 前回からの速度から未来予測の更新量を求める
-                    var velocityPos = (pos - oldPos) * ratio;
-                    var velocityRot = MathUtility.FromToRotation(oldRot, rot, ratio);
-
-                    basePosList[index] = pos;
-                    baseRotList[index] = rot;
-
-                    // 未来予測
-                    pos += velocityPos;
-                    rot = math.mul(velocityRot, rot);
-
-                    bonePosList[index] = pos;
-                    boneRotList[index] = rot;
+                    // UnityPhysics更新かつフレーム更新なしの場合
+                    // 前回計算した未来予測姿勢を返す
+                    bonePosList[index] = futurePosList[index];
+                    boneRotList[index] = futureRotList[index];
                 }
 
-#if !(UNITY_2018 || UNITY_2019_1 || UNITY_2019_2_1 || UNITY_2019_2_2 || UNITY_2019_2_3 || UNITY_2019_2_4 || UNITY_2019_2_5 || UNITY_2019_2_6 || UNITY_2019_2_7 || UNITY_2019_2_8 || UNITY_2019_2_9 || UNITY_2019_2_10 || UNITY_2019_2_11 || UNITY_2019_2_12 || UNITY_2019_2_13)
-                // lossyScale取得(現在はUnity2019.2.14以上のみ)
-                // マトリックスから正確なスケール値を算出する（これはTransform.lossyScaleと等価）
-                float4x4 m = transform.localToWorldMatrix;
-                var irot = math.inverse(rot);
-                var m2 = math.mul(new float4x4(irot, float3.zero), m);
-                var scl = new float3(m2.c0.x, m2.c1.y, m2.c2.z);
-                boneSclList[index] = scl;
-#endif
-            }
-        }
-#endif
-
-        //=========================================================================================
-        /// <summary>
-        /// メインスレッドによるボーンスケール読み込み（負荷が掛かるのでオプション）
-        /// Unity2018ではTransformAccessでlossyScaleを取得できないのでやむを得ず。
-        /// </summary>
-        public void ReadBoneScaleFromTransform()
-        {
-            if (ReadBoneCount > 0)
-            {
-                // プロファイラ計測開始
-                SamplerReadBoneScale.Begin();
-
-                for (int i = 0, cnt = boneList.Length; i < cnt; i++)
+                // リセットフラグクリア
+                if (reset && (unityPhysics == false || fixedUpdateCount > 0))
                 {
-                    var t = boneList[i];
-                    if (t)
-                    {
-                        boneSclList[i] = t.lossyScale;
-                    }
+                    flag = (byte)(flag & ~Flag_Reset);
+                    boneFlagList[index] = flag;
                 }
-
-                // プロファイラ計測終了
-                SamplerReadBoneScale.End();
             }
         }
 
@@ -645,6 +798,7 @@ namespace MagicaCloth
                 var job = new ConvertWorldToLocalJob()
                 {
                     writeBoneIndexList = writeBoneIndexList.ToJobArray(),
+                    boneFlagList = boneFlagList.ToJobArray(),
                     bonePosList = bonePosList.ToJobArray(),
                     boneRotList = boneRotList.ToJobArray(),
                     boneSclList = boneSclList.ToJobArray(),
@@ -667,6 +821,8 @@ namespace MagicaCloth
             public NativeArray<int> writeBoneIndexList;
 
             [Unity.Collections.ReadOnly]
+            public NativeArray<byte> boneFlagList;
+            [Unity.Collections.ReadOnly]
             public NativeArray<float3> bonePosList;
             [Unity.Collections.ReadOnly]
             public NativeArray<quaternion> boneRotList;
@@ -687,6 +843,11 @@ namespace MagicaCloth
                 if (bindex == 0)
                     return;
                 bindex--; // +1が入っているので-1する
+
+                // 書き込みフラグチェック
+                var flag = boneFlagList[bindex];
+                if ((flag & Flag_Write) == 0)
+                    return;
 
                 var pos = bonePosList[bindex];
                 var rot = boneRotList[bindex];
@@ -731,10 +892,14 @@ namespace MagicaCloth
             {
                 var job = new WriteBontToTransformJob2()
                 {
+                    fixedUpdateCount = manager.UpdateTime.FixedUpdateCount,
+
+                    boneFlagList = boneFlagList.ToJobArray(bufferIndex),
                     writeBoneIndexList = writeBoneIndexList.ToJobArray(bufferIndex),
                     boneParentIndexList = boneParentIndexList.ToJobArray(),
                     writeBonePosList = writeBonePosList.ToJobArray(bufferIndex),
                     writeBoneRotList = writeBoneRotList.ToJobArray(bufferIndex),
+                    boneUnityPhysicsList = boneUnityPhysicsList.ToJobArray(),
                 };
                 Compute.MasterJob = job.Schedule(writeBoneList.GetTransformAccessArray(), Compute.MasterJob);
             }
@@ -746,6 +911,10 @@ namespace MagicaCloth
         [BurstCompile]
         struct WriteBontToTransformJob2 : IJobParallelForTransform
         {
+            public int fixedUpdateCount;
+
+            [Unity.Collections.ReadOnly]
+            public NativeArray<byte> boneFlagList;
             [Unity.Collections.ReadOnly]
             public NativeArray<int> writeBoneIndexList;
             [Unity.Collections.ReadOnly]
@@ -754,6 +923,8 @@ namespace MagicaCloth
             public NativeArray<float3> writeBonePosList;
             [Unity.Collections.ReadOnly]
             public NativeArray<quaternion> writeBoneRotList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<short> boneUnityPhysicsList;
 
             // 書き込みトランスフォームごと
             public void Execute(int index, TransformAccess transform)
@@ -766,21 +937,32 @@ namespace MagicaCloth
                     return;
                 bindex--; // +1が入っているので-1する
 
-                var pos = writeBonePosList[index];
-                var rot = writeBoneRotList[index];
+                // 書き込みフラグチェック
+                var flag = boneFlagList[bindex];
+                if ((flag & Flag_Write) == 0)
+                    return;
 
-                int parentIndex = boneParentIndexList[bindex];
-                if (parentIndex >= 0)
+                bool unityPhysics = boneUnityPhysicsList[bindex] > 0;
+                if (unityPhysics == false || fixedUpdateCount > 0)
                 {
-                    // 親を参照する場合はローカル座標で書き込む
-                    transform.localPosition = pos;
-                    transform.localRotation = rot;
-                }
-                else
-                {
-                    // 親がいない場合はワールドで書き込む
-                    transform.position = pos;
-                    transform.rotation = rot;
+                    var pos = writeBonePosList[index];
+                    var rot = writeBoneRotList[index];
+
+                    int parentIndex = boneParentIndexList[bindex];
+                    //Debug.Log($"Write Bone:{bindex} Parent:{parentIndex} Pos:{pos}");
+
+                    if (parentIndex >= 0)
+                    {
+                        // 親を参照する場合はローカル座標で書き込む
+                        transform.localPosition = pos;
+                        transform.localRotation = rot;
+                    }
+                    else
+                    {
+                        // 親がいない場合はワールドで書き込む
+                        transform.position = pos;
+                        transform.rotation = rot;
+                    }
                 }
             }
         }
@@ -810,7 +992,14 @@ namespace MagicaCloth
             };
             var jobHandle1 = job1.Schedule(writeBoneIndexList.Length, 16);
 
-            Compute.MasterJob = JobHandle.CombineDependencies(jobHandle0, jobHandle1);
+            var job2 = new CopyBoneJob2()
+            {
+                boneFlagList = boneFlagList.ToJobArray(),
+                backBoneFlagList = boneFlagList.ToJobArray(1),
+            };
+            var jobHandle2 = job2.Schedule(boneFlagList.Length, 16);
+
+            Compute.MasterJob = JobHandle.CombineDependencies(jobHandle0, jobHandle1, jobHandle2);
         }
 
         [BurstCompile]
@@ -845,6 +1034,21 @@ namespace MagicaCloth
             public void Execute(int index)
             {
                 backWriteBoneIndexList[index] = writeBoneIndexList[index];
+            }
+        }
+
+        [BurstCompile]
+        struct CopyBoneJob2 : IJobParallelFor
+        {
+            [Unity.Collections.ReadOnly]
+            public NativeArray<byte> boneFlagList;
+
+            [Unity.Collections.WriteOnly]
+            public NativeArray<byte> backBoneFlagList;
+
+            public void Execute(int index)
+            {
+                backBoneFlagList[index] = boneFlagList[index];
             }
         }
     }

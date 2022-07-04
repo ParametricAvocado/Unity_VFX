@@ -1,13 +1,14 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
-#if !UNITY_2018
+using System.Runtime.CompilerServices;
 using Unity.Collections;
-#endif
 using Unity.Mathematics;
 using UnityEngine;
 #if UNITY_2020_1_OR_NEWER
+using Unity.Burst;
+using Unity.Jobs;
 using UnityEngine.Rendering;
 #endif
 
@@ -18,11 +19,6 @@ namespace MagicaCloth
     /// </summary>
     public class PhysicsManagerMeshData : PhysicsManagerAccess
     {
-        /// <summary>
-        /// 管理中のメッシュデフォーマー
-        /// </summary>
-        HashSet<BaseMeshDeformer> meshSet = new HashSet<BaseMeshDeformer>();
-
         //=========================================================================================
         /// <summary>
         /// 共通メッシュフラグ
@@ -31,6 +27,7 @@ namespace MagicaCloth
         public const uint MeshFlag_Skinning = 0x00000004;
         public const uint Meshflag_CalcNormal = 0x00000008;
         public const uint Meshflag_CalcTangent = 0x00000010;
+        public const uint Meshflag_Pause = 0x00000020; // 一時停止
         // ここからはVirtualMeshInfo用
         // ここからはSharedRenderMeshInfo用
         public const uint MeshFlag_ExistNormals = 0x00010000;   // 法線あり
@@ -39,6 +36,7 @@ namespace MagicaCloth
         // ここからはRenderMeshInfo用
         public const uint MeshFlag_UpdateUseVertexFront = 0x01000000;   // レンダーメッシュの頂点利用の更新フラグ
         public const uint MeshFlag_UpdateUseVertexBack = 0x02000000;   // レンダーメッシュの頂点利用の更新フラグ
+        public const uint MeshFlag_FasterWrite = 0x04000000; // VertexBufferによる高速書き込みフラグ
         public const uint MeshFlag_MeshLink = 0x10000000; // 接続メッシュの有無フラグ（28bit - 31bit)
 
         //=========================================================================================
@@ -137,6 +135,7 @@ namespace MagicaCloth
             /// </summary>
             /// <param name="flag"></param>
             /// <returns></returns>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsFlag(uint flag)
             {
                 return (this.flag & flag) != 0;
@@ -147,6 +146,7 @@ namespace MagicaCloth
             /// </summary>
             /// <param name="flag"></param>
             /// <param name="sw"></param>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetFlag(uint flag, bool sw)
             {
                 if (sw)
@@ -155,14 +155,22 @@ namespace MagicaCloth
                     this.flag &= ~flag;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsActive()
             {
                 return IsFlag(MeshFlag_Active);
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsUse()
             {
                 return IsFlag(MeshFlag_Active) && meshUseCount > 0 && vertexUseCount > 0;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool IsPause()
+            {
+                return IsFlag(Meshflag_Pause);
             }
         }
         public FixedNativeList<VirtualMeshInfo> virtualMeshInfoList;
@@ -280,6 +288,7 @@ namespace MagicaCloth
             /// </summary>
             /// <param name="flag"></param>
             /// <returns></returns>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsFlag(uint flag)
             {
                 return (this.flag & flag) != 0;
@@ -290,6 +299,7 @@ namespace MagicaCloth
             /// </summary>
             /// <param name="flag"></param>
             /// <param name="sw"></param>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetFlag(uint flag, bool sw)
             {
                 if (sw)
@@ -298,6 +308,7 @@ namespace MagicaCloth
                     this.flag &= ~flag;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsSkinning()
             {
                 return IsFlag(MeshFlag_Skinning);
@@ -313,31 +324,9 @@ namespace MagicaCloth
         public FixedChunkNativeArray<float4> sharedRenderTangents; // ここはオリジナルなのでw成分あり
 
         // ボーンウエイト（存在しない場合があるので注意）
-#if UNITY_2018
-        public FixedChunkNativeArray<BoneWeight> sharedBoneWeightList;
-#else
         public FixedChunkNativeArray<byte> sharedBonesPerVertexList;
         public FixedChunkNativeArray<int> sharedBonesPerVertexStartList;
         public FixedChunkNativeArray<BoneWeight1> sharedBoneWeightList;
-#endif
-
-#if UNITY_2019_4_OR_NEWER
-        // Unity2019.4以上ではメッシュバッファは不要(1.8.4)
-#else
-        /// <summary>
-        /// レンダーメッシュのメッシュ書き込みバッファ
-        /// </summary>
-        public class SharedRenderMeshBuffer
-        {
-            public Vector3[] vertices;
-            public Vector3[] normals;
-            public Vector4[] tangents;
-#if UNITY_2018
-            public BoneWeight[] boneWeights;
-#endif
-        }
-        public Dictionary<int, SharedRenderMeshBuffer> sharedRenderMeshIdToBufferDict = new Dictionary<int, SharedRenderMeshBuffer>();
-#endif
 
         //=========================================================================================
         /// <summary>
@@ -349,14 +338,6 @@ namespace MagicaCloth
         /// レンダーメッシュインスタンスが接続できる仮想メッシュの最大数
         /// </summary>
         public const int MaxRenderMeshLinkCount = 4;
-
-        /// <summary>
-        /// ジョブに依存しないレンダーメッシュ状態フラグ
-        /// </summary>
-        public const uint RenderStateFlag_Use = 0x00000001;
-        public const uint RenderStateFlag_ExistNormal = 0x00000002;
-        public const uint RenderStateFlag_ExistTangent = 0x00000004;
-        public const uint RenderStateFlag_DelayedCalculated = 0x00000100; // 遅延実行時の計算済みフラグ
 
         /// <summary>
         /// レンダーメッシュインスタンス情報
@@ -394,6 +375,7 @@ namespace MagicaCloth
             /// </summary>
             /// <param name="flag"></param>
             /// <returns></returns>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsFlag(uint flag)
             {
                 return (this.flag & flag) != 0;
@@ -404,6 +386,7 @@ namespace MagicaCloth
             /// </summary>
             /// <param name="flag"></param>
             /// <param name="sw"></param>
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetFlag(uint flag, bool sw)
             {
                 if (sw)
@@ -412,20 +395,38 @@ namespace MagicaCloth
                     this.flag &= ~flag;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsActive()
             {
                 return IsFlag(MeshFlag_Active);
             }
 
-            //public bool IsUse()
-            public bool InUse()
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool IsUse()
             {
                 return IsFlag(MeshFlag_Active) && meshUseCount > 0;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsLinkMesh(int index)
             {
                 return (flag & (MeshFlag_MeshLink << index)) != 0;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool IsPause()
+            {
+                return IsFlag(Meshflag_Pause);
+            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool IsFasterWrite()
+            {
+                return IsFlag(MeshFlag_FasterWrite);
+            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool IsSkinning()
+            {
+                return IsFlag(MeshFlag_Skinning);
             }
 
             /// <summary>
@@ -502,6 +503,15 @@ namespace MagicaCloth
         public FixedNativeList<RenderMeshInfo> renderMeshInfoList;
 
         /// <summary>
+        /// ジョブに依存しないレンダーメッシュ状態フラグ
+        /// </summary>
+        public const uint RenderStateFlag_Use = 0x00000001;
+        public const uint RenderStateFlag_ExistNormal = 0x00000002;
+        public const uint RenderStateFlag_ExistTangent = 0x00000004;
+        public const uint RenderStateFlag_FasterWrite = 0x00000008; // VertexBuffferを利用した高速書き込み
+        public const uint RenderStateFlag_DelayedCalculated = 0x00000100; // 遅延実行時の計算済みフラグ
+
+        /// <summary>
         /// ジョブに依存しないレンダーメッシュ情報
         /// </summary>
         public class RenderMeshState
@@ -541,6 +551,10 @@ namespace MagicaCloth
                     this.flag &= ~flag;
             }
         }
+
+        /// <summary>
+        /// キー：レンダーメッシュインスタンスID
+        /// </summary>
         public Dictionary<int, RenderMeshState> renderMeshStateDict = new Dictionary<int, RenderMeshState>();
 
         /// <summary>
@@ -562,11 +576,36 @@ namespace MagicaCloth
         /// <summary>
         /// 現在のボーンウエイトリスト
         /// </summary>
-#if UNITY_2018
-        public FixedChunkNativeArray<BoneWeight> renderBoneWeightList;
-#else
         public FixedChunkNativeArray<BoneWeight1> renderBoneWeightList;
+
+
+        //=========================================================================================
+#if UNITY_2021_2_OR_NEWER
+        /// <summary>
+        /// コンピュートシェーダーによる高速書き込み用バッファ
+        /// </summary>
+        internal DoubleComputeBuffer<float3> renderPosBuffer;
+        internal DoubleComputeBuffer<float3> renderNormalBuffer;
+        internal ComputeBuffer emptyByteAddressBuffer;
+
+        /// <summary>
+        /// 高速書き込みのComputeBuffer.BeginWriteの実行確認フラグ
+        /// </summary>
+        private bool isBeginWrite;
 #endif
+
+        /// <summary>
+        /// 管理中のレンダーメッシュ
+        /// </summary>
+        HashSet<BaseMeshDeformer> renderMeshSet = new HashSet<BaseMeshDeformer>();
+
+        // 通常書き込みリスト
+        List<RenderMeshDeformer> normalWriteList = new List<RenderMeshDeformer>();
+
+        // 高速書き込みリスト
+        List<RenderMeshDeformer> fasterWritePositionList = new List<RenderMeshDeformer>();
+        List<RenderMeshDeformer> fasterWritePositionNormalList = new List<RenderMeshDeformer>();
+
 
         //=========================================================================================
         /// <summary>
@@ -607,13 +646,9 @@ namespace MagicaCloth
             sharedRenderVertices = new FixedChunkNativeArray<float3>();
             sharedRenderNormals = new FixedChunkNativeArray<float3>();
             sharedRenderTangents = new FixedChunkNativeArray<float4>();
-#if UNITY_2018
-            sharedBoneWeightList = new FixedChunkNativeArray<BoneWeight>();
-#else
             sharedBonesPerVertexList = new FixedChunkNativeArray<byte>();
             sharedBonesPerVertexStartList = new FixedChunkNativeArray<int>();
             sharedBoneWeightList = new FixedChunkNativeArray<BoneWeight1>();
-#endif
 
             // render mesh
             renderMeshInfoList = new FixedNativeList<RenderMeshInfo>();
@@ -621,10 +656,13 @@ namespace MagicaCloth
             renderPosList = new FixedChunkNativeArray<float3>();
             renderNormalList = new FixedChunkNativeArray<float3>();
             renderTangentList = new FixedChunkNativeArray<float4>();
-#if UNITY_2018
-            renderBoneWeightList = new FixedChunkNativeArray<BoneWeight>();
-#else
             renderBoneWeightList = new FixedChunkNativeArray<BoneWeight1>();
+
+#if UNITY_2021_2_OR_NEWER
+            // graphics buffer
+            renderPosBuffer = new DoubleComputeBuffer<float3>();
+            renderNormalBuffer = new DoubleComputeBuffer<float3>();
+            emptyByteAddressBuffer = new ComputeBuffer(1, 4, ComputeBufferType.Raw);
 #endif
         }
 
@@ -635,6 +673,13 @@ namespace MagicaCloth
         {
             if (sharedVirtualMeshInfoList == null)
                 return;
+
+#if UNITY_2021_2_OR_NEWER
+            // graphics buffer
+            renderPosBuffer?.Dispose();
+            renderNormalBuffer?.Dispose();
+            emptyByteAddressBuffer?.Dispose();
+#endif
 
             // shared virtual mesh
             sharedVirtualMeshInfoList.Dispose();
@@ -669,10 +714,8 @@ namespace MagicaCloth
             sharedRenderVertices.Dispose();
             sharedRenderNormals.Dispose();
             sharedRenderTangents.Dispose();
-#if !UNITY_2018
             sharedBonesPerVertexList.Dispose();
             sharedBonesPerVertexStartList.Dispose();
-#endif
             sharedBoneWeightList.Dispose();
 
             // render mesh
@@ -691,7 +734,8 @@ namespace MagicaCloth
         /// <param name="bmesh"></param>
         public void AddMesh(BaseMeshDeformer bmesh)
         {
-            meshSet.Add(bmesh);
+            if (bmesh is RenderMeshDeformer)
+                renderMeshSet.Add(bmesh);
         }
 
         /// <summary>
@@ -700,13 +744,8 @@ namespace MagicaCloth
         /// <param name="bmesh"></param>
         public void RemoveMesh(BaseMeshDeformer bmesh)
         {
-            if (meshSet.Contains(bmesh))
-                meshSet.Remove(bmesh);
-        }
-
-        public bool ContainsMesh(BaseMeshDeformer bmesh)
-        {
-            return meshSet.Contains(bmesh);
+            if (renderMeshSet.Contains(bmesh))
+                renderMeshSet.Remove(bmesh);
         }
 
         //=========================================================================================
@@ -797,7 +836,8 @@ namespace MagicaCloth
             //Develop.Log($"VirtualMeshInfo vchunk start:{c.startIndex} cnt:{c.dataLength}");
 
             Debug.Assert(boneCount > 0);
-            c = virtualTransformIndexList.AddChunk(boneCount);
+            //c = virtualTransformIndexList.AddChunk(boneCount);
+            c = new ChunkData(); // 空で初期化する(v1.9.4)
             minfo.boneChunk = c;
 
             if (triangleCount > 0)
@@ -1106,6 +1146,114 @@ namespace MagicaCloth
             }
         }
 
+        /// <summary>
+        /// 仮想メッシュの利用ボーン登録
+        /// </summary>
+        /// <param name="virtualMeshIndex"></param>
+        /// <param name="boneList"></param>
+        public void AddVirtualMeshBone(int virtualMeshIndex, List<Transform> boneList)
+        {
+            if (virtualMeshInfoList.Exists(virtualMeshIndex))
+            {
+                var minfo = virtualMeshInfoList[virtualMeshIndex];
+                var c = virtualTransformIndexList.AddChunk(boneList.Count);
+                minfo.boneChunk = c;
+
+                for (int i = 0; i < boneList.Count; i++)
+                {
+                    virtualTransformIndexList[minfo.boneChunk.startIndex + i] = Bone.AddBone(boneList[i]);
+                }
+
+                virtualMeshInfoList[virtualMeshIndex] = minfo;
+            }
+        }
+
+        /// <summary>
+        /// 仮想メッシュの利用ボーン解除
+        /// </summary>
+        /// <param name="virtualMeshIndex"></param>
+        public void RemoveVirtualMeshBone(int virtualMeshIndex)
+        {
+            if (virtualMeshIndex >= 0)
+            {
+                if (virtualMeshInfoList.Exists(virtualMeshIndex))
+                {
+                    var minfo = virtualMeshInfoList[virtualMeshIndex];
+
+                    for (int i = 0; i < minfo.boneChunk.dataLength; i++)
+                    {
+                        int tindex = virtualTransformIndexList[minfo.boneChunk.startIndex + i];
+                        Bone.RemoveBone(tindex);
+                        virtualTransformIndexList[minfo.boneChunk.startIndex + i] = 0;
+                    }
+
+                    virtualTransformIndexList.RemoveChunk(minfo.boneChunk.chunkNo);
+                    minfo.boneChunk.Clear();
+                    virtualMeshInfoList[virtualMeshIndex] = minfo;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 仮想メッシュボーンの未来予測をリセットする
+        /// </summary>
+        /// <param name="virtualMeshIndex"></param>
+        public void ResetFuturePredictionVirtualMeshBone(int virtualMeshIndex)
+        {
+            if (virtualMeshIndex >= 0)
+            {
+                if (virtualMeshInfoList.Exists(virtualMeshIndex))
+                {
+                    var minfo = virtualMeshInfoList[virtualMeshIndex];
+
+                    for (int i = 0; i < minfo.boneChunk.dataLength; i++)
+                    {
+                        int tindex = virtualTransformIndexList[minfo.boneChunk.startIndex + i];
+                        Bone.ResetFuturePrediction(tindex);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 仮想メッシュのボーンに対してUnityPhysicsでの利用を設定する
+        /// </summary>
+        /// <param name="virtualMeshIndex"></param>
+        /// <param name="sw"></param>
+        public void ChangeVirtualMeshUseUnityPhysics(int virtualMeshIndex, bool sw)
+        {
+            if (virtualMeshIndex >= 0)
+            {
+                if (virtualMeshInfoList.Exists(virtualMeshIndex))
+                {
+                    var minfo = virtualMeshInfoList[virtualMeshIndex];
+                    Bone.ChangeUnityPhysicsCount(minfo.transformIndex, sw);
+
+                    for (int i = 0; i < minfo.boneChunk.dataLength; i++)
+                    {
+                        int tindex = virtualTransformIndexList[minfo.boneChunk.startIndex + i];
+                        Bone.ChangeUnityPhysicsCount(tindex, sw);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 仮想メッシュのフラグ設定
+        /// </summary>
+        /// <param name="virtualMeshIndex"></param>
+        /// <param name="flag"></param>
+        /// <param name="sw"></param>
+        public void SetVirtualMeshFlag(int virtualMeshIndex, uint flag, bool sw)
+        {
+            if (virtualMeshInfoList.Exists(virtualMeshIndex))
+            {
+                var minfo = virtualMeshInfoList[virtualMeshIndex];
+                minfo.SetFlag(flag, sw);
+                virtualMeshInfoList[virtualMeshIndex] = minfo;
+            }
+        }
+
         public int SharedVirtualMeshCount
         {
             get
@@ -1163,6 +1311,18 @@ namespace MagicaCloth
                 int cnt = 0;
                 for (int i = 0; i < virtualMeshInfoList.Length; i++)
                     cnt += virtualMeshInfoList[i].IsUse() ? 1 : 0;
+                return cnt;
+            }
+        }
+
+        public int VirtualMeshPauseCount
+        {
+            get
+            {
+                int cnt = 0;
+                for (int i = 0; i < virtualMeshInfoList.Length; i++)
+                    if (virtualMeshInfoList[i].IsUse() && virtualMeshInfoList[i].IsPause())
+                        cnt++;
                 return cnt;
             }
         }
@@ -1297,13 +1457,14 @@ namespace MagicaCloth
         public int AddRenderMesh(
             int uid,
             bool isSkinning,
+            bool isFasterWrite,
             Vector3 baseScale,
             int vertexCount,
             int rendererBoneIndex,
             int boneWeightCount
             )
         {
-            //Develop.Log($"★AddRenderMesh uid:{uid} vcnt:{vertexCount} rboneindex:{rendererBoneIndex} bonewcnt:{boneWeightCount}");
+            //Develop.Log($"★AddRenderMesh uid:{uid} vcnt:{vertexCount} rboneindex:{rendererBoneIndex} bonewcnt:{boneWeightCount}, isSkinning:{isSkinning}");
             // レンダーメッシュ共有情報登録
             int sharedMeshIndex = -1;
             if (uid != 0)
@@ -1337,13 +1498,8 @@ namespace MagicaCloth
                     // ボーンウエイト
                     if (isSkinning)
                     {
-#if UNITY_2018
-                        var bc = new ChunkData(); // Unity2018では使用しない
-#else
                         var bc = sharedBonesPerVertexList.AddChunk(vertexCount);
                         sharedBonesPerVertexStartList.AddChunk(vertexCount);
-#endif
-
                         var wc = sharedBoneWeightList.AddChunk(boneWeightCount);
                         sminfo.bonePerVertexChunk = bc;
                         sminfo.boneWeightsChunk = wc;
@@ -1351,33 +1507,17 @@ namespace MagicaCloth
 
                     sharedMeshIndex = sharedRenderMeshInfoList.Add(sminfo);
                     sharedRenderMeshIdToIndexDict.Add(uid, sharedMeshIndex);
-
-                    // メッシュバッファを作成する
-#if UNITY_2019_4_OR_NEWER
-                    // Unity2019.4以上では不要(1.8.4)
-#else
-                    var smbuffer = new SharedRenderMeshBuffer();
-                    smbuffer.vertices = new Vector3[vertexCount];
-                    smbuffer.normals = new Vector3[vertexCount];
-                    smbuffer.tangents = new Vector4[vertexCount];
-#if UNITY_2018
-                    if (isSkinning)
-                    {
-                        smbuffer.boneWeights = new BoneWeight[vertexCount];
-                    }
-#endif
-                    sharedRenderMeshIdToBufferDict.Add(uid, smbuffer);
-#endif
                 }
             }
 
             // レンダーメッシュインスタンス登録
             var minfo = new RenderMeshInfo();
             //minfo.SetFlag(MeshFlag_Active, true);
+            minfo.SetFlag(MeshFlag_FasterWrite, isFasterWrite);
+            minfo.SetFlag(MeshFlag_Skinning, isSkinning);
             minfo.renderSharedMeshIndex = sharedMeshIndex;
             var sminfo2 = sharedRenderMeshInfoList[sharedMeshIndex];
             minfo.sharedRenderMeshVertexStartIndex = sminfo2.vertexChunk.startIndex;
-
             var c = renderVertexFlagList.AddChunk(vertexCount);
             renderPosList.AddChunk(vertexCount);
             renderNormalList.AddChunk(vertexCount);
@@ -1386,16 +1526,14 @@ namespace MagicaCloth
             {
                 minfo.boneWeightsChunk = renderBoneWeightList.AddChunk(boneWeightCount);
             }
-
             minfo.vertexChunk = c;
-
             minfo.baseScale = baseScale.magnitude; // 設計時スケール：ベクトル長
-
             int index = renderMeshInfoList.Add(minfo);
 
             // ジョブに依存しないレンダーメッシュ情報構築
             var state = new RenderMeshState();
-            state.SetFlag(RenderStateFlag_Use, minfo.InUse());
+            state.SetFlag(RenderStateFlag_Use, minfo.IsUse());
+            state.SetFlag(RenderStateFlag_FasterWrite, isFasterWrite);
             state.RenderSharedMeshIndex = sharedMeshIndex;
             state.RenderSharedMeshId = sminfo2.uid;
             state.VertexChunkStart = c.startIndex;
@@ -1458,12 +1596,8 @@ namespace MagicaCloth
             Vector3[] sharedVertices,
             Vector3[] sharedNormals,
             Vector4[] sharedTangents,
-#if UNITY_2018
-            BoneWeight[] sharedBoneWeights
-#else
             NativeArray<byte> sharedBonesPerVertex,
             NativeArray<BoneWeight1> sharedBoneWeights
-#endif
             )
         {
             var minfo = renderMeshInfoList[renderMeshIndex];
@@ -1490,12 +1624,6 @@ namespace MagicaCloth
                 }
 
                 // ボーンウエイトは存在しない場合がある
-#if UNITY_2018
-                if (isSkinning && sharedBoneWeights != null && sharedBoneWeights.Length > 0)
-                {
-                    sharedBoneWeightList.ToJobArray().CopyFromFast(smdata.boneWeightsChunk.startIndex, sharedBoneWeights);
-                }
-#else
                 if (isSkinning && sharedBonesPerVertex.Length > 0)
                 {
                     int vcnt = sharedBonesPerVertex.Length;
@@ -1513,7 +1641,6 @@ namespace MagicaCloth
                     sharedBonesPerVertexStartList.ToJobArray().CopyFromFast(smdata.bonePerVertexChunk.startIndex, startIndexList);
                     sharedBoneWeightList.ToJobArray().CopyFromFast(smdata.boneWeightsChunk.startIndex, sharedBoneWeights.ToArray());
                 }
-#endif
 
                 sharedRenderMeshInfoList[minfo.renderSharedMeshIndex] = smdata;
             }
@@ -1546,13 +1673,11 @@ namespace MagicaCloth
                         sharedRenderNormals.RemoveChunk(sminfo.vertexChunk.chunkNo);
                         sharedRenderTangents.RemoveChunk(sminfo.vertexChunk.chunkNo);
 
-#if !UNITY_2018
                         if (sminfo.bonePerVertexChunk.dataLength > 0)
                         {
                             sharedBonesPerVertexList.RemoveChunk(sminfo.bonePerVertexChunk);
                             sharedBonesPerVertexStartList.RemoveChunk(sminfo.bonePerVertexChunk);
                         }
-#endif
                         if (sminfo.boneWeightsChunk.dataLength > 0)
                         {
                             sharedBoneWeightList.RemoveChunk(sminfo.boneWeightsChunk);
@@ -1560,11 +1685,6 @@ namespace MagicaCloth
 
                         sharedRenderMeshInfoList.Remove(sharedMeshIndex);
                         sharedRenderMeshIdToIndexDict.Remove(sminfo.uid);
-
-#if !UNITY_2019_4_OR_NEWER
-                        // バッファ削除
-                        sharedRenderMeshIdToBufferDict.Remove(sminfo.uid);
-#endif
                     }
                     else
                     {
@@ -1600,9 +1720,22 @@ namespace MagicaCloth
 
             // レンダーメッシュトランスフォーム解除
             Bone.RemoveBone(minfo.transformIndex);
-            minfo.transformIndex = 0;
+            //minfo.transformIndex = 0;
+            minfo.transformIndex = -1; // 削除サイン
 
             renderMeshInfoList[renderMeshIndex] = minfo;
+        }
+
+        /// <summary>
+        /// レンダーメッシュのボーンに対してUnityPhysicsでの利用を設定する
+        /// </summary>
+        /// <param name="renderMeshIndex"></param>
+        /// <param name="sw"></param>
+        public void ChangeRenderMeshUseUnityPhysics(int renderMeshIndex, bool sw)
+        {
+            var minfo = renderMeshInfoList[renderMeshIndex];
+            if (minfo.transformIndex >= 0)
+                Bone.ChangeUnityPhysicsCount(minfo.transformIndex, sw);
         }
 
         /// <summary>
@@ -1628,7 +1761,7 @@ namespace MagicaCloth
         /// <summary>
         /// レンダーメッシュのフラグ設定
         /// </summary>
-        /// <param name="renderMeshIndex"></param>
+        /// <param name="virtualMeshIndex"></param>
         /// <param name="flag"></param>
         /// <param name="sw"></param>
         public void SetRenderMeshFlag(int renderMeshIndex, uint flag, bool sw)
@@ -1665,7 +1798,7 @@ namespace MagicaCloth
                 minfo.SetFlag(MeshFlag_UpdateUseVertexFront, true);
                 minfo.SetFlag(MeshFlag_UpdateUseVertexBack, true);
                 renderMeshInfoList[renderMeshIndex] = minfo;
-                renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_Use, minfo.InUse());
+                renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_Use, minfo.IsUse());
                 renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_DelayedCalculated, false);
             }
         }
@@ -1677,7 +1810,7 @@ namespace MagicaCloth
                 var minfo = renderMeshInfoList[renderMeshIndex];
                 minfo.meshUseCount++;
                 renderMeshInfoList[renderMeshIndex] = minfo;
-                renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_Use, minfo.InUse());
+                renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_Use, minfo.IsUse());
             }
         }
 
@@ -1689,7 +1822,7 @@ namespace MagicaCloth
                 minfo.meshUseCount--;
                 Debug.Assert(minfo.meshUseCount >= 0);
                 renderMeshInfoList[renderMeshIndex] = minfo;
-                renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_Use, minfo.InUse());
+                renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_Use, minfo.IsUse());
             }
         }
 
@@ -1701,7 +1834,7 @@ namespace MagicaCloth
             minfo.SetFlag(MeshFlag_UpdateUseVertexFront, true);
             minfo.SetFlag(MeshFlag_UpdateUseVertexBack, true);
             renderMeshInfoList[renderMeshIndex] = minfo;
-            renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_Use, minfo.InUse());
+            renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_Use, minfo.IsUse());
             renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_DelayedCalculated, false);
         }
 
@@ -1715,7 +1848,7 @@ namespace MagicaCloth
             renderMeshInfoList[renderMeshIndex] = minfo;
             if (renderMeshStateDict.ContainsKey(renderMeshIndex))
             {
-                renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_Use, minfo.InUse());
+                renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_Use, minfo.IsUse());
                 renderMeshStateDict[renderMeshIndex].SetFlag(RenderStateFlag_DelayedCalculated, false);
             }
         }
@@ -1727,18 +1860,15 @@ namespace MagicaCloth
         /// <param name="vertices"></param>
         /// <param name="normals"></param>
         /// <param name="tangents"></param>
-        public void CopyToRenderMeshLocalPositionData(int renderMeshIndex, Mesh mesh, int bufferIndex)
+        internal void CopyToRenderMeshLocalPositionData(int renderMeshIndex, Mesh mesh, int bufferIndex)
         {
             var state = renderMeshStateDict[renderMeshIndex];
 #if UNITY_2020_1_OR_NEWER
             var flag = MeshUpdateFlags.DontNotifyMeshUsers | MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontResetBoneBounds | MeshUpdateFlags.DontValidateIndices;
+            //Debug.Log($"bufferIndex:{bufferIndex} array0Length:{renderPosList.ToJobArray().Length} array1Length:{renderPosList.ToJobArray(1).Length}  start:{state.VertexChunkStart} length:{state.VertexChunkLength} F:{Time.frameCount}");
             mesh.SetVertices(renderPosList.ToJobArray(bufferIndex), state.VertexChunkStart, state.VertexChunkLength, flag);
-#elif UNITY_2019_4_OR_NEWER
-            mesh.SetVertices(renderPosList.ToJobArray(bufferIndex), state.VertexChunkStart, state.VertexChunkLength);
 #else
-            var buffer = sharedRenderMeshIdToBufferDict[state.RenderSharedMeshId];
-            renderPosList.ToJobArray(bufferIndex).CopyToFast(state.VertexChunkStart, buffer.vertices);
-            mesh.vertices = buffer.vertices;
+            mesh.SetVertices(renderPosList.ToJobArray(bufferIndex), state.VertexChunkStart, state.VertexChunkLength);
 #endif
         }
 
@@ -1749,7 +1879,7 @@ namespace MagicaCloth
         /// <param name="vertices"></param>
         /// <param name="normals"></param>
         /// <param name="tangents"></param>
-        public void CopyToRenderMeshLocalNormalTangentData(int renderMeshIndex, Mesh mesh, int bufferIndex, bool normal, bool tangent)
+        internal void CopyToRenderMeshLocalNormalTangentData(int renderMeshIndex, Mesh mesh, int bufferIndex, bool normal, bool tangent)
         {
             var state = renderMeshStateDict[renderMeshIndex];
 #if UNITY_2020_1_OR_NEWER
@@ -1762,7 +1892,7 @@ namespace MagicaCloth
             {
                 mesh.SetTangents(renderTangentList.ToJobArray(bufferIndex), state.VertexChunkStart, state.VertexChunkLength, flag);
             }
-#elif UNITY_2019_4_OR_NEWER
+#else
             if (state.IsFlag(RenderStateFlag_ExistNormal) && normal)
             {
                 mesh.SetNormals(renderNormalList.ToJobArray(bufferIndex), state.VertexChunkStart, state.VertexChunkLength);
@@ -1770,18 +1900,6 @@ namespace MagicaCloth
             if (state.IsFlag(RenderStateFlag_ExistTangent) && tangent)
             {
                 mesh.SetTangents(renderTangentList.ToJobArray(bufferIndex), state.VertexChunkStart, state.VertexChunkLength);
-            }
-#else
-            var buffer = sharedRenderMeshIdToBufferDict[state.RenderSharedMeshId];
-            if (state.IsFlag(RenderStateFlag_ExistNormal) && normal)
-            {
-                renderNormalList.ToJobArray(bufferIndex).CopyToFast(state.VertexChunkStart, buffer.normals);
-                mesh.normals = buffer.normals;
-            }
-            if (state.IsFlag(RenderStateFlag_ExistTangent) && tangent)
-            {
-                renderTangentList.ToJobArray(bufferIndex).CopyToFast(state.VertexChunkStart, buffer.tangents);
-                mesh.tangents = buffer.tangents;
             }
 #endif
         }
@@ -1791,20 +1909,14 @@ namespace MagicaCloth
         /// </summary>
         /// <param name="renderMeshIndex"></param>
         /// <param name="vertices"></param>
-        public void CopyToRenderMeshBoneWeightData(int renderMeshIndex, Mesh mesh, Mesh sharedMesh, int bufferIndex)
+        internal void CopyToRenderMeshBoneWeightData(int renderMeshIndex, Mesh mesh, Mesh sharedMesh, int bufferIndex)
         {
             var state = renderMeshStateDict[renderMeshIndex];
 
-#if UNITY_2018
-            var buffer = sharedRenderMeshIdToBufferDict[state.RenderSharedMeshId];
-            renderBoneWeightList.ToJobArray(bufferIndex).CopyToFast(state.BoneWeightChunkStart, buffer.boneWeights);
-            mesh.boneWeights = buffer.boneWeights;
-#else
             NativeArray<BoneWeight1> weights = new NativeArray<BoneWeight1>(state.BoneWeightChunkLength, Allocator.Temp);
             renderBoneWeightList.ToJobArray(bufferIndex).CopyToFast(state.BoneWeightChunkStart, weights);
             mesh.SetBoneWeights(sharedMesh.GetBonesPerVertex(), weights);
             weights.Dispose();
-#endif
         }
 
         /// <summary>
@@ -1814,7 +1926,7 @@ namespace MagicaCloth
         /// <param name="vertices"></param>
         /// <param name="normals"></param>
         /// <param name="tangents"></param>
-        public void CopyToRenderMeshWorldData(int renderMeshIndex, Transform target, Vector3[] vertices, Vector3[] normals, Vector3[] tangents)
+        internal void CopyToRenderMeshWorldData(int renderMeshIndex, Transform target, Vector3[] vertices, Vector3[] normals, Vector3[] tangents)
         {
             var minfo = renderMeshInfoList[renderMeshIndex];
 
@@ -1831,6 +1943,26 @@ namespace MagicaCloth
                 normals[i] = target.InverseTransformDirection(normals[i]);
                 tangents[i] = target.InverseTransformDirection(tan4array[i]);
             }
+        }
+
+        /// <summary>
+        /// レンダーメッシュの使用頂点リストを返す（エディタ用）
+        /// </summary>
+        /// <param name="renderMeshIndex"></param>
+        /// <returns></returns>
+        internal List<int> GetVertexUseList(int renderMeshIndex)
+        {
+            var minfo = renderMeshInfoList[renderMeshIndex];
+            var useList = new List<int>(minfo.vertexChunk.dataLength);
+            for (int i = 0; i < minfo.vertexChunk.dataLength; i++)
+            {
+                uint flag = renderVertexFlagList[minfo.vertexChunk.startIndex + i];
+                // 上位16bitが使用メッシュビット
+                // 頂点の使用を0/1で返す
+                useList.Add((flag & 0xffff0000) != 0 ? 1 : 0);
+            }
+
+            return useList;
         }
 
         public int RenderMeshCount
@@ -1875,91 +2007,271 @@ namespace MagicaCloth
             }
         }
 
-        //=========================================================================================
-        /// <summary>
-        /// 利用ボーンの登録
-        /// </summary>
-        /// <param name="virtualMeshIndex"></param>
-        /// <param name="boneList"></param>
-        public void AddVirtualMeshBone(int virtualMeshIndex, List<Transform> boneList)
+        public int RenderMeshPauseCount
         {
-            if (virtualMeshInfoList.Exists(virtualMeshIndex))
+            get
             {
-                var minfo = virtualMeshInfoList[virtualMeshIndex];
-
-                for (int i = 0; i < boneList.Count; i++)
-                {
-                    virtualTransformIndexList[minfo.boneChunk.startIndex + i] = Bone.AddBone(boneList[i]);
-                }
-            }
-        }
-
-        //public void SetVirtualMeshBone(int virtualMeshIndex, Transform bone)
-        //{
-        //    if (virtualMeshInfoList.Exists(virtualMeshIndex))
-        //    {
-        //        var minfo = virtualMeshInfoList[virtualMeshIndex];
-
-        //        virtualTransformIndexList[minfo.boneChunk.startIndex] = Bone.AddBone(bone);
-        //    }
-        //}
-
-        /// <summary>
-        /// 利用ボーンの解除
-        /// </summary>
-        /// <param name="virtualMeshIndex"></param>
-        public void RemoveVirtualMeshBone(int virtualMeshIndex)
-        {
-            if (virtualMeshIndex >= 0)
-            {
-                if (virtualMeshInfoList.Exists(virtualMeshIndex))
-                {
-                    var minfo = virtualMeshInfoList[virtualMeshIndex];
-
-                    for (int i = 0; i < minfo.boneChunk.dataLength; i++)
-                    {
-                        int tindex = virtualTransformIndexList[minfo.boneChunk.startIndex + i];
-                        Bone.RemoveBone(tindex);
-                        virtualTransformIndexList[minfo.boneChunk.startIndex + i] = 0;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// 仮想メッシュボーンの未来予測をリセットする
-        /// </summary>
-        /// <param name="virtualMeshIndex"></param>
-        public void ResetFuturePredictionVirtualMeshBone(int virtualMeshIndex)
-        {
-            if (virtualMeshIndex >= 0)
-            {
-                if (virtualMeshInfoList.Exists(virtualMeshIndex))
-                {
-                    var minfo = virtualMeshInfoList[virtualMeshIndex];
-
-                    for (int i = 0; i < minfo.boneChunk.dataLength; i++)
-                    {
-                        int tindex = virtualTransformIndexList[minfo.boneChunk.startIndex + i];
-                        Bone.ResetFuturePrediction(tindex);
-                    }
-                }
+                int cnt = 0;
+                for (int i = 0; i < renderMeshInfoList.Length; i++)
+                    if (renderMeshInfoList[i].IsUse() && renderMeshInfoList[i].IsPause())
+                        cnt++;
+                return cnt;
             }
         }
 
         //=========================================================================================
         /// <summary>
-        /// 物理計算完了後のメッシュ後処理
+        /// 遅延実行の完了フラグを立てる
         /// </summary>
-        public void FinishMesh(int bufferIndex)
+        internal void SetDelayedCalculatedFlag()
         {
-            foreach (var bmesh in meshSet)
+            foreach (var mesh in renderMeshSet)
+            {
+                if (mesh.Parent.IsCalculate)
+                {
+                    var state = renderMeshStateDict[mesh.MeshIndex];
+                    state.SetFlag(RenderStateFlag_DelayedCalculated, true);
+                }
+            }
+        }
+
+
+        internal void ClearWritingList()
+        {
+            normalWriteList.Clear();
+            fasterWritePositionList.Clear();
+            fasterWritePositionNormalList.Clear();
+        }
+
+        /// <summary>
+        /// メッシュの書き込み方法の判定と準備
+        /// </summary>
+        /// <param name="bufferIndex"></param>
+        internal void MeshCalculation(int bufferIndex)
+        {
+            foreach (var bmesh in renderMeshSet)
             {
                 if (bmesh != null)
                 {
-                    bmesh.Finish(bufferIndex);
+                    var rmesh = bmesh as RenderMeshDeformer;
+                    rmesh.MeshCalculation(bufferIndex);
+
+                    // 書き込みリスト構築
+                    if (rmesh.IsWriteMeshPosition || rmesh.IsWriteMeshBoneWeight)
+                        normalWriteList.Add(rmesh);
+                    if (rmesh.IsFasterWriteUpdate)
+                    {
+                        if (rmesh.HasNormal)
+                            fasterWritePositionNormalList.Add(rmesh);
+                        else
+                            fasterWritePositionList.Add(rmesh);
+                    }
                 }
             }
         }
+
+        /// <summary>
+        /// 物理計算完了後の通常のメッシュ書き込み
+        /// </summary>
+        internal void NormalWriting(int bufferIndex)
+        {
+            // 全メッシュ書き込み
+            foreach (var rmesh in normalWriteList)
+                rmesh.NormalWriting(bufferIndex);
+            normalWriteList.Clear();
+        }
+
+
+        //=========================================================================================
+#if UNITY_2021_2_OR_NEWER
+        /// <summary>
+        /// レンダーメッシュ座標計算結果をコンピュートシェーダーのバッファに格納する
+        /// </summary>
+        /// <param name="renderMeshIndex"></param>
+        /// <param name="bufferIndex"></param>
+        /// <param name="vertexBuffer"></param>
+        /// <param name="normal"></param>
+        internal void CopyToRenderVertexBuffer(int renderMeshIndex, int bufferIndex, GraphicsBuffer vertexBuffer, bool normal, ComputeShader compute, int kernel, int index)
+        {
+            var state = renderMeshStateDict[renderMeshIndex];
+            int vcnt = vertexBuffer.count;
+
+            // set
+            switch (index)
+            {
+                case 0:
+                    compute.SetInt("VertexCount", vcnt);
+                    compute.SetInt("VertexStride", vertexBuffer.stride);
+                    compute.SetInt("ChunkStart", state.VertexChunkStart);
+                    compute.SetBuffer(kernel, "VertexBuffer", vertexBuffer);
+                    break;
+                case 1:
+                    compute.SetInt("VertexCount2", vcnt);
+                    compute.SetInt("VertexStride2", vertexBuffer.stride);
+                    compute.SetInt("ChunkStart2", state.VertexChunkStart);
+                    compute.SetBuffer(kernel, "VertexBuffer2", vertexBuffer);
+                    break;
+                default:
+                    Debug.LogError($"Invalid write compute shader index! :{index}");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 高速書き込み用バッファ作成
+        /// </summary>
+        internal void UpdateVertexBuffer()
+        {
+            int length = renderPosList.Length;
+            if (length > 0)
+            {
+                //Debug.Log($"F:{Time.frameCount}");
+                //bool runCopy = false;
+
+                // バッファの確保／拡張
+                int nowSize = renderPosBuffer.Count;
+                if (length > nowSize)
+                {
+                    // バッファ新規作成
+                    int newSize = nowSize;
+                    while (length > newSize)
+                        newSize += 65536; // 65536 * 2?
+
+                    renderPosBuffer.Create(newSize, ComputeBufferType.Structured, ComputeBufferMode.SubUpdates);
+                    renderNormalBuffer.Create(newSize, ComputeBufferType.Structured, ComputeBufferMode.SubUpdates);
+
+                    //Debug.Log($"ExpansionBuffer:{newSize} F:{Time.frameCount}");
+
+                    // データコピー
+                    //runCopy = true;
+                }
+
+                // 高速書き込みバッファの書き込み開始
+                renderPosBuffer.BeginWrite(length);
+                renderNormalBuffer.BeginWrite(length);
+                isBeginWrite = true;
+                //Debug.Log($"BeginWrite():renderPosArray:{renderPosArray.Length}, renderPosList:{renderPosList.Length} F:{Time.frameCount}");
+
+                // データコピー
+                // 常にデータコピーを行う（こうしないとQuest2などで頂点が崩壊する）
+                //if (runCopy)
+                {
+                    var job = new CopyRenderBuffer()
+                    {
+                        renderPosList = renderPosList.ToJobArray(),
+                        renderNormalList = renderNormalList.ToJobArray(),
+
+                        renderPosArray = renderPosBuffer.GetNativeArray(),
+                        renderNormalArray = renderNormalBuffer.GetNativeArray(),
+                    };
+                    Compute.MasterJob = job.Schedule(length, 64, Compute.MasterJob);
+                    //Debug.Log($"Start Buffer Copy. F:{Time.frameCount}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 高速書き込み用NativeArrayに現在のデータをコピー
+        /// </summary>
+        [BurstCompile]
+        struct CopyRenderBuffer : IJobParallelFor
+        {
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> renderPosList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> renderNormalList;
+
+            [Unity.Collections.WriteOnly]
+            public NativeArray<float3> renderPosArray;
+            [Unity.Collections.WriteOnly]
+            public NativeArray<float3> renderNormalArray;
+
+            public void Execute(int index)
+            {
+                renderPosArray[index] = renderPosList[index];
+                renderNormalArray[index] = renderNormalList[index];
+            }
+        }
+
+        /// <summary>
+        /// 高速書き込みバッファの作業終了
+        /// </summary>
+        internal void FinishVertexBuffer()
+        {
+            if (renderPosBuffer != null && isBeginWrite)
+            {
+                // 高速書き込み用バッファ書き込み完了
+                int length = renderPosList.Length;
+                renderPosBuffer.EndWrite(length);
+                renderNormalBuffer.EndWrite(length);
+                isBeginWrite = false;
+                //Debug.Log($"EndWrite(): length:{length} F:{Time.frameCount}");
+            }
+        }
+
+        /// <summary>
+        /// スキニング処理後の高速メッシュ書き込み
+        /// </summary>
+        /// <param name="bufferIndex"></param>
+        internal void FasterWriting(int bufferIndex)
+        {
+            // Position
+            DispatchWriting(0, fasterWritePositionList, bufferIndex);
+            // Position+Normal
+            DispatchWriting(1, fasterWritePositionNormalList, bufferIndex);
+
+            fasterWritePositionList.Clear();
+            fasterWritePositionNormalList.Clear();
+        }
+
+        void DispatchWriting(int kernel, List<RenderMeshDeformer> rlist, int bufferIndex)
+        {
+            if (rlist.Count == 0)
+                return;
+
+            var compute = manager.MeshWriterShader;
+            if (compute == null)
+                return;
+            if (compute.IsSupported(kernel) == false)
+                return;
+
+            // 頂点数でソートする（効率化のため）
+            rlist.Sort((a, b) => a.VertexCount < b.VertexCount ? -1 : 1);
+
+            compute.SetBuffer(kernel, "Positions", renderPosBuffer.GetBuffer(bufferIndex));
+            compute.SetBuffer(kernel, "Normals", renderNormalBuffer.GetBuffer(bufferIndex));
+
+            // 最大２つ同時に書き込む
+            const int batchCount = 2;
+            for (int i = 0; i < rlist.Count;)
+            {
+                int index = 0; // 書き込みVB数
+                int vcnt = 0; // 最大書き込み頂点数
+                for (; i < rlist.Count && index < batchCount; i++)
+                {
+                    var rmesh = rlist[i];
+                    if (rmesh.FasterWriting(bufferIndex, compute, kernel, index, ref vcnt))
+                    {
+                        index++;
+                    }
+                }
+                if (index == 0)
+                    continue;
+
+                // 書き込みが１つの場合は空データを指定する
+                if (index == 1)
+                {
+                    compute.SetInt("VertexCount2", 0);
+                    compute.SetBuffer(kernel, "VertexBuffer2", emptyByteAddressBuffer);
+                }
+
+                // dispatch
+                uint x, y, z;
+                compute.GetKernelThreadGroupSizes(kernel, out x, out y, out z);
+                var groups = (vcnt + (int)x - 1) / (int)x;
+                compute.Dispatch(kernel, groups, 1, 1);
+            }
+        }
+#endif
     }
 }

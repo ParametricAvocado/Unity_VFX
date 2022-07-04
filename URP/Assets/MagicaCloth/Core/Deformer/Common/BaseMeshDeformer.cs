@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEngine;
@@ -44,9 +44,9 @@ namespace MagicaCloth
         /// <summary>
         /// 親コンポーネント(Unity2019.3の参照切れ対策)
         /// </summary>
-        private MonoBehaviour parent;
+        private CoreComponent parent;
 
-        public MonoBehaviour Parent
+        public CoreComponent Parent
         {
             get
             {
@@ -131,7 +131,8 @@ namespace MagicaCloth
         /// <param name="vcnt"></param>
         public virtual void Init()
         {
-            status.updateStatusAction = OnUpdateStatus;
+            status.UpdateStatusAction = OnUpdateStatus;
+            status.OwnerFunc = () => Parent;
             if (status.IsInitComplete || status.IsInitStart)
                 return;
             status.SetInitStart();
@@ -145,7 +146,7 @@ namespace MagicaCloth
                 status.SetInitError();
                 return;
             }
-            
+
             status.SetInitComplete();
 
             // 状態更新
@@ -194,7 +195,17 @@ namespace MagicaCloth
             status.UpdateStatus();
         }
 
-        public abstract void Finish(int bufferIndex);
+        /// <summary>
+        /// メッシュの描画判定
+        /// </summary>
+        /// <param name="bufferIndex"></param>
+        internal abstract void MeshCalculation(int bufferIndex);
+
+        /// <summary>
+        /// 通常のメッシュ書き込み
+        /// </summary>
+        /// <param name="bufferIndex"></param>
+        internal abstract void NormalWriting(int bufferIndex);
 
         // 実行状態の更新
         protected void OnUpdateStatus()
@@ -295,6 +306,14 @@ namespace MagicaCloth
         /// 未来予測のリセットを行う
         /// </summary>
         public virtual void ResetFuturePrediction()
+        {
+        }
+
+        /// <summary>
+        /// UnityPhysicsでの利用を設定する
+        /// </summary>
+        /// <param name="sw"></param>
+        public virtual void ChangeUseUnityPhysics(bool sw)
         {
         }
 

@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,7 +24,9 @@ namespace MagicaCloth
         public enum ConnectionMode
         {
             Line = 0,
-            Mesh = 1,
+            MeshAutomatic = 1,
+            MeshSequentialLoop = 2,
+            MeshSequentialNoLoop = 3,
         }
         [SerializeField]
         private ConnectionMode connection = ConnectionMode.Line;
@@ -87,18 +89,6 @@ namespace MagicaCloth
         public int GetRootIndex(Transform root)
         {
             return rootList.IndexOf(root);
-        }
-
-        /// <summary>
-        /// ボーン置換
-        /// </summary>
-        /// <param name="boneReplaceDict"></param>
-        public void ReplaceBone(Dictionary<Transform, Transform> boneReplaceDict)
-        {
-            for (int i = 0; i < rootList.Count; i++)
-            {
-                rootList[i] = MeshUtility.GetReplaceBone(rootList[i], boneReplaceDict);
-            }
         }
 
         /// <summary>
@@ -173,6 +163,25 @@ namespace MagicaCloth
         }
 
         /// <summary>
+        /// ボーンのUnityPhysics利用カウンタを増減させる
+        /// </summary>
+        /// <param name="sw"></param>
+        public void ChangeUnityPhysicsCount(bool sw)
+        {
+            if (parentIndexList != null && parentIndexList.Length > 0)
+            {
+                for (int i = 0; i < parentIndexList.Length; i++)
+                {
+                    var index = parentIndexList[i];
+                    if (index >= 0)
+                    {
+                        MagicaPhysicsManager.Instance.Bone.ChangeUnityPhysicsCount(index, sw);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// 接続モード取得
         /// </summary>
         public ConnectionMode Connection
@@ -189,6 +198,36 @@ namespace MagicaCloth
             {
                 return sameSurfaceAngle;
             }
+        }
+
+        public bool IsMeshConnection
+        {
+            get
+            {
+                return connection == ConnectionMode.MeshAutomatic || connection == ConnectionMode.MeshSequentialLoop || connection == ConnectionMode.MeshSequentialNoLoop;
+            }
+        }
+
+        //=========================================================================================
+        /// <summary>
+        /// ボーン置換
+        /// </summary>
+        /// <param name="boneReplaceDict"></param>
+        public void ReplaceBone<T>(Dictionary<T, Transform> boneReplaceDict) where T : class
+        {
+            for (int i = 0; i < rootList.Count; i++)
+            {
+                rootList[i] = MeshUtility.GetReplaceBone(rootList[i], boneReplaceDict);
+            }
+        }
+
+        /// <summary>
+        /// 現在使用しているボーンを格納して返す
+        /// </summary>
+        /// <returns></returns>
+        public HashSet<Transform> GetUsedBones()
+        {
+            return new HashSet<Transform>(rootList);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using System.Linq;
@@ -256,7 +256,107 @@ namespace MagicaReductionMesh
                     case ReductionMesh.ReductionWeightMode.Average:
                         CalcBoneWeight_Average();
                         break;
+                    case ReductionMesh.ReductionWeightMode.DistanceAverage:
+                        CalcBoneWeight_DistanceAverage(weightPow);
+                        break;
                 }
+            }
+
+            /// <summary>
+            /// 共有頂点に属する頂点の平均ウエイトで計算する方法
+            /// </summary>
+            /// <param name="weightPow"></param>
+            private void CalcBoneWeight_DistanceAverage(float weightPow)
+            {
+                // 最大距離
+                float maxlen = 0;
+                float min = 0.001f;
+                Vertex minVertex = null;
+                foreach (var vtx in vertexList)
+                {
+                    var dist = Vector3.Distance(wpos, vtx.wpos);
+                    if (dist < min)
+                    {
+                        minVertex = vtx;
+                        min = dist;
+                    }
+                    maxlen = Mathf.Max(maxlen, dist);
+                }
+
+                // 使用ボーンとウエイトを収集
+                var sumlist = new List<WeightData>();
+                if (minVertex == null)
+                {
+                    foreach (var vtx in vertexList)
+                    {
+                        // 距離比重
+                        float ratio = 1;
+                        if (maxlen > 1e-06f)
+                        {
+                            ratio = Mathf.Clamp01(1.0f - Vector3.Distance(wpos, vtx.wpos) / (maxlen * 2));
+                            ratio = Mathf.Pow(ratio, weightPow);
+                        }
+
+                        foreach (var w in vtx.boneWeightList)
+                        {
+                            var wd = sumlist.Find(wdata => wdata.boneIndex == w.boneIndex);
+                            if (wd == null)
+                            {
+                                wd = new WeightData();
+                                wd.boneIndex = w.boneIndex;
+                                sumlist.Add(wd);
+                            }
+                            wd.boneWeight = wd.boneWeight + w.boneWeight * ratio; // 距離比重を乗算する
+                        }
+                    }
+                }
+                else
+                {
+                    // ウエイトは最寄りの頂点情報をコピーする
+                    //Debug.Log("ウエイト継承" + sindex);
+                    foreach (var w in minVertex.boneWeightList)
+                    {
+                        var wd = new WeightData();
+                        wd.boneIndex = w.boneIndex;
+                        wd.boneWeight = w.boneWeight;
+                        sumlist.Add(wd);
+                    }
+                }
+
+                if (sumlist.Count > 1)
+                {
+                    // ウエイトでソート（降順）
+                    sumlist.Sort((a, b) => a.boneWeight - b.boneWeight > 0 ? -1 : 1);
+
+                    // 最大４で切り捨て
+                    if (sumlist.Count > 4)
+                    {
+                        sumlist.RemoveRange(4, sumlist.Count - 4);
+                    }
+
+                    // ウエイトを合計１に調整
+                    AdjustWeight(sumlist);
+
+                    // ウエイトがしきい値以下のものを削除する
+                    for (int i = 0; i < sumlist.Count;)
+                    {
+                        var wd = sumlist[i];
+                        if (wd.boneWeight < 0.01f)
+                        {
+                            //Debug.Log("del weight:" + wd.boneWeight);
+                            sumlist.RemoveAt(i);
+                            continue;
+                        }
+                        i++;
+                    }
+
+                }
+
+                // ウエイトを合計１に調整
+                AdjustWeight(sumlist);
+
+                // 最終値として格納
+                boneWeightList = sumlist;
             }
 
             /// <summary>
@@ -1450,7 +1550,7 @@ namespace MagicaReductionMesh
             }
 
             // 不要なトライアングルを削除する(v1.8.0)
-            // 四辺形（トライアングルペア）を調べて、同じ頂点を使用しほぼ同じ平面ならば削除する
+            // 四辺形（トライアングルペア）を調べて、同じ頂点を使用しほぼ同じ平面ならば片方を削除する
             if (RemoveSameTrianglePair)
             {
                 var squareDict = GetSquareDict();
@@ -1476,6 +1576,12 @@ namespace MagicaReductionMesh
                             var s1 = slist[j];
                             if (removeSquareSet.Contains(s1))
                                 continue;
+
+                            // １つでもトライアングルが重複する場合は削除しない(v1.10.4)
+                            if (s0.triangleList.FindAll(s1.triangleList.Contains).Count > 0)
+                            {
+                                continue;
+                            }
 
                             var ang = math.abs(s0.angle - s1.angle);
 

@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -203,6 +203,8 @@ namespace MagicaCloth
             // ラインの回転調整（ルートラインごと）
             var job1 = new LineRotationJob()
             {
+                fixedUpdateCount = Manager.UpdateTime.FixedUpdateCount,
+
                 dataList = dataList.ToJobArray(),
                 rootInfoList = rootInfoList.ToJobArray(),
                 rootTeamList = rootTeamList.ToJobArray(),
@@ -226,6 +228,8 @@ namespace MagicaCloth
         [BurstCompile]
         struct LineRotationJob : IJobParallelFor
         {
+            public int fixedUpdateCount;
+
             [Unity.Collections.ReadOnly]
             public NativeArray<LineRotationData> dataList;
             [Unity.Collections.ReadOnly]
@@ -258,6 +262,12 @@ namespace MagicaCloth
                 var team = teamDataList[teamIndex];
                 if (team.IsActive() == false || team.lineWorkerGroupIndex < 0)
                     return;
+                // 一時停止スキップ
+                if (team.IsPause())
+                    return;
+
+                // このチームがUnityPhysicsでの更新かどうか
+                bool isPhysicsUpdate = team.IsPhysicsUpdate();
 
                 // グループデータ
                 var gdata = groupList[team.lineWorkerGroupIndex];
@@ -282,10 +292,6 @@ namespace MagicaCloth
                     var flag = flagList[pindex];
                     if (flag.IsValid() == false)
                         continue;
-
-                    // 頂点がトライアングル回転姿勢制御されている場合はスキップする
-                    //if (flag.IsFlag(PhysicsManagerParticleData.Flag_TriangleRotation))
-                    //    continue;
 
                     // 自身の現在姿勢
                     var pos = posList[pindex];

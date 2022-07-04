@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEngine;
@@ -36,6 +36,23 @@ namespace MagicaCloth
         [SerializeField]
         private RecalculateMode normalAndTangentUpdateMode = RecalculateMode.UpdateNormalPerFrame;
 
+        /// <summary>
+        /// バウンディングボックス計算モード
+        /// </summary>
+        public enum BoundsMode
+        {
+            None = 0,
+
+            // 初期化時に拡張
+            ExpandedAtInitialization = 1,
+
+            // 毎フレーム再計算（重い）
+            //RecalculatedPerFrame = 2,
+        }
+        [SerializeField]
+        private BoundsMode boundsUpdateMode = BoundsMode.None;
+
+
         [SerializeField]
         private Mesh sharedMesh = null;
 
@@ -47,17 +64,25 @@ namespace MagicaCloth
 
         // ランタイムデータ //////////////////////////////////////////
         // 書き込み用
+        Renderer renderer;
         MeshFilter meshFilter;
         SkinnedMeshRenderer skinMeshRenderer;
         Transform[] originalBones;
         Transform[] boneList;
-        Mesh mesh;
+        Mesh cloneMesh = null;
+        GraphicsBuffer vertexBuffer;
 
         // メッシュ状態変更フラグ
-        public bool IsChangePosition { get; set; }
-        public bool IsChangeNormalTangent { get; set; }
-        public bool IsChangeBoneWeights { get; set; }
+        bool IsChangePosition { get; set; }
+        bool IsChangeNormalTangent { get; set; }
+        bool IsChangeBoneWeights { get; set; }
         bool oldUse;
+        internal bool IsWriteSkip { get; set; }
+        internal bool IsFasterWriteUpdate { get; private set; }
+        internal bool IsWriteMeshPosition { get; private set; }
+        internal bool IsWriteMeshBoneWeight { get; private set; }
+        bool IsWriteMeshNormal;
+        bool IsWriteMeshTangent;
 
         //=========================================================================================
         /// <summary>
@@ -81,6 +106,13 @@ namespace MagicaCloth
                 return sharedMesh;
             }
         }
+
+        /// <summary>
+        /// VertexBufferを利用した高速書き込みの判定フラグ
+        /// 実際にはメッシュの頂点構造により利用できない場合があるのでメッシュごとに個別
+        /// </summary>
+        internal bool IsFasterWrite { get; private set; } = false;
+
 
         //=========================================================================================
         public void OnValidate()
@@ -110,8 +142,8 @@ namespace MagicaCloth
                 status.SetInitError();
                 return;
             }
-            var ren = TargetObject.GetComponent<Renderer>();
-            if (ren == null)
+            renderer = TargetObject.GetComponent<Renderer>();
+            if (renderer == null)
             {
                 status.SetInitError();
                 return;
@@ -126,45 +158,107 @@ namespace MagicaCloth
             VertexCount = MeshData.VertexCount;
             TriangleCount = MeshData.TriangleCount;
 
+            // 高速書き込み判定
+            // メッシュの頂点構成によっては利用できない場合がある
+            IsFasterWrite = false;
+#if UNITY_2021_2_OR_NEWER
+            if (MagicaPhysicsManager.Instance.IsFasterWrite)
+            {
+                int check = 0;
+                int attrCnt = sharedMesh.vertexAttributeCount;
+                for (int i = 0; i < attrCnt; i++)
+                {
+                    var attr = sharedMesh.GetVertexAttribute(i);
+                    //Debug.Log($"[{sharedMesh.name}] {attr}");
+                    if (attr.attribute == UnityEngine.Rendering.VertexAttribute.Position && attr.format == UnityEngine.Rendering.VertexAttributeFormat.Float32 && attr.dimension == 3 && attr.stream == 0)
+                    {
+                        //Debug.Log($"[{sharedMesh.name}] Position OK!");
+                        check++;
+                    }
+                    if (attr.attribute == UnityEngine.Rendering.VertexAttribute.Normal && attr.format == UnityEngine.Rendering.VertexAttributeFormat.Float32 && attr.dimension == 3 && attr.stream == 0)
+                    {
+                        //Debug.Log($"[{sharedMesh.name}] Normal OK!");
+                        check++;
+                    }
+                }
+                if (check == 2)
+                {
+                    // Position,Normalがfloat3であり共にStream=0で並んでいるので利用可能！
+                    IsFasterWrite = true;
+                    //Debug.Log($"[{sharedMesh.name}] IsHighSpeedWriting ON!");
+                }
+            }
+#endif
+
             // クローンメッシュ作成
             // ここではメッシュは切り替えない
-            mesh = null;
-            if (ren is SkinnedMeshRenderer)
+            cloneMesh = null;
+            if (renderer is SkinnedMeshRenderer)
             {
-                var sren = ren as SkinnedMeshRenderer;
+                var sren = renderer as SkinnedMeshRenderer;
                 skinMeshRenderer = sren;
 
-                // メッシュクローン
-                mesh = GameObject.Instantiate(sharedMesh);
-#if !UNITY_EDITOR_OSX
-                // MacではMetal関連でエラーが発生するので対応（エディタ環境のみ）
-                mesh.MarkDynamic();
-#endif
+                // オリジナルのボーンリスト
                 originalBones = sren.bones;
 
-                // クローンメッシュ初期化
                 // srenのボーンリストはここで配列を作成し最後にレンダラーのトランスフォームを追加する
                 var blist = new List<Transform>(originalBones);
-                blist.Add(ren.transform); // レンダラートランスフォームを最後に追加
+                blist.Add(sren.rootBone); // (old)renderer.transform
                 boneList = blist.ToArray();
+
+                // 高速書き込み時でもスキンレンダラーのクローンメッシュは作成する
+                // SkinnedMeshRenderer.GetVertexBuffer()はほとんどのケースでうまく動作するが、キャラクタが描画対象となったフレームのみ
+                // カリング処理中に強制スキニング処理が実行されクロスシミュレーションの結果が無効化されてしまう大きな問題がある。
+                // この問題の回避方法は今の所無いため、仕方なくクローンメッシュを作成しMesh.GerVertexBuffer()での処理に切り替える。
+                // パフォーマンスに関してもMesh.GetVertexBuffer()の方が僅かに遅くなってしまうが致し方なし。
+                cloneMesh = GameObject.Instantiate(sharedMesh);
 
                 var bindlist = new List<Matrix4x4>(sharedMesh.bindposes);
                 bindlist.Add(Matrix4x4.identity); // レンダラーのバインドポーズを最後に追加
-                mesh.bindposes = bindlist.ToArray();
+                cloneMesh.bindposes = bindlist.ToArray();
             }
             else
             {
                 // メッシュクローン
-                mesh = GameObject.Instantiate(sharedMesh);
-#if !UNITY_EDITOR_OSX
-                // MacではMetal関連でエラーが発生するので対応（エディタ環境のみ）
-                mesh.MarkDynamic();
+                cloneMesh = GameObject.Instantiate(sharedMesh);
+
+#if UNITY_2021_2_OR_NEWER
+                if (IsFasterWrite)
+                {
+                    cloneMesh.vertexBufferTarget |= GraphicsBuffer.Target.Raw;
+                }
 #endif
 
                 meshFilter = TargetObject.GetComponent<MeshFilter>();
                 Debug.Assert(meshFilter);
             }
             oldUse = false;
+
+#if !UNITY_EDITOR_OSX
+            if (IsFasterWrite == false)
+            {
+                // MacではMetal関連でエラーが発生するので対応（エディタ環境のみ）
+                cloneMesh.MarkDynamic();
+            }
+#endif
+
+            // バウンディングボックスの拡張(v1.11.1)
+            if (boundsUpdateMode == BoundsMode.ExpandedAtInitialization)
+            {
+                var bounds = skinMeshRenderer ? skinMeshRenderer.localBounds : sharedMesh.bounds;
+                //Debug.Log($"original bounds:{bounds}");
+
+                // XYZの最大サイズx2に拡張する
+                float maxSize = Mathf.Max(Mathf.Max(bounds.extents.x, bounds.extents.y), bounds.extents.z);
+                maxSize *= 2.0f;
+                bounds.extents = Vector3.one * maxSize;
+                //Debug.Log($"new bounds:{bounds}");
+
+                if (skinMeshRenderer)
+                    skinMeshRenderer.localBounds = bounds;
+                else
+                    cloneMesh.bounds = bounds;
+            }
 
             // 共有メッシュのuid
             int uid = sharedMesh.GetInstanceID(); // 共有メッシュのIDを使う
@@ -174,14 +268,11 @@ namespace MagicaCloth
             MeshIndex = MagicaPhysicsManager.Instance.Mesh.AddRenderMesh(
                 uid,
                 MeshData.isSkinning,
+                IsFasterWrite,
                 MeshData.baseScale,
                 MeshData.VertexCount,
                 IsSkinning ? boneList.Length - 1 : 0, // レンダラーのボーンインデックス
-#if UNITY_2018
-                IsSkinning ? MeshData.VertexCount : 0 // ボーンウエイト数＝頂点数
-#else
                 IsSkinning ? sharedMesh.GetAllBoneWeights().Length : 0
-#endif
                 );
 
             // レンダーメッシュの共有データを一次元配列にコピーする
@@ -190,15 +281,11 @@ namespace MagicaCloth
                 MagicaPhysicsManager.Instance.Mesh.SetRenderSharedMeshData(
                     MeshIndex,
                     IsSkinning,
-                    mesh.vertices,
-                    mesh.normals,
-                    mesh.tangents,
-#if UNITY_2018
-                    IsSkinning ? mesh.boneWeights : null
-#else
+                    sharedMesh.vertices,
+                    sharedMesh.normals,
+                    sharedMesh.tangents,
                     sharedMesh.GetBonesPerVertex(),
                     sharedMesh.GetAllBoneWeights()
-#endif
                     );
             }
 
@@ -221,7 +308,9 @@ namespace MagicaCloth
                 MagicaPhysicsManager.Instance.Mesh.SetRenderMeshActive(MeshIndex, true);
 
                 // レンダラートランスフォーム登録
-                MagicaPhysicsManager.Instance.Mesh.AddRenderMeshBone(MeshIndex, TargetObject.transform);
+                // スキンレンダラーならスキンレンダラーのルートボーンを指定する
+                var meshRootTransform = skinMeshRenderer ? skinMeshRenderer.rootBone : TargetObject.transform; // (old)TargetObject.transform
+                MagicaPhysicsManager.Instance.Mesh.AddRenderMeshBone(MeshIndex, meshRootTransform);
             }
         }
 
@@ -241,6 +330,14 @@ namespace MagicaCloth
                     MagicaPhysicsManager.Instance.Mesh.SetRenderMeshActive(MeshIndex, false);
                 }
             }
+
+            // 頂点バッファ解放
+            // レンダラーが非表示になった場合はVertexBufferを再取得する必要がある
+            if (vertexBuffer != null)
+            {
+                vertexBuffer.Dispose();
+                vertexBuffer = null;
+            }
         }
 
         /// <summary>
@@ -253,6 +350,14 @@ namespace MagicaCloth
                 // メッシュ解除
                 MagicaPhysicsManager.Instance.Mesh.RemoveRenderMesh(MeshIndex);
             }
+
+            // 頂点バッファ解放
+            if (vertexBuffer != null)
+                vertexBuffer.Dispose();
+
+            // クローンメッシュ解放
+            if (cloneMesh)
+                GameObject.Destroy(cloneMesh);
 
             base.Dispose();
         }
@@ -275,6 +380,26 @@ namespace MagicaCloth
             }
             MagicaPhysicsManager.Instance.Mesh.SetRenderMeshFlag(MeshIndex, PhysicsManagerMeshData.Meshflag_CalcNormal, normal);
             MagicaPhysicsManager.Instance.Mesh.SetRenderMeshFlag(MeshIndex, PhysicsManagerMeshData.Meshflag_CalcTangent, tangent);
+        }
+
+        /// <summary>
+        /// UnityPhysicsでの利用を設定する
+        /// </summary>
+        /// <param name="sw"></param>
+        public override void ChangeUseUnityPhysics(bool sw)
+        {
+            if (status.IsInitSuccess)
+            {
+                MagicaPhysicsManager.Instance.Mesh.ChangeRenderMeshUseUnityPhysics(MeshIndex, sw);
+            }
+        }
+
+        public void ChangeCalculation(bool sw)
+        {
+            if (status.IsInitSuccess)
+            {
+                MagicaPhysicsManager.Instance.Mesh.SetRenderMeshFlag(MeshIndex, PhysicsManagerMeshData.Meshflag_Pause, !sw);
+            }
         }
 
         //=========================================================================================
@@ -372,23 +497,77 @@ namespace MagicaCloth
         }
 
         //=========================================================================================
-        /// <summary>
-        /// メッシュ座標書き込み
-        /// </summary>
-        public override void Finish(int bufferIndex)
+        public bool IsRendererVisible
         {
+            get
+            {
+                return renderer ? renderer.isVisible : false;
+            }
+        }
+
+        internal bool HasNormal
+        {
+            get
+            {
+                return normalAndTangentUpdateMode == RecalculateMode.UpdateNormalPerFrame || normalAndTangentUpdateMode == RecalculateMode.UpdateNormalAndTangentPerFrame;
+            }
+        }
+
+        //=========================================================================================
+        /// <summary>
+        /// メッシュの書き込み判定
+        /// </summary>
+        /// <param name="bufferIndex"></param>
+        internal override void MeshCalculation(int bufferIndex)
+        {
+            IsFasterWriteUpdate = false;
+            IsWriteMeshPosition = false;
+            IsWriteMeshNormal = false;
+            IsWriteMeshTangent = false;
+            IsWriteMeshBoneWeight = false;
+
             bool use = IsMeshUse();
 
-            // 頂点の姿勢／ウエイトの計算状態
-            bool vertexCalc = true;
-            if (use && bufferIndex == 1)
+            // 計算状態
+            if (Parent.IsCalculate == false && Status.IsActive)
             {
-                var state = MagicaPhysicsManager.Instance.Mesh.renderMeshStateDict[MeshIndex];
-                vertexCalc = state.IsFlag(PhysicsManagerMeshData.RenderStateFlag_DelayedCalculated);
-
-                if (vertexCalc == false)
-                    return;
+                //Debug.Log($"Finish Skip! :{Parent.name}");
+                switch ((Parent as MagicaRenderDeformer)?.cullModeCash)
+                {
+                    case PhysicsTeam.TeamCullingMode.Pause:
+                        // 終了する
+                        return;
+                    case PhysicsTeam.TeamCullingMode.Reset:
+                        // 元のメッシュに戻す
+                        use = false;
+                        break;
+                }
             }
+
+            // 頂点の姿勢／ウエイトの計算状態
+            bool vertexCalc = false;
+            if (use)
+            {
+                if (bufferIndex == 1)
+                {
+                    var state = MagicaPhysicsManager.Instance.Mesh.renderMeshStateDict[MeshIndex];
+                    vertexCalc = state.IsFlag(PhysicsManagerMeshData.RenderStateFlag_DelayedCalculated);
+                }
+                else
+                    vertexCalc = true;
+            }
+            if (vertexCalc == false)
+            {
+                use = false;
+            }
+
+            if (use && IsWriteSkip)
+            {
+                use = false;
+                IsWriteSkip = false;
+            }
+
+            //Debug.Log($"Write Mesh. MeshUse:{IsMeshUse()} use:{use} vertexCalc:{vertexCalc} Calc:{Parent.IsCalculate} buffIndex:{bufferIndex} F:{Time.frameCount}");
 
 #if true
             // メッシュ切替
@@ -397,11 +576,11 @@ namespace MagicaCloth
             {
                 if (meshFilter)
                 {
-                    meshFilter.mesh = use ? mesh : sharedMesh;
+                    meshFilter.mesh = use ? cloneMesh : sharedMesh;
                 }
                 else if (skinMeshRenderer)
                 {
-                    skinMeshRenderer.sharedMesh = use ? mesh : sharedMesh;
+                    skinMeshRenderer.sharedMesh = use ? cloneMesh : sharedMesh;
                     skinMeshRenderer.bones = use ? boneList : originalBones;
                 }
                 oldUse = use;
@@ -412,50 +591,142 @@ namespace MagicaCloth
                     IsChangeNormalTangent = true;
                     IsChangeBoneWeights = true;
                 }
+                else
+                {
+                    // 頂点バッファがある場合は解放する
+                    if (vertexBuffer != null)
+                    {
+                        vertexBuffer.Dispose();
+                        vertexBuffer = null;
+                    }
+                }
             }
 
-            //if ((use || IsChangePosition || IsChangeNormalTangent) && mesh.isReadable && vertexCalc)
-            if ((use || IsChangePosition || IsChangeNormalTangent) && vertexCalc)
+            // 更新不要ならば抜ける
+            if (vertexCalc == false)
+                return;
+
+            // 法線／接線の更新状態
+            bool normal = normalAndTangentUpdateMode == RecalculateMode.UpdateNormalPerFrame || normalAndTangentUpdateMode == RecalculateMode.UpdateNormalAndTangentPerFrame;
+            bool tangent = normalAndTangentUpdateMode == RecalculateMode.UpdateNormalAndTangentPerFrame;
+
+            // すでに法線／接線が不要ならばもとに戻す
+            if (IsChangeNormalTangent && normal == false && tangent == false)
             {
-                // メッシュ書き戻し
-                // meshバッファをmeshに設定する（重い！）
-                // ★現状これ以外に方法がない！考えられる回避策は２つ：
-                // ★（１）Unityの将来のバージョンでmeshのネイティブ配列がサポートされるのを待つ
-                // ★（２）コンピュートバッファを使いシェーダーで頂点をマージする（かなり高速、しかしカスタムシェーダーが必須となり汎用性が無くなる）
-                MagicaPhysicsManager.Instance.Mesh.CopyToRenderMeshLocalPositionData(MeshIndex, mesh, bufferIndex);
-                bool normal = normalAndTangentUpdateMode == RecalculateMode.UpdateNormalPerFrame || normalAndTangentUpdateMode == RecalculateMode.UpdateNormalAndTangentPerFrame;
-                bool tangent = normalAndTangentUpdateMode == RecalculateMode.UpdateNormalAndTangentPerFrame;
-                if (normal || tangent)
-                {
-                    MagicaPhysicsManager.Instance.Mesh.CopyToRenderMeshLocalNormalTangentData(MeshIndex, mesh, bufferIndex, normal, tangent);
-                }
-                else if (IsChangeNormalTangent)
-                {
-                    // 元に戻す
-                    mesh.normals = sharedMesh.normals;
-                    mesh.tangents = sharedMesh.tangents;
-                }
-                IsChangePosition = false;
+                // 元に戻す
+                cloneMesh.normals = sharedMesh.normals;
+                cloneMesh.tangents = sharedMesh.tangents;
                 IsChangeNormalTangent = false;
             }
 
-            //if (use && IsSkinning && IsChangeBoneWeights && mesh.isReadable && weightCalc)
-            if (use && IsSkinning && IsChangeBoneWeights && vertexCalc)
+            // メッシュ書き込み
+            if (IsFasterWrite)
             {
-                // 頂点ウエイト変更
+                // 高速書き込み
+                if (use || IsChangePosition)
+                {
+                    IsFasterWriteUpdate = true;
+                    IsChangePosition = false;
+                }
+            }
+            else
+            {
+                // 旧来のメッシュ頂点書き換え判定
+                if ((use || IsChangePosition))
+                {
+                    IsWriteMeshPosition = true;
+                    if (normal)
+                        IsWriteMeshNormal = true;
+                    if (tangent)
+                        IsWriteMeshTangent = true;
+                    IsChangePosition = false;
+                }
+            }
+            if (use && IsSkinning && IsChangeBoneWeights)
+            {
+                // 頂点ウエイト変更判定
                 //Debug.Log("Change Mesh Weights:" + mesh.name + " buff:" + bufferIndex + " frame:" + Time.frameCount);
-                MagicaPhysicsManager.Instance.Mesh.CopyToRenderMeshBoneWeightData(MeshIndex, mesh, sharedMesh, bufferIndex);
+                IsWriteMeshBoneWeight = true;
                 IsChangeBoneWeights = false;
             }
 #endif
         }
 
 
+        /// <summary>
+        /// 通常のメッシュ書き込み
+        /// </summary>
+        internal override void NormalWriting(int bufferIndex)
+        {
+            if (IsWriteMeshPosition)
+            {
+                // 旧式のメッシュ書き戻し（重い）
+                MagicaPhysicsManager.Instance.Mesh.CopyToRenderMeshLocalPositionData(MeshIndex, cloneMesh, bufferIndex);
+                if (IsWriteMeshNormal || IsWriteMeshTangent)
+                {
+                    MagicaPhysicsManager.Instance.Mesh.CopyToRenderMeshLocalNormalTangentData(MeshIndex, cloneMesh, bufferIndex, IsWriteMeshNormal, IsWriteMeshTangent);
+                }
+            }
+
+            if (IsWriteMeshBoneWeight)
+            {
+                //Debug.Log($"BoneWeights Write:{renderer.name} F:{Time.frameCount}");
+                // 頂点ウエイト変更
+                MagicaPhysicsManager.Instance.Mesh.CopyToRenderMeshBoneWeightData(MeshIndex, cloneMesh, sharedMesh, bufferIndex);
+
+#if UNITY_2021_2_OR_NEWER
+                // 旧来のメソッドでメッシュを変更した場合はVertexBufferが無効となるので作り直す必要あり
+                vertexBuffer?.Release();
+                vertexBuffer?.Dispose();
+                vertexBuffer = null;
+#endif
+            }
+        }
+
+        /// <summary>
+        /// 高速なメッシュ書き込み
+        /// </summary>
+        /// <param name="bufferIndex"></param>
+        internal bool FasterWriting(int bufferIndex, ComputeShader compute, int kernel, int index, ref int maxVertexCount)
+        {
+            if (IsFasterWriteUpdate == false)
+                return false;
+
+#if UNITY_2021_2_OR_NEWER
+            // 頂点バッファの確保
+            if (vertexBuffer == null)
+                vertexBuffer = cloneMesh.GetVertexBuffer(0);
+            if (vertexBuffer == null)
+                return false;
+
+            // 法線／接線の更新状態
+            bool normal = normalAndTangentUpdateMode == RecalculateMode.UpdateNormalPerFrame || normalAndTangentUpdateMode == RecalculateMode.UpdateNormalAndTangentPerFrame;
+
+            // 書き込み
+            //Debug.Log($"FasterWrite:{renderer.name} F:{Time.frameCount}");
+            MagicaPhysicsManager.Instance.Mesh.CopyToRenderVertexBuffer(MeshIndex, bufferIndex, vertexBuffer, normal, compute, kernel, index);
+            maxVertexCount = Mathf.Max(maxVertexCount, vertexBuffer.count);
+#endif
+
+            IsFasterWriteUpdate = false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// 外部からの法線／接線の計算方法変更対応
+        /// </summary>
+        public void ChangeNormalTangentUpdateMode()
+        {
+            // 法線／接線の切り替えを再確認するフラグを立てる
+            IsChangeNormalTangent = true;
+        }
+
         //=========================================================================================
         /// <summary>
         /// ボーンを置換する
         /// </summary>
-        public void ReplaceBone(Dictionary<Transform, Transform> boneReplaceDict)
+        public void ReplaceBone<T>(Dictionary<T, Transform> boneReplaceDict) where T : class
         {
             if (originalBones != null)
             {
@@ -472,6 +743,22 @@ namespace MagicaCloth
                     boneList[i] = MeshUtility.GetReplaceBone(boneList[i], boneReplaceDict);
                 }
             }
+        }
+
+        /// <summary>
+        /// 現在使用しているボーンを格納して返す
+        /// </summary>
+        /// <returns></returns>
+        public HashSet<Transform> GetUsedBones()
+        {
+            var bonesSet = new HashSet<Transform>();
+            if (originalBones != null)
+                foreach (var t in originalBones)
+                    bonesSet.Add(t);
+            if (boneList != null)
+                foreach (var t in boneList)
+                    bonesSet.Add(t);
+            return bonesSet;
         }
 
         //=========================================================================================
@@ -503,7 +790,8 @@ namespace MagicaCloth
                 Vector3[] posArray = new Vector3[VertexCount];
                 Vector3[] norArray = new Vector3[VertexCount];
                 Vector3[] tanArray = new Vector3[VertexCount];
-                MagicaPhysicsManager.Instance.Mesh.CopyToRenderMeshWorldData(MeshIndex, TargetObject.transform, posArray, norArray, tanArray);
+                var meshRootTransform = skinMeshRenderer ? skinMeshRenderer.rootBone : TargetObject.transform; // (old)TargetObject.transform
+                MagicaPhysicsManager.Instance.Mesh.CopyToRenderMeshWorldData(MeshIndex, meshRootTransform, posArray, norArray, tanArray);
 
                 wposList = new List<Vector3>(posArray);
                 wnorList = new List<Vector3>(norArray);
@@ -548,6 +836,20 @@ namespace MagicaCloth
             return null;
         }
 
+        /// <summary>
+        /// メッシュの使用頂点リストを返す（エディタ用）
+        /// </summary>
+        /// <returns></returns>
+        public List<int> GetEditorUseList()
+        {
+            if (Application.isPlaying && IsMeshUse())
+            {
+                return MagicaPhysicsManager.Instance.Mesh.GetVertexUseList(MeshIndex);
+            }
+            else
+                return null;
+        }
+
         //=========================================================================================
         public override int GetVersion()
         {
@@ -568,20 +870,59 @@ namespace MagicaCloth
                 return Define.Error.SharedMeshNull;
             if (sharedMesh.isReadable == false)
                 return Define.Error.SharedMeshCannotRead;
+            var targetMesh = GetTargetSharedMesh();
+            if (MeshData != null && targetMesh != null && MeshData.vertexCount != targetMesh.vertexCount)
+                return Define.Error.SharedMeshDifferentVertexCount; // 設定頂点数と現在のメッシュの頂点数が異なる
 
             // 最大頂点数は65535（要望が多いようなら拡張する）
             if (sharedMesh.vertexCount > 65535)
                 return Define.Error.MeshVertexCount65535Over;
 
 #if UNITY_EDITOR
-            // メッシュ最適化タイプが異なる場合は頂点順序が変更されているのでNG
-            // またモデルインポート設定を参照するので実行時は判定しない
-            if (!Application.isPlaying && meshOptimize != 0 && meshOptimize != EditUtility.GetOptimizeMesh(sharedMesh))
-                return Define.Error.MeshOptimizeMismatch;
+            if (Application.isPlaying == false)
+            {
+                // メッシュ最適化タイプが異なる場合は頂点順序が変更されているのでNG
+                // またモデルインポート設定を参照するので実行時は判定しない
+                if (meshOptimize != 0 && meshOptimize != EditUtility.GetOptimizeMesh(sharedMesh))
+                    return Define.Error.MeshOptimizeMismatch;
+
+                // KeepQuadsでは動作しない(v1.11.1)
+                if (EditUtility.IsKeepQuadsMesh(sharedMesh))
+                    return Define.Error.MeshKeepQuads;
+            }
 #endif
 
             return Define.Error.None;
         }
+
+        /// <summary>
+        /// ターゲットレンダラーの共有メッシュを取得する
+        /// </summary>
+        /// <returns></returns>
+        private Mesh GetTargetSharedMesh()
+        {
+            if (TargetObject == null)
+            {
+                return null;
+            }
+            var ren = TargetObject.GetComponent<Renderer>();
+            if (ren == null)
+            {
+                return null;
+            }
+
+            if (ren is SkinnedMeshRenderer)
+            {
+                var sren = ren as SkinnedMeshRenderer;
+                return sren.sharedMesh;
+            }
+            else
+            {
+                meshFilter = TargetObject.GetComponent<MeshFilter>();
+                return meshFilter.sharedMesh;
+            }
+        }
+
 
         /// <summary>
         /// データ情報
@@ -596,6 +937,9 @@ namespace MagicaCloth
             {
                 // OK
                 StaticStringBuilder.AppendLine("Active: ", Status.IsActive);
+                StaticStringBuilder.AppendLine($"Visible: {Parent.IsVisible}");
+                StaticStringBuilder.AppendLine($"Calculation:{Parent.IsCalculate}");
+                StaticStringBuilder.AppendLine($"Faster Write:{IsFasterWrite}");
                 StaticStringBuilder.AppendLine("Skinning: ", MeshData.isSkinning);
                 StaticStringBuilder.AppendLine("Vertex: ", MeshData.VertexCount);
                 StaticStringBuilder.AppendLine("Triangle: ", MeshData.TriangleCount);

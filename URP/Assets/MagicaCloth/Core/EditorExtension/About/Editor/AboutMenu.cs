@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEditor;
 using UnityEngine;
@@ -14,7 +14,7 @@ namespace MagicaCloth
         [SerializeField]
         private Texture2D image = null;
 
-        public const string MagicaClothVersion = "1.8.5";
+        public const string MagicaClothVersion = "1.12.6";
 
         public static AboutMenu AboutWindow { get; set; }
         private const float windowWidth = 300;
@@ -74,7 +74,7 @@ namespace MagicaCloth
             EditorGUILayout.Space();
             EditorGUILayout.Space();
             myStyle.fontSize = 12;
-            EditorGUILayout.LabelField("Copyright © 2020 - Magica Soft", myStyle);
+            EditorGUILayout.LabelField("Copyright © 2020-2022 Magica Soft", myStyle);
             EditorGUILayout.LabelField("All Rights Reserved", myStyle);
 
             EditorGUILayout.LabelField(webUrl, myStyle);

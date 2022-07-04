@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEngine;
 using UnityEngine.Events;
@@ -91,6 +91,16 @@ namespace MagicaCloth
 
         // バックボタン通知（Androiddeでは戻るボタン、PCでは BackSpace ボタン）
         public static UnityAction OnBackButton;
+
+        //=========================================================================================
+        /// <summary>
+        /// Reload Domain 対策
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Init()
+        {
+            InitMember();
+        }
 
         //=========================================================================================
         protected override void InitSingleton()

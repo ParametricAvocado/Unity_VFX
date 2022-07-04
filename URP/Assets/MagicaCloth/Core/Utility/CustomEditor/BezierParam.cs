@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEngine;
 
@@ -42,6 +42,8 @@ namespace MagicaCloth
         /// </summary>
         [SerializeField]
         private bool useCurveValue;
+
+        public BezierParam() { }
 
         public BezierParam(float val)
         {
@@ -152,6 +154,23 @@ namespace MagicaCloth
             hash += curveValue.GetDataHash();
             hash += useCurveValue.GetDataHash();
             return hash;
+        }
+
+        /// <summary>
+        /// クローンの作成
+        /// </summary>
+        /// <returns></returns>
+        public BezierParam Clone()
+        {
+            var bz = new BezierParam()
+            {
+                startValue = this.startValue,
+                endValue = this.endValue,
+                useEndValue = this.useEndValue,
+                curveValue = this.curveValue,
+                useCurveValue = this.useCurveValue,
+            };
+            return bz;
         }
     }
 }

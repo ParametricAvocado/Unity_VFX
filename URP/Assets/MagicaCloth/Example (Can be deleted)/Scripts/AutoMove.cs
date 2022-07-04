@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEngine;
 
@@ -14,7 +14,7 @@ namespace MagicaCloth
         private float length = 0.5f;
 
         [SerializeField]
-        [Range(0.1f, 5.0f)]
+        [Range(0.1f, 10.0f)]
         private float interval = 2.0f;
 
         private Vector3 startPosition;

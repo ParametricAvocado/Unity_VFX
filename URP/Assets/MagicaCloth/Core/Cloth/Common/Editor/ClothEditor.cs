@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEditor;
@@ -179,15 +179,119 @@ namespace MagicaCloth
 
         //=========================================================================================
         /// <summary>
-        /// ブレンド率設定インスペクタ
+        /// チーム項目インスペクタ
         /// </summary>
-        protected void UserBlendInspector()
+        protected void TeamBasicInspector()
         {
-            PhysicsTeam scr = target as PhysicsTeam;
+            BaseCloth scr = target as BaseCloth;
 
             EditorGUILayout.Space();
             EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("updateMode"));
             EditorGUILayout.Slider(serializedObject.FindProperty("userBlendWeight"), 0.0f, 1.0f, "Blend Weight");
+        }
+
+        protected void CullingInspector()
+        {
+            BaseCloth scr = target as BaseCloth;
+
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Culling", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("cullingMode"));
+            if (scr is MagicaBoneCloth || scr is MagicaBoneSpring)
+            {
+                if (scr.CullingMode != PhysicsTeam.TeamCullingMode.Off)
+                {
+                    // warning
+                    if (scr.GetCullRenderListCount() == 0)
+                    {
+                        EditorGUILayout.HelpBox("If you want to cull, you need to register the renderer that makes the display decision here.\nIf not registered, culling will not be performed.", MessageType.Warning);
+                    }
+
+                    //EditorGUILayout.PropertyField(serializedObject.FindProperty("cullRendererList"));
+                    EditorInspectorUtility.DrawObjectList<Renderer>(
+                        serializedObject.FindProperty("cullRendererList"),
+                        scr.gameObject,
+                        true, true,
+                        SearchBoneClothRenderer,
+                        "Auto Select"
+                        );
+                }
+            }
+        }
+
+        /// <summary>
+        /// BoneCloth/Springのボーンの対象となっているレンダラーを検索する
+        /// </summary>
+        /// <returns></returns>
+        private Renderer[] SearchBoneClothRenderer()
+        {
+            BaseCloth scr = target as BaseCloth;
+            if (scr is MagicaBoneCloth || scr is MagicaBoneSpring)
+            {
+                var rendererList = new List<Renderer>();
+                var skinRendererSet = new HashSet<SkinnedMeshRenderer>();
+
+                // search all bone
+                var boneSet = new HashSet<Transform>();
+                var property = serializedObject.FindProperty("clothTarget.rootList");
+                for (int i = 0; i < property.arraySize; i++)
+                {
+                    var boneRoot = property.GetArrayElementAtIndex(i).objectReferenceValue as Transform;
+                    if (boneRoot)
+                    {
+                        // all transform
+                        var tlist = boneRoot.GetComponentsInChildren<Transform>();
+                        if (tlist != null)
+                        {
+                            foreach (var t in tlist)
+                                boneSet.Add(t);
+                        }
+
+                        // mesh renderer
+                        var rlist = boneRoot.GetComponentsInChildren<MeshRenderer>();
+                        if (rlist != null)
+                            rendererList.AddRange(rlist);
+
+                        // skin renderer
+                        Transform root = boneRoot;
+                        while (root.parent)
+                        {
+                            if (root.GetComponent<Animator>() != null || root.GetComponent<Animation>() != null)
+                                break;
+                            root = root.parent;
+                        }
+                        var srlist = root.GetComponentsInChildren<SkinnedMeshRenderer>();
+                        if (srlist != null)
+                        {
+                            foreach (var skin in srlist)
+                                skinRendererSet.Add(skin);
+                        }
+                    }
+                }
+                //foreach (var t in boneSet)
+                //    Debug.Log(t);
+
+                // skinrenderer
+                foreach (var skin in skinRendererSet)
+                {
+                    //Debug.Log(skin);
+                    var useBoneList = MeshUtility.GetUseBoneTransformList(skin.bones, skin.sharedMesh);
+                    foreach (var bone in useBoneList)
+                    {
+                        if (boneSet.Contains(bone))
+                        {
+                            rendererList.Add(skin);
+                            break;
+                        }
+                    }
+                }
+
+                return rendererList.ToArray();
+            }
+            else
+                return null;
         }
 
         /// <summary>
@@ -204,8 +308,45 @@ namespace MagicaCloth
             EditorInspectorUtility.DrawObjectList<ColliderComponent>(
                 serializedObject.FindProperty("teamData.colliderList"),
                 scr.gameObject,
-                true, true
+                true, true,
+                () => scr.gameObject.transform.root.GetComponentsInChildren<ColliderComponent>()
                 );
+        }
+
+        /// <summary>
+        /// スキニング設定インスペクタ
+        /// </summary>
+        protected void SkinningInspector()
+        {
+            PhysicsTeam scr = target as PhysicsTeam;
+            var mode = serializedObject.FindProperty("skinningMode");
+            //var boneList = serializedObject.FindProperty("teamData.skinningBoneList");
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Skinning", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(mode, new GUIContent("Skinning Mode"), true);
+            //if (scr.SkinningMode == PhysicsTeam.TeamSkinningMode.GenerateFromBones)
+            //{
+            //    var updateFixed = serializedObject.FindProperty("skinningUpdateFixed");
+            //    EditorGUILayout.PropertyField(updateFixed, new GUIContent("Update Fixed"), true);
+            //}
+            //EditorGUILayout.PropertyField(boneList, new GUIContent("Skinning Bone List"), true);
+        }
+
+        /// <summary>
+        /// 古いパラメータを最新アルゴリズム用にコンバートする
+        /// </summary>
+        protected void ConvertToLatestAlgorithmParameters()
+        {
+            BaseCloth cloth = target as BaseCloth;
+
+            Debug.Log($"[{cloth.name}] Convert Parameters.");
+
+            Undo.RecordObject(cloth, "Convert Parameters");
+            cloth.Params.ConvertToLatestAlgorithmParameter();
+
+            serializedObject.ApplyModifiedProperties();
+            EditorUtility.SetDirty(cloth);
         }
     }
 }

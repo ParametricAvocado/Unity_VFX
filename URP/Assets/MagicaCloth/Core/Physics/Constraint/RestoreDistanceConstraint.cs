@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -307,7 +307,7 @@ namespace MagicaCloth
         /// <param name="dtime"></param>
         /// <param name="jobHandle"></param>
         /// <returns></returns>
-        public override JobHandle SolverConstraint(float dtime, float updatePower, int iteration, JobHandle jobHandle)
+        public override JobHandle SolverConstraint(int runCount, float dtime, float updatePower, int iteration, JobHandle jobHandle)
         {
             if (groupList.Count == 0)
                 return jobHandle;
@@ -322,6 +322,7 @@ namespace MagicaCloth
                 var job1 = new DistanceJob()
                 {
                     updatePower = updatePower,
+                    runCount = runCount,
                     type = type,
 
                     restoreDistanceDataList = dataList[type].ToJobArray(),
@@ -356,6 +357,7 @@ namespace MagicaCloth
         struct DistanceJob : IJobParallelFor
         {
             public float updatePower;
+            public int runCount;
             public int type;
 
             [Unity.Collections.ReadOnly]
@@ -405,7 +407,7 @@ namespace MagicaCloth
                     return;
 
                 // 更新確認
-                if (team.IsUpdate() == false)
+                if (team.IsUpdate(runCount) == false)
                     return;
 
                 int pstart = team.particleChunk.startIndex;
@@ -420,13 +422,14 @@ namespace MagicaCloth
                 var dataChunk = gdata.GetDataChunk(type);
                 var refChunk = gdata.GetRefChunk(type);
                 var stiffnessData = gdata.GetStiffness(type);
-                //var frictionRatio = team.friction; // チームごとの摩擦係数
-                //float frictionRatio = 1.0f;
+
+                // アニメーションされた姿勢の使用
+                bool useAnimatedPose = team.IsFlag(PhysicsManagerTeamData.Flag_AnimatedPose);
 
                 // 摩擦係数１に対する重量増加倍率
                 // この係数は重要！
                 // 10以下だと突き抜けが発生する、30だと突き抜けは防止でいるがジッタリングがひどくなる
-                const float FrictionMass = 20.0f; // 20(v1.6.1)
+                const float FrictionMass = 5.0f; // 20(v1.6.1)
                 float friction = frictionList[index];
 
                 var refdata = refDataList[refChunk.startIndex + vindex];
@@ -438,7 +441,6 @@ namespace MagicaCloth
                     float3 addpos = 0;
                     float mass = gdata.mass.Evaluate(depth);
                     // 摩擦分重量を上げ移動しにくくする
-                    //mass += mass * friction * FrictionMass;
                     mass += friction * FrictionMass;
                     float3 bpos = basePosList[index];
 
@@ -462,11 +464,17 @@ namespace MagicaCloth
 
 
                         // 復元距離
-                        //float rlen = math.distance(bpos, basePosList[tindex]);
                         float rlen = data.length; // v1.7.0
-
                         // チームスケール倍率
                         rlen *= team.scaleRatio;
+
+                        if (useAnimatedPose)
+                        {
+                            // アニメーションされた距離を利用する
+                            //rlen = math.distance(bpos, basePosList[tindex]); // 現在のオリジナル距離
+                            //rlen = math.max(math.distance(bpos, basePosList[tindex]), rlen); // 長い方を採用する
+                            rlen = (math.distance(bpos, basePosList[tindex]) + rlen) * 0.5f; // 平均
+                        }
 
                         float clen = vlen - rlen;
 
@@ -475,7 +483,6 @@ namespace MagicaCloth
                         float tmass = gdata.mass.Evaluate(tdepth);
                         float tfriction = frictionList[tindex];
                         // 摩擦分重量を上げ移動しにくくする
-                        //tmass += tmass * tfriction * FrictionMass;
                         tmass += tfriction * FrictionMass;
 
                         float m1 = tmass / (tmass + mass);
@@ -489,11 +496,6 @@ namespace MagicaCloth
                         // 加算位置
                         addpos += add1;
                     }
-
-                    // 摩擦による移動影響
-                    // 入れないほうが良い。抜けやすくなる。
-                    //float moveratio = math.saturate(1.0f - friction * Define.Compute.FrictionMoveRatio);
-                    //addpos *= moveratio;
 
                     // 最終位置
                     var opos = nextpos;

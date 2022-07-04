@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 
@@ -52,27 +52,37 @@ namespace MagicaCloth
         bool isActive;
 
         /// <summary>
+        /// コンテンツの内容に変更が発生した
+        /// </summary>
+        bool isDirty;
+
+        /// <summary>
         /// 連動（親）ステータス
         /// 設定されている場合、こららのステータスがすべて停止中ならば自身も停止する
         /// </summary>
-        HashSet<RuntimeStatus> parentStatusSet = new HashSet<RuntimeStatus>();
+        internal HashSet<RuntimeStatus> parentStatusSet { get; private set; } = new HashSet<RuntimeStatus>();
 
         /// <summary>
         /// 連動（子）ステータス
         /// 設定されている場合、自身のアクティブ変更時に子のすべてのUpdateStatus()を呼び出す
         /// </summary>
-        HashSet<RuntimeStatus> childStatusSet = new HashSet<RuntimeStatus>();
+        internal HashSet<RuntimeStatus> childStatusSet { get; private set; } = new HashSet<RuntimeStatus>();
 
         //=========================================================================================
         /// <summary>
         /// アクティブ変更時コールバック
         /// </summary>
-        public System.Action updateStatusAction;
+        internal System.Action UpdateStatusAction;
 
         /// <summary>
         /// 連動がすべて切断された時のコールバッグ
         /// </summary>
-        public System.Action disconnectedAction;
+        internal System.Action DisconnectedAction;
+
+        /// <summary>
+        /// この状態管理のオーナークラス
+        /// </summary>
+        internal System.Func<System.Object> OwnerFunc;
 
         //=========================================================================================
         /// <summary>
@@ -141,6 +151,11 @@ namespace MagicaCloth
                 return dispose;
             }
         }
+
+        /// <summary>
+        /// 内容に変更が発生したか判定する
+        /// </summary>
+        public bool IsDirty => isDirty;
 
         /// <summary>
         /// 初期化の開始フラグを立てる
@@ -212,6 +227,22 @@ namespace MagicaCloth
         }
 
         /// <summary>
+        /// 変更フラグを立てる
+        /// </summary>
+        public void SetDirty()
+        {
+            isDirty = true;
+        }
+
+        /// <summary>
+        /// 変更フラグをクリアする
+        /// </summary>
+        public void ClearDirty()
+        {
+            isDirty = false;
+        }
+
+        /// <summary>
         /// 現在のアクティブ状態を更新する
         /// </summary>
         /// <returns>アクティブ状態に変更があった場合はtrueが返る</returns>
@@ -232,7 +263,7 @@ namespace MagicaCloth
                 isActive = active;
 
                 // コールバック
-                updateStatusAction?.Invoke();
+                UpdateStatusAction?.Invoke();
 
                 // すべての連動（子）ステータスの更新を呼び出す
                 foreach (var status in childStatusSet)
@@ -267,7 +298,7 @@ namespace MagicaCloth
 
             // 連動切断アクション
             if (parentStatusSet.Count == 0 && childStatusSet.Count == 0)
-                disconnectedAction?.Invoke();
+                DisconnectedAction?.Invoke();
         }
 
         /// <summary>
@@ -290,7 +321,7 @@ namespace MagicaCloth
 
             // 連動切断アクション
             if (parentStatusSet.Count == 0 && childStatusSet.Count == 0)
-                disconnectedAction?.Invoke();
+                DisconnectedAction?.Invoke();
         }
 
         /// <summary>

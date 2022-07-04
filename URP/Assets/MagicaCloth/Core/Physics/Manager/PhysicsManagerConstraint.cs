@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Jobs;
 using UnityEngine;
@@ -62,6 +62,6 @@ namespace MagicaCloth
         /// <param name="dtime">ステップ時間</param>
         /// <param name="updatePower">90upsを基準とした更新力</param>
         /// <param name="iteration">同フレームでの実行カウント(0～)</param>
-        public abstract JobHandle SolverConstraint(float dtime, float updatePower, int iteration, JobHandle jobHandle);
+        public abstract JobHandle SolverConstraint(int runCount, float dtime, float updatePower, int iteration, JobHandle jobHandle);
     }
 }

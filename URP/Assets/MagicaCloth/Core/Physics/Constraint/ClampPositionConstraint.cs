@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -105,7 +105,7 @@ namespace MagicaCloth
         /// <param name="dtime"></param>
         /// <param name="jobHandle"></param>
         /// <returns></returns>
-        public override JobHandle SolverConstraint(float dtime, float updatePower, int iteration, JobHandle jobHandle)
+        public override JobHandle SolverConstraint(int runCount, float dtime, float updatePower, int iteration, JobHandle jobHandle)
         {
             if (groupList.Count == 0)
                 return jobHandle;
@@ -113,6 +113,7 @@ namespace MagicaCloth
             // 移動範囲制限拘束（パーティクルごとに実行する）
             var job1 = new ClampPositionJob()
             {
+                runCount = runCount,
                 maxMoveLength = dtime * Define.Compute.ClampPositionMaxVelocity, // 最大1.0m/s
 
                 clampPositionGroupList = groupList.ToJobArray(),
@@ -141,6 +142,8 @@ namespace MagicaCloth
         [BurstCompile]
         struct ClampPositionJob : IJobParallelFor
         {
+            public int runCount;
+
             // 最大移動距離
             public float maxMoveLength;
 
@@ -179,7 +182,7 @@ namespace MagicaCloth
                 if (team.clampPositionGroupIndex < 0)
                     return;
                 // 更新確認
-                if (team.IsUpdate() == false)
+                if (team.IsUpdate(runCount) == false)
                     return;
 
                 // グループデータ
@@ -227,9 +230,6 @@ namespace MagicaCloth
 
                 // 最大速度クランプ
                 v = (basepos + v) - nextpos;
-                // todo: ClampPosition最大距離クランプ、これはあまり良くないかも
-                //if (team.IsFlag(PhysicsManagerTeamData.Flag_IgnoreClampPositionVelocity) == false)
-                //    v = MathUtility.ClampVector(v, 0.0f, maxMoveLength);
 
                 // 移動位置
                 var opos = nextpos;
@@ -237,9 +237,6 @@ namespace MagicaCloth
 
                 // 摩擦係数による移動制限（衝突しているパーティクルは動きづらい）
                 nextpos = math.lerp(opos, fpos, moveratio);
-
-                // test
-                //nextpos = fpos;
 
                 // 書き込み
                 nextPosList[index] = nextpos;

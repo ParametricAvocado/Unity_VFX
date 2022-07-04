@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 
 namespace MagicaCloth
@@ -19,6 +19,22 @@ namespace MagicaCloth
     /// </summary>
     [System.Serializable]
     public class AvatarPartsDetachEvent : UnityEngine.Events.UnityEvent<MagicaAvatar>
+    {
+    }
+
+    /// <summary>
+    /// マネージャ計算前イベント
+    /// </summary>
+    [System.Serializable]
+    public class PhysicsManagerPreUpdateEvent : UnityEngine.Events.UnityEvent
+    {
+    }
+
+    /// <summary>
+    /// マネージャ計算後イベント
+    /// </summary>
+    [System.Serializable]
+    public class PhysicsManagerPostUpdateEvent : UnityEngine.Events.UnityEvent
     {
     }
 }

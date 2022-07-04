@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 
 using UnityEngine;
@@ -103,8 +103,9 @@ namespace MagicaCloth
             Init(); // チームが初期化されていない可能性があるので.
             if (IsValid() && collider)
             {
-                collider.CreateColliderParticle(teamId);
-                TeamData.AddCollider(collider);
+                var c = collider.CreateColliderParticle(teamId);
+                if (c.IsValid())
+                    TeamData.AddCollider(collider);
             }
         }
 
@@ -120,6 +121,26 @@ namespace MagicaCloth
                 collider.RemoveColliderParticle(teamId);
                 TeamData.RemoveCollider(collider);
             }
+        }
+
+        /// <summary>
+        /// 更新モードを変更します
+        /// Change the update mode.
+        /// </summary>
+        /// <param name="updateMode"></param>
+        public void SetUpdateMode(TeamUpdateMode updateMode)
+        {
+            UpdateMode = updateMode;
+        }
+
+        /// <summary>
+        /// カリングモードを変更します
+        /// Change the culling mode.
+        /// </summary>
+        /// <param name="cullingMode"></param>
+        public void SetCullingMode(TeamCullingMode cullingMode)
+        {
+            CullingMode = cullingMode;
         }
 
         //=========================================================================================
@@ -180,6 +201,32 @@ namespace MagicaCloth
         }
 
         //=========================================================================================
+        // [Clamp Position] Parameters access.
+        //=========================================================================================
+        /// <summary>
+        /// 移動範囲距離の設定
+        /// Movement range distance setting.
+        /// </summary>
+        /// <param name="startVal">0.0 ~ 1.0</param>
+        /// <param name="endVal">0.0 ~ 1.0</param>
+        /// <param name="curveVal">-1.0 ~ +1.0</param>
+        public void ClampPosition_SetPositionLength(float startVal, float endVal, float curveVal = 0)
+        {
+            var b = clothParams.GetClampPositionLength().AutoSetup(Mathf.Max(startVal, 1.0f), Mathf.Max(endVal, 1.0f), curveVal);
+
+            if (IsValid())
+            {
+                MagicaPhysicsManager.Instance.Compute.ClampPosition.ChangeParam(
+                    TeamId,
+                    clothParams.UseClampPositionLength,
+                    clothParams.GetClampPositionLength(),
+                    clothParams.ClampPositionAxisRatio,
+                    clothParams.ClampPositionVelocityInfluence
+                    );
+            }
+        }
+
+        //=========================================================================================
         // [Gravity] Parameters access.
         //=========================================================================================
         /// <summary>
@@ -195,6 +242,26 @@ namespace MagicaCloth
             if (IsValid())
             {
                 MagicaPhysicsManager.Instance.Team.SetGravity(TeamId, b);
+            }
+        }
+
+        /// <summary>
+        /// 重力方向の設定.天井方向を指定します.
+        /// Gravity direction setting. Specify the ceiling direction.
+        /// </summary>
+        public Vector3 Gravity_GravityDirection
+        {
+            get
+            {
+                return clothParams.GravityDirection;
+            }
+            set
+            {
+                clothParams.GravityDirection = value;
+                if (IsValid())
+                {
+                    MagicaPhysicsManager.Instance.Team.SetGravityDirection(TeamId, value);
+                }
             }
         }
 
@@ -292,22 +359,39 @@ namespace MagicaCloth
         // [External Force] Parameter access.
         //=========================================================================================
         /// <summary>
-        /// パーティクル重量の影響率(0.0-1.0)
+        /// パーティクル重量の影響率(0.0-1.0).v1.12.0で廃止
         /// Particle weight effect rate (0.0-1.0).
+        /// Abolished in v1.12.0.
         /// </summary>
-        public float ExternalForce_MassInfluence
+        //public float ExternalForce_MassInfluence
+        //{
+        //    get
+        //    {
+        //        return clothParams.MassInfluence;
+        //    }
+        //    set
+        //    {
+        //        clothParams.MassInfluence = value;
+        //        if (IsValid())
+        //        {
+        //            MagicaPhysicsManager.Instance.Team.SetExternalForce(TeamId, clothParams.MassInfluence, clothParams.WindInfluence, clothParams.WindRandomScale, clothParams.WindSynchronization);
+        //        }
+        //    }
+        //}
+
+        /// <summary>
+        /// 深さによる外力の影響率(0.0-1.0)
+        /// Impact of external force on depth.(0.0 - 1.0)
+        /// </summary>
+        /// <param name="startVal">0.0 ~ 1.0</param>
+        /// <param name="endVal">0.0 ~ 1.0</param>
+        /// <param name="curveVal">-1.0 ~ +1.0</param>
+        public void ExternalForce_DepthInfluence(float startVal, float endVal, float curveVal = 0)
         {
-            get
+            var b = clothParams.GetDepthInfluence().AutoSetup(startVal, endVal, curveVal);
+            if (IsValid())
             {
-                return clothParams.MassInfluence;
-            }
-            set
-            {
-                clothParams.MassInfluence = value;
-                if (IsValid())
-                {
-                    MagicaPhysicsManager.Instance.Team.SetExternalForce(TeamId, clothParams.MassInfluence, clothParams.WindInfluence, clothParams.WindRandomScale);
-                }
+                MagicaPhysicsManager.Instance.Team.SetDepthInfluence(TeamId, b);
             }
         }
 
@@ -326,7 +410,7 @@ namespace MagicaCloth
                 clothParams.WindInfluence = value;
                 if (IsValid())
                 {
-                    MagicaPhysicsManager.Instance.Team.SetExternalForce(TeamId, clothParams.MassInfluence, clothParams.WindInfluence, clothParams.WindRandomScale);
+                    MagicaPhysicsManager.Instance.Team.SetExternalForce(TeamId, clothParams.MassInfluence, clothParams.WindInfluence, clothParams.WindRandomScale, clothParams.WindSynchronization);
                 }
             }
         }
@@ -346,7 +430,7 @@ namespace MagicaCloth
                 clothParams.WindRandomScale = value;
                 if (IsValid())
                 {
-                    MagicaPhysicsManager.Instance.Team.SetExternalForce(TeamId, clothParams.MassInfluence, clothParams.WindInfluence, clothParams.WindRandomScale);
+                    MagicaPhysicsManager.Instance.Team.SetExternalForce(TeamId, clothParams.MassInfluence, clothParams.WindInfluence, clothParams.WindRandomScale, clothParams.WindSynchronization);
                 }
             }
         }
@@ -366,7 +450,7 @@ namespace MagicaCloth
             var b = clothParams.GetWorldMoveInfluence().AutoSetup(startVal, endVal, curveVal);
             if (IsValid())
             {
-                MagicaPhysicsManager.Instance.Team.SetWorldInfluence(TeamId, clothParams.MaxMoveSpeed, b, clothParams.GetWorldRotationInfluence());
+                MagicaPhysicsManager.Instance.Team.SetWorldInfluence(TeamId, clothParams.MaxMoveSpeed, clothParams.MaxRotationSpeed, b, clothParams.GetWorldRotationInfluence());
             }
         }
 
@@ -382,7 +466,7 @@ namespace MagicaCloth
             var b = clothParams.GetWorldRotationInfluence().AutoSetup(startVal, endVal, curveVal);
             if (IsValid())
             {
-                MagicaPhysicsManager.Instance.Team.SetWorldInfluence(TeamId, clothParams.MaxMoveSpeed, clothParams.GetWorldMoveInfluence(), b);
+                MagicaPhysicsManager.Instance.Team.SetWorldInfluence(TeamId, clothParams.MaxMoveSpeed, clothParams.MaxRotationSpeed, clothParams.GetWorldMoveInfluence(), b);
             }
         }
 
@@ -401,7 +485,7 @@ namespace MagicaCloth
                 clothParams.MaxMoveSpeed = Mathf.Max(value, 0.0f);
                 if (IsValid())
                 {
-                    MagicaPhysicsManager.Instance.Team.SetWorldInfluence(TeamId, clothParams.MaxMoveSpeed, clothParams.GetWorldMoveInfluence(), clothParams.GetWorldRotationInfluence());
+                    MagicaPhysicsManager.Instance.Team.SetWorldInfluence(TeamId, clothParams.MaxMoveSpeed, clothParams.MaxRotationSpeed, clothParams.GetWorldMoveInfluence(), clothParams.GetWorldRotationInfluence());
                 }
             }
         }
@@ -506,6 +590,29 @@ namespace MagicaCloth
             }
         }
 
+        /// <summary>
+        /// InfluenceTargetを置換する
+        /// Replace InfluenceTarget.
+        /// </summary>
+        /// <param name="target"></param>
+        public void WorldInfluence_ReplaceInfluenceTarget(Transform target)
+        {
+            bool active = status.IsActive;
+            if (active)
+            {
+                Setup.ClothInactive(this);
+            }
+
+            // InfluenceTarget
+            Params.SetInfluenceTarget(target);
+            MagicaPhysicsManager.Instance.Team.ResetWorldInfluenceTarget(TeamId, target ? target : transform);
+
+            if (active)
+            {
+                Setup.ClothActive(this, Params, ClothData);
+            }
+        }
+
         //=========================================================================================
         // [Collider Collision] Parameter access.
         //=========================================================================================
@@ -521,10 +628,9 @@ namespace MagicaCloth
             }
             set
             {
-                clothParams.SetCollision(value, clothParams.Friction);
+                clothParams.SetCollision(value, clothParams.DynamicFriction, clothParams.StaticFriction);
                 if (IsValid())
                 {
-                    MagicaPhysicsManager.Instance.Team.SetFlag(TeamId, PhysicsManagerTeamData.Flag_Collision_KeepShape, clothParams.KeepInitialShape);
                     MagicaPhysicsManager.Instance.Compute.Collision.ChangeParam(TeamId, clothParams.UseCollision);
                 }
             }
@@ -548,7 +654,13 @@ namespace MagicaCloth
                 clothParams.UsePenetration = value;
                 if (IsValid())
                 {
-                    MagicaPhysicsManager.Instance.Compute.Penetration.ChangeParam(TeamId, clothParams.UsePenetration, clothParams.GetPenetrationDistance(), clothParams.GetPenetrationRadius());
+                    MagicaPhysicsManager.Instance.Compute.Penetration.ChangeParam(
+                        TeamId,
+                        clothParams.UsePenetration,
+                        clothParams.GetPenetrationDistance(),
+                        clothParams.GetPenetrationRadius(),
+                        clothParams.PenetrationMaxDepth
+                        );
                 }
             }
         }
@@ -565,7 +677,56 @@ namespace MagicaCloth
             clothParams.GetPenetrationRadius().AutoSetup(Mathf.Max(startVal, 0.0f), Mathf.Max(endVal, 0.0f), curveVal);
             if (IsValid())
             {
-                MagicaPhysicsManager.Instance.Compute.Penetration.ChangeParam(TeamId, clothParams.UsePenetration, clothParams.GetPenetrationDistance(), clothParams.GetPenetrationRadius());
+                MagicaPhysicsManager.Instance.Compute.Penetration.ChangeParam(
+                    TeamId,
+                    clothParams.UsePenetration,
+                    clothParams.GetPenetrationDistance(),
+                    clothParams.GetPenetrationRadius(),
+                    clothParams.PenetrationMaxDepth
+                    );
+            }
+        }
+
+        //=========================================================================================
+        // [Spring] Parameter access.
+        //=========================================================================================
+        /// <summary>
+        /// アクティブ設定
+        /// Active settings.
+        /// </summary>
+        public bool Spring_Active
+        {
+            get
+            {
+                return clothParams.UseSpring;
+            }
+            set
+            {
+                clothParams.UseSpring = value;
+                if(IsValid())
+                {
+                    MagicaPhysicsManager.Instance.Compute.Spring.ChangeParam(TeamId, clothParams.UseSpring, clothParams.GetSpringPower());
+                }
+            }
+        }
+
+        /// <summary>
+        /// スプリング力の設定
+        /// Setting up a spring power.
+        /// </summary>
+        public float Spring_Power
+        {
+            get
+            {
+                return clothParams.SpringPowr;
+            }
+            set
+            {
+                clothParams.SpringPowr = value;
+                if (IsValid())
+                {
+                    MagicaPhysicsManager.Instance.Compute.Spring.ChangeParam(TeamId, clothParams.UseSpring, clothParams.GetSpringPower());
+                }
             }
         }
     }

@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using Unity.Burst;
@@ -40,6 +40,8 @@ namespace MagicaCloth
         public ColliderCollisionConstraint Collision { get; private set; }
         public PenetrationConstraint Penetration { get; private set; }
         public ColliderExtrusionConstraint ColliderExtrusion { get; private set; }
+        public TwistConstraint Twist { get; private set; }
+        public CompositeRotationConstraint CompositeRotation { get; private set; }
         //public ColliderAfterCollisionConstraint AfterCollision { get; private set; }
         //public EdgeCollisionConstraint EdgeCollision { get; private set; }
         //public VolumeConstraint Volume { get; private set; }
@@ -55,7 +57,7 @@ namespace MagicaCloth
         public AdjustRotationWorker AdjustRotationWorker { get; private set; }
         public LineWorker LineWorker { get; private set; }
         public TriangleWorker TriangleWorker { get; private set; }
-        //public BaseSkinningWorker BaseSkinningWorker { get; private set; }
+        public BaseSkinningWorker BaseSkinningWorker { get; private set; }
 
         /// <summary>
         /// マスタージョブハンドル
@@ -69,6 +71,7 @@ namespace MagicaCloth
         /// <summary>
         /// プロファイラ用
         /// </summary>
+        public CustomSampler SamplerCalcMesh { get; set; }
         public CustomSampler SamplerWriteMesh { get; set; }
 
         //=========================================================================================
@@ -79,10 +82,6 @@ namespace MagicaCloth
         {
             // 拘束の作成
             // ※この並び順が実行順番となります。
-
-            // 移動制限
-            //ClampDistance = new ClampDistanceConstraint();
-            //constraints.Add(ClampDistance);
 
             // コリジョン
             ColliderExtrusion = new ColliderExtrusionConstraint();
@@ -95,44 +94,18 @@ namespace MagicaCloth
             // 移動制限
             ClampDistance = new ClampDistanceConstraint();
             constraints.Add(ClampDistance);
-            //ClampDistance2 = new ClampDistance2Constraint();
-            //constraints.Add(ClampDistance2);
-            //Penatration = new ColliderPenetrationConstraint();
-            //constraints.Add(Penatration);
-
-            // コリジョン
-            //EdgeCollision = new EdgeCollisionConstraint();
-            //constraints.Add(EdgeCollision);
-            //Penetration = new PenetrationConstraint();
-            //constraints.Add(Penetration);
-            //Collision = new ColliderCollisionConstraint();
-            //constraints.Add(Collision);
-
-            // 移動制限
-            //Penetration = new ColliderPenetrationConstraint(); // コリジョンの前はだめ
-            //constraints.Add(Penetration);
-            //ClampDistance = new ClampDistanceConstraint();
-            //constraints.Add(ClampDistance);
-            //Penatration = new ColliderPenetrationConstraint();
-            //constraints.Add(Penatration);
 
             // 主なクロスシミュレーション
             Spring = new SpringConstraint();
             constraints.Add(Spring);
+            Twist = new TwistConstraint();
+            constraints.Add(Twist);
             RestoreDistance = new RestoreDistanceConstraint();
             constraints.Add(RestoreDistance);
             RestoreRotation = new RestoreRotationConstraint();
             constraints.Add(RestoreRotation);
-
-            // コリジョン
-            //EdgeCollision = new EdgeCollisionConstraint();
-            //constraints.Add(EdgeCollision);
-            //Penetration = new PenetrationConstraint();
-            //constraints.Add(Penetration);
-            //Collision = new ColliderCollisionConstraint();
-            //constraints.Add(Collision);
-            //Penetration = new PenetrationConstraint();
-            //constraints.Add(Penetration);
+            CompositeRotation = new CompositeRotationConstraint();
+            constraints.Add(CompositeRotation);
 
             // 形状維持
             TriangleBend = new TriangleBendConstraint();
@@ -141,22 +114,10 @@ namespace MagicaCloth
             //constraints.Add(Volume);
 
             // 移動制限2
-            //Penetration = new ColliderPenetrationConstraint();
-            //constraints.Add(Penetration);
             ClampPosition = new ClampPositionConstraint();
             constraints.Add(ClampPosition);
             ClampRotation = new ClampRotationConstraint();
             constraints.Add(ClampRotation);
-
-            // コリジョン2
-            //AfterCollision = new ColliderAfterCollisionConstraint();
-            //constraints.Add(AfterCollision);
-            //EdgeCollision = new EdgeCollisionConstraint();
-            //constraints.Add(EdgeCollision);
-            //Collision = new ColliderCollisionConstraint();
-            //constraints.Add(Collision);
-            //Penetration = new PenetrationConstraint();
-            //constraints.Add(Penetration);
 
             foreach (var con in constraints)
                 con.Init(manager);
@@ -177,13 +138,14 @@ namespace MagicaCloth
             workers.Add(LineWorker);
             TriangleWorker = new TriangleWorker();
             workers.Add(TriangleWorker);
-            //BaseSkinningWorker = new BaseSkinningWorker();
-            //workers.Add(BaseSkinningWorker);
+            BaseSkinningWorker = new BaseSkinningWorker();
+            workers.Add(BaseSkinningWorker);
             foreach (var worker in workers)
                 worker.Init(manager);
 
 
             // プロファイラ用
+            SamplerCalcMesh = CustomSampler.Create("CalcMesh");
             SamplerWriteMesh = CustomSampler.Create("WriteMesh");
         }
 
@@ -229,20 +191,20 @@ namespace MagicaCloth
         /// <summary>
         /// ボーン姿勢を元の位置に復元する
         /// </summary>
-        public void UpdateRestoreBone()
+        internal void UpdateRestoreBone(PhysicsTeam.TeamUpdateMode updateMode)
         {
             // 活動チームが１つ以上ある場合のみ更新
             if (Team.ActiveTeamCount > 0)
             {
                 // トランスフォーム姿勢のリセット
-                Bone.ResetBoneFromTransform();
+                Bone.ResetBoneFromTransform(updateMode == PhysicsTeam.TeamUpdateMode.UnityPhysics);
             }
         }
 
         /// <summary>
         /// ボーン姿勢を読み込む
         /// </summary>
-        public void UpdateReadBone()
+        internal void UpdateReadBone()
         {
             // 活動チームが１つ以上ある場合のみ更新
             if (Team.ActiveTeamCount > 0)
@@ -253,56 +215,43 @@ namespace MagicaCloth
         }
 
         /// <summary>
-        /// ボーンスケールを読み込む
-        /// ★これはメインスレッドなので注意！
-        /// ★Unity2019.2.13まではTransformAccessでlossyScaleを取得できないのでやむを得ず
-        /// </summary>
-        public void UpdateReadBoneScale()
-        {
-#if (UNITY_2018 || UNITY_2019_1 || UNITY_2019_2_1 || UNITY_2019_2_2 || UNITY_2019_2_3 || UNITY_2019_2_4 || UNITY_2019_2_5 || UNITY_2019_2_6 || UNITY_2019_2_7 || UNITY_2019_2_8 || UNITY_2019_2_9 || UNITY_2019_2_10 || UNITY_2019_2_11 || UNITY_2019_2_12 || UNITY_2019_2_13)
-            if (Team.ActiveTeamCount > 0 && UpdateTime.UpdateBoneScale)
-            {
-                Bone.ReadBoneScaleFromTransform();
-            }
-#endif
-        }
-
-        /// <summary>
         /// メインスレッドで行うチームデータ更新処理
         /// </summary>
-        public void UpdateTeamAlways()
+        internal void UpdateTeamAlways()
         {
-            if (manager.IsActive)
-            {
-                // 常に実行するチームデータ更新
-                Team.PreUpdateTeamAlways();
-            }
+            // 常に実行するチームデータ更新
+            Team.PreUpdateTeamAlways();
         }
 
         /// <summary>
         /// クロスシミュレーション計算開始
         /// </summary>
         /// <param name="update"></param>
-        public void UpdateStartSimulation(UpdateTimeManager update)
+        internal void UpdateStartSimulation(UpdateTimeManager update)
         {
+            // マネージャ非アクティブ時にはシミュレーション計算を完全に停止させる
+            if (MagicaPhysicsManager.Instance.IsActive == false)
+                return;
+
             // 時間
-            float dtime = update.DeltaTime;
+            float deltaTime = update.DeltaTime;
+            float physicsDeltaTime = update.PhysicsDeltaTime;
             float updatePower = update.UpdatePower;
-            float updateIntervalTime = update.UpdateIntervalTime;
+            float updateDeltaTime = update.UpdateIntervalTime;
             int ups = update.UpdatePerSecond;
 
             // 活動チームが１つ以上ある場合のみ更新
             if (Team.ActiveTeamCount > 0)
             {
                 // 今回フレームの更新回数
-                int updateCount = Team.CalcMaxUpdateCount(ups, dtime, updateIntervalTime);
-                //Debug.Log("updateCount:" + updateCount + " dtime:" + Time.deltaTime);
+                int updateCount = Team.CalcMaxUpdateCount(ups, deltaTime, physicsDeltaTime, updateDeltaTime);
+                //Debug.Log($"updateCount:{updateCount} dtime:{deltaTime} pdtime:{physicsDeltaTime} fixedCount:{update.FixedUpdateCount}");
 
                 // 風更新
-                Wind.UpdateWind();
+                //Wind.UpdateWind();
 
                 // チームデータ更新、更新回数確定、ワールド移動影響、テレポート
-                Team.PreUpdateTeamData(dtime, updateIntervalTime, ups, updateCount);
+                Team.PreUpdateTeamData(deltaTime, physicsDeltaTime, updateDeltaTime, ups, updateCount);
 
                 // ワーカー処理
                 WarmupWorker();
@@ -317,7 +266,7 @@ namespace MagicaCloth
                 //MasterJob = SpringMeshWorker.PreUpdate(MasterJob); // 何もなし
                 //MasterJob = AdjustRotationWorker.PreUpdate(MasterJob); // 何もなし
                 //MasterJob = LineWorker.PreUpdate(MasterJob); // 何もなし
-                //MasterJob = BaseSkinningWorker.PreUpdate(MasterJob); // ベーススキニングによりbasePos/baseRotをスキニング
+                MasterJob = BaseSkinningWorker.PreUpdate(MasterJob); // ベーススキニングによりbasePos/baseRotをスキニング
 
                 // パーティクルのリセット判定
                 Particle.UpdateResetParticle();
@@ -325,11 +274,11 @@ namespace MagicaCloth
                 // 物理更新
                 for (int i = 0, cnt = updateCount; i < cnt; i++)
                 {
-                    UpdatePhysics(updateCount, i, updatePower, updateIntervalTime);
+                    UpdatePhysics(updateCount, i, updatePower, updateDeltaTime);
                 }
 
                 // 物理演算後処理
-                PostUpdatePhysics(updateIntervalTime);
+                PostUpdatePhysics(updateDeltaTime);
 
                 // 物理更新後ワーカー処理
                 MasterJob = TriangleWorker.PostUpdate(MasterJob); // トライアングル回転調整
@@ -353,26 +302,52 @@ namespace MagicaCloth
         /// <summary>
         /// クロスシミュレーション完了待ち
         /// </summary>
-        public void UpdateCompleteSimulation()
+        internal void UpdateCompleteSimulation()
         {
             // マスタージョブ完了待機
             CompleteJob();
             runMasterJob = true;
+
+#if UNITY_2021_2_OR_NEWER
+            // 高速書き込みバッファの作業終了
+            Mesh.FinishVertexBuffer();
+#endif
+
+            //Debug.Log($"runMasterJob = true! F:{Time.frameCount}");
         }
 
         /// <summary>
         /// ボーン姿勢をトランスフォームに書き込む
         /// </summary>
-        public void UpdateWriteBone()
+        internal void UpdateWriteBone()
         {
             // ボーン姿勢をトランスフォームに書き出す
             Bone.WriteBoneToTransform(manager.IsDelay ? 1 : 0);
         }
 
         /// <summary>
+        /// メッシュ書き込みの事前判定
+        /// </summary>
+        internal void MeshCalculation()
+        {
+            // プロファイラ計測開始
+            SamplerCalcMesh.Begin();
+
+            Mesh.ClearWritingList();
+
+            if (Mesh.VirtualMeshCount > 0 && runMasterJob)
+            {
+                Mesh.MeshCalculation(manager.IsDelay ? 1 : 0);
+            }
+
+            // プロファイラ計測終了
+            SamplerCalcMesh.End();
+        }
+
+        /// <summary>
         /// メッシュ姿勢をメッシュに書き込む
         /// </summary>
-        public void UpdateWriteMesh()
+        internal void NormalWritingMesh()
         {
             // プロファイラ計測開始
             SamplerWriteMesh.Begin();
@@ -380,7 +355,10 @@ namespace MagicaCloth
             // メッシュへの頂点書き戻し
             if (Mesh.VirtualMeshCount > 0 && runMasterJob)
             {
-                Mesh.FinishMesh(manager.IsDelay ? 1 : 0);
+                Mesh.NormalWriting(manager.IsDelay ? 1 : 0);
+#if UNITY_2021_2_OR_NEWER
+                Mesh.FasterWriting(manager.IsDelay ? 1 : 0);
+#endif
             }
 
             // プロファイラ計測終了
@@ -390,7 +368,7 @@ namespace MagicaCloth
         /// <summary>
         /// 遅延実行時のボーン読み込みと前回のボーン結果の書き込み
         /// </summary>
-        public void UpdateReadWriteBone()
+        internal void UpdateReadWriteBone()
         {
             // 活動チームが１つ以上ある場合のみ更新
             if (Team.ActiveTeamCount > 0)
@@ -409,11 +387,12 @@ namespace MagicaCloth
         /// <summary>
         /// 遅延実行時のみボーンの計算結果を書き込みバッファにコピーする
         /// </summary>
-        public void UpdateSyncBuffer()
+        internal void UpdateSyncBuffer()
         {
             Bone.writeBoneIndexList.SyncBuffer();
             Bone.writeBonePosList.SyncBuffer();
             Bone.writeBoneRotList.SyncBuffer();
+            Bone.boneFlagList.SyncBuffer();
 
             InitJob();
             Bone.CopyBoneBuffer();
@@ -423,22 +402,23 @@ namespace MagicaCloth
         /// <summary>
         /// 遅延実行時のみメッシュの計算結果をスワップする
         /// </summary>
-        public void UpdateSwapBuffer()
+        internal void UpdateSwapBuffer()
         {
             Mesh.renderPosList.SwapBuffer();
             Mesh.renderNormalList.SwapBuffer();
             Mesh.renderTangentList.SwapBuffer();
             Mesh.renderBoneWeightList.SwapBuffer();
+#if UNITY_2021_2_OR_NEWER
+            // 高速書き込み用コンピュートバッファをスワップ
+            Mesh.renderPosBuffer.Swap();
+            Mesh.renderNormalBuffer.Swap();
+#endif
 
             swapIndex ^= 1;
 
-            // 計算済みフラグを立てる
-            foreach (var state in Mesh.renderMeshStateDict.Values)
-            {
-                state.SetFlag(PhysicsManagerMeshData.RenderStateFlag_DelayedCalculated, true);
-            }
+            // 遅延実行計算済みフラグを立てる
+            Mesh.SetDelayedCalculatedFlag();
         }
-
 
         //=========================================================================================
         public JobHandle MasterJob
@@ -493,9 +473,9 @@ namespace MagicaCloth
         /// 場合によっては１回も呼ばれないフレームも発生するので注意！
         /// </summary>
         /// <param name="updateCount"></param>
-        /// <param name="loopIndex"></param>
+        /// <param name="runCount"></param>
         /// <param name="dtime"></param>
-        void UpdatePhysics(int updateCount, int loopIndex, float updatePower, float updateDeltaTime)
+        void UpdatePhysics(int updateCount, int runCount, float updatePower, float updateDeltaTime)
         {
             if (Particle.Count == 0)
                 return;
@@ -505,33 +485,47 @@ namespace MagicaCloth
             {
                 updateDeltaTime = updateDeltaTime,
                 updatePower = updatePower,
-                loopIndex = loopIndex,
+                runCount = runCount,
 
                 teamDataList = Team.teamDataList.ToJobArray(),
                 teamMassList = Team.teamMassList.ToJobArray(),
                 teamGravityList = Team.teamGravityList.ToJobArray(),
                 teamDragList = Team.teamDragList.ToJobArray(),
-                teamMaxVelocityList = Team.teamMaxVelocityList.ToJobArray(),
+                teamDepthInfluenceList = Team.teamDepthInfluenceList.ToJobArray(),
+                teamWindInfoList = Team.teamWindInfoList.ToJobArray(),
+                //teamMaxVelocityList = Team.teamMaxVelocityList.ToJobArray(),
                 //teamDirectionalDampingList = Team.teamDirectionalDampingList.ToJobArray(),
 
                 flagList = Particle.flagList.ToJobArray(),
                 teamIdList = Particle.teamIdList.ToJobArray(),
                 depthList = Particle.depthList.ToJobArray(),
+
+                snapBasePosList = Particle.snapBasePosList.ToJobArray(),
+                snapBaseRotList = Particle.snapBaseRotList.ToJobArray(),
                 basePosList = Particle.basePosList.ToJobArray(),
                 baseRotList = Particle.baseRotList.ToJobArray(),
+                oldBasePosList = Particle.oldBasePosList.ToJobArray(),
+                oldBaseRotList = Particle.oldBaseRotList.ToJobArray(),
 
                 nextPosList = Particle.InNextPosList.ToJobArray(),
                 nextRotList = Particle.InNextRotList.ToJobArray(),
                 oldPosList = Particle.oldPosList.ToJobArray(),
                 oldRotList = Particle.oldRotList.ToJobArray(),
                 frictionList = Particle.frictionList.ToJobArray(),
-                oldSlowPosList = Particle.oldSlowPosList.ToJobArray(),
+                //oldSlowPosList = Particle.oldSlowPosList.ToJobArray(),
 
                 posList = Particle.posList.ToJobArray(),
                 rotList = Particle.rotList.ToJobArray(),
                 velocityList = Particle.velocityList.ToJobArray(),
 
                 //boneRotList = Bone.boneRotList.ToJobArray(),
+
+                // wind
+                windDataList = Wind.windDataList.ToJobArray(),
+
+                // bone
+                bonePosList = Bone.bonePosList.ToJobArray(),
+                boneRotList = Bone.boneRotList.ToJobArray(),
             };
             jobHandle = job1.Schedule(Particle.Length, 64, jobHandle);
 
@@ -548,7 +542,7 @@ namespace MagicaCloth
                             // 拘束ごとの反復回数
                             for (int j = 0; j < con.GetIterationCount(); j++)
                             {
-                                jobHandle = con.SolverConstraint(updateDeltaTime, updatePower, j, jobHandle);
+                                jobHandle = con.SolverConstraint(runCount, updateDeltaTime, updatePower, j, jobHandle);
                             }
                         }
                     }
@@ -560,20 +554,23 @@ namespace MagicaCloth
             {
                 updatePower = updatePower,
                 updateDeltaTime = updateDeltaTime,
+                runCount = runCount,
 
                 teamDataList = Team.teamDataList.ToJobArray(),
+                teamMaxVelocityList = Team.teamMaxVelocityList.ToJobArray(),
 
                 flagList = Particle.flagList.ToJobArray(),
                 teamIdList = Particle.teamIdList.ToJobArray(),
+                depthList = Particle.depthList.ToJobArray(),
+
                 nextPosList = Particle.InNextPosList.ToJobArray(),
                 nextRotList = Particle.InNextRotList.ToJobArray(),
 
-                basePosList = Particle.basePosList.ToJobArray(),
-                baseRotList = Particle.baseRotList.ToJobArray(),
+                //basePosList = Particle.basePosList.ToJobArray(),
+                //baseRotList = Particle.baseRotList.ToJobArray(),
 
                 oldPosList = Particle.oldPosList.ToJobArray(),
                 oldRotList = Particle.oldRotList.ToJobArray(),
-                oldSlowPosList = Particle.oldSlowPosList.ToJobArray(),
 
                 frictionList = Particle.frictionList.ToJobArray(),
 
@@ -581,11 +578,11 @@ namespace MagicaCloth
                 rotList = Particle.rotList.ToJobArray(),
                 posList = Particle.posList.ToJobArray(),
                 localPosList = Particle.localPosList.ToJobArray(),
+
+                collisionNormalList = Particle.collisionNormalList.ToJobArray(),
+                staticFrictionList = Particle.staticFrictionList.ToJobArray(),
             };
             jobHandle = job2.Schedule(Particle.Length, 64, jobHandle);
-
-            // チーム更新カウント減算
-            Team.UpdateTeamUpdateCount();
         }
 
         [BurstCompile]
@@ -593,9 +590,9 @@ namespace MagicaCloth
         {
             public float updateDeltaTime;
             public float updatePower;
-            public int loopIndex;
+            public int runCount;
 
-            // チーム
+            // team
             [Unity.Collections.ReadOnly]
             public NativeArray<PhysicsManagerTeamData.TeamData> teamDataList;
             [Unity.Collections.ReadOnly]
@@ -605,43 +602,57 @@ namespace MagicaCloth
             [Unity.Collections.ReadOnly]
             public NativeArray<CurveParam> teamDragList;
             [Unity.Collections.ReadOnly]
-            public NativeArray<CurveParam> teamMaxVelocityList;
+            public NativeArray<CurveParam> teamDepthInfluenceList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<PhysicsManagerTeamData.WindInfo> teamWindInfoList;
+            //[Unity.Collections.ReadOnly]
+            //public NativeArray<CurveParam> teamMaxVelocityList;
             //[Unity.Collections.ReadOnly]
             //public NativeArray<CurveParam> teamDirectionalDampingList;
 
-            // パーティクル
+            // particle
             public NativeArray<PhysicsManagerParticleData.ParticleFlag> flagList;
             [Unity.Collections.ReadOnly]
             public NativeArray<int> teamIdList;
             [Unity.Collections.ReadOnly]
             public NativeArray<float> depthList;
+
             [Unity.Collections.ReadOnly]
+            public NativeArray<float3> snapBasePosList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<quaternion> snapBaseRotList;
+            [Unity.Collections.WriteOnly]
             public NativeArray<float3> basePosList;
-            [Unity.Collections.ReadOnly]
+            [Unity.Collections.WriteOnly]
             public NativeArray<quaternion> baseRotList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> oldBasePosList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<quaternion> oldBaseRotList;
 
-            //[Unity.Collections.WriteOnly]
             public NativeArray<float3> nextPosList;
-            //[Unity.Collections.WriteOnly]
             public NativeArray<quaternion> nextRotList;
-
-            //[Unity.Collections.WriteOnly]
             public NativeArray<float> frictionList;
-
+            [Unity.Collections.WriteOnly]
             public NativeArray<float3> posList;
+            [Unity.Collections.WriteOnly]
             public NativeArray<quaternion> rotList;
-
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> oldPosList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<quaternion> oldRotList;
+            [Unity.Collections.ReadOnly]
             public NativeArray<float3> velocityList;
 
-            public NativeArray<float3> oldPosList;
-            public NativeArray<quaternion> oldRotList;
+            // wind
+            [Unity.Collections.ReadOnly]
+            public NativeArray<PhysicsManagerWindData.WindData> windDataList;
 
-            [Unity.Collections.WriteOnly]
-            public NativeArray<float3> oldSlowPosList;
-
-            // ボーン
-            //[Unity.Collections.ReadOnly]
-            //public NativeArray<quaternion> boneRotList;
+            // bone
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> bonePosList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<quaternion> boneRotList;
 
             // パーティクルごと
             public void Execute(int index)
@@ -655,42 +666,40 @@ namespace MagicaCloth
                 var teamData = teamDataList[teamId];
 
                 // ここからは更新がある場合のみ実行（グローバルチームは除く）
-                if (teamId != 0 && teamData.IsUpdate() == false)
+                if (teamId != 0 && teamData.IsUpdate(runCount) == false)
                     return;
 
                 var oldpos = oldPosList[index];
                 var oldrot = oldRotList[index];
                 float3 nextPos = oldpos;
                 quaternion nextRot = oldrot;
+                var friction = frictionList[index];
 
-                //if (flag.IsCollider())
-                //{
-                //    // コライダー
-                //    // todo:こっちのほうがよい？
-                //    nextPos = basePosList[index];
-                //    nextRot = baseRotList[index];
-                //}
+                // 基準姿勢のステップ補間(v1.11.1)
+                var oldBasePos = oldBasePosList[index];
+                var oldBaseRot = oldBaseRotList[index];
+                var snapBasePos = snapBasePosList[index];
+                var snapBaseRot = snapBaseRotList[index];
+                float stime = teamData.startTime + updateDeltaTime * runCount;
+                float oldtime = teamData.startTime - updateDeltaTime;
+                float interval = teamData.time - oldtime;
+                float step = interval >= 1e-06f ? math.saturate((stime - oldtime) / interval) : 0.0f;
+                float3 basePos = math.lerp(oldBasePos, snapBasePos, step);
+                quaternion baseRot = math.slerp(oldBaseRot, snapBaseRot, step);
+                baseRot = math.normalize(baseRot); // 必要
+                basePosList[index] = basePos;
+                baseRotList[index] = baseRot;
+
+
                 if (flag.IsFixed())
                 {
                     // キネマティックパーティクル
-                    // nextPos/nextRotが前回の姿勢
+                    nextPos = basePos;
+                    nextRot = baseRot;
+
+                    // nextPos/nextRotが１ステップ前の姿勢
                     var oldNextPos = nextPosList[index];
                     var oldNextRot = nextRotList[index];
-
-                    // OldPos/Rot から BasePos/Rot に step で補間して現在姿勢とする
-#if true
-                    // 高フレームレートで位置がスキップされてしまう問題の対処(1.8.3)
-                    float stime = teamData.startTime + updateDeltaTime * teamData.runCount;
-                    float oldtime = teamData.oldTime;
-                    float interval = teamData.time - oldtime;
-                    float step = math.saturate((stime - oldtime) / interval);
-#else
-                    float stime = teamData.startTime + updateDeltaTime * teamData.runCount;
-                    float oldtime = teamData.time - teamData.addTime;
-                    float step = math.saturate((stime - oldtime) / teamData.addTime);
-#endif
-                    nextPos = math.lerp(oldpos, basePosList[index], step);
-                    nextRot = math.slerp(oldrot, baseRotList[index], step);
 
                     // 前回の姿勢をoldpos/rotとしてposList/rotListに格納する
                     if (flag.IsCollider() && teamId == 0)
@@ -707,6 +716,38 @@ namespace MagicaCloth
                         oldrot = oldNextRot;
                     }
 
+#if false
+                    // nextPos/nextRotが１ステップ前の姿勢
+                    var oldNextPos = nextPosList[index];
+                    var oldNextRot = nextRotList[index];
+
+                    // oldpos/rotが前フレームの最終計算姿勢
+                    // oldpos/rot から BasePos/Rot に step で補間して現在姿勢とする
+                    float stime = teamData.startTime + updateDeltaTime * runCount;
+                    float oldtime = teamData.startTime - updateDeltaTime;
+                    float interval = teamData.time - oldtime;
+                    float step = interval >= 1e-06f ? math.saturate((stime - oldtime) / interval) : 0.0f;
+
+                    nextPos = math.lerp(oldpos, basePosList[index], step);
+                    nextRot = math.slerp(oldrot, baseRotList[index], step);
+                    nextRot = math.normalize(nextRot);
+
+                    // 前回の姿勢をoldpos/rotとしてposList/rotListに格納する
+                    if (flag.IsCollider() && teamId == 0)
+                    {
+                        // グローバルコライダー
+                        // 移動量と回転量に制限をかける(1.7.5)
+                        // 制限をかけないと高速移動／回転時に遠く離れたパーティクルが押し出されてしまう問題が発生する。
+                        oldpos = MathUtility.ClampDistance(nextPos, oldNextPos, Define.Compute.GlobalColliderMaxMoveDistance);
+                        oldrot = MathUtility.ClampAngle(nextRot, oldNextRot, math.radians(Define.Compute.GlobalColliderMaxRotationAngle));
+                    }
+                    else
+                    {
+                        oldpos = oldNextPos;
+                        oldrot = oldNextRot;
+                    }
+#endif
+
                     // debug
                     //nextPos = basePosList[index];
                     //nextRot = baseRotList[index];
@@ -715,23 +756,25 @@ namespace MagicaCloth
                 {
                     // 動的パーティクル
                     var depth = depthList[index];
-                    var maxVelocity = teamMaxVelocityList[teamId].Evaluate(depth);
+                    //var maxVelocity = teamMaxVelocityList[teamId].Evaluate(depth);
                     var drag = teamDragList[teamId].Evaluate(depth);
                     var gravity = teamGravityList[teamId].Evaluate(depth);
+                    var gravityDirection = teamData.gravityDirection;
                     var mass = teamMassList[teamId].Evaluate(depth);
+                    var depthInfluence = teamDepthInfluenceList[teamId].Evaluate(depth);
                     var velocity = velocityList[index];
 
                     // チームスケール倍率
-                    maxVelocity *= teamData.scaleRatio;
+                    //maxVelocity *= teamData.scaleRatio;
 
                     // massは主に伸縮を中心に調整されるので、フォース適用時は少し調整する
-                    mass = (mass - 1.0f) * teamData.forceMassInfluence + 1.0f;
+                    //mass = (mass - 1.0f) * teamData.forceMassInfluence + 1.0f;
 
                     // 安定化用の速度ウエイト
                     velocity *= teamData.velocityWeight;
 
                     // 最大速度
-                    velocity = MathUtility.ClampVector(velocity, 0.0f, maxVelocity);
+                    //velocity = MathUtility.ClampVector(velocity, 0.0f, maxVelocity);
 
                     // 空気抵抗(90ups基準)
                     // 重力に影響させたくないので先に計算する（※通常はforce適用後に行うのが一般的）
@@ -741,45 +784,43 @@ namespace MagicaCloth
                     // フォースは空気抵抗を無視して加算する
                     float3 force = 0;
 
-                    // 重力
-                    // 重力は質量に関係なく一定
-#if false
-                    // 方向減衰
-                    if (teamData.IsFlag(PhysicsManagerTeamData.Flag_DirectionalDamping) && teamData.directionalDampingBoneIndex >= 0)
-                    {
-                        float3 dampDir = math.mul(boneRotList[teamData.directionalDampingBoneIndex], teamData.directionalDampingLocalDir);
-                        var dot = math.dot(dampDir, new float3(0, -1, 0)) * 0.5f + 0.5f; // 1.0(0) - 0.5(90) - 0.0(180)
-                        var damp = teamDirectionalDampingList[teamId].Evaluate(dot);
-                        gravity *= damp;
-                    }
-#endif
-
+                    // 重力（質量に関係なく一定）
                     // (最後に質量で割るためここでは質量をかける）
-                    force.y += gravity * mass;
+                    force += gravityDirection * (gravity * mass);
 
                     // 外部フォース
-                    if (loopIndex == 0)
+                    if (runCount == 0)
                     {
+                        float3 exForce = 0;
                         switch (teamData.forceMode)
                         {
                             case PhysicsManagerTeamData.ForceMode.VelocityAdd:
-                                force += teamData.impactForce;
+                                exForce += teamData.impactForce;
                                 break;
                             case PhysicsManagerTeamData.ForceMode.VelocityAddWithoutMass:
-                                force += teamData.impactForce * mass;
+                                exForce += teamData.impactForce * mass;
                                 break;
                             case PhysicsManagerTeamData.ForceMode.VelocityChange:
-                                force += teamData.impactForce;
+                                exForce += teamData.impactForce;
                                 velocity = 0;
                                 break;
                             case PhysicsManagerTeamData.ForceMode.VelocityChangeWithoutMass:
-                                force += teamData.impactForce * mass;
+                                exForce += teamData.impactForce * mass;
                                 velocity = 0;
                                 break;
                         }
 
                         // 外力
-                        force += teamData.externalForce;
+                        exForce += teamData.externalForce;
+
+                        // 風（重量に関係なく一定）
+                        if (teamData.IsFlag(PhysicsManagerTeamData.Flag_Wind))
+                            exForce += Wind(teamId, teamData, snapBasePos) * mass;
+
+                        // 外力深さ影響率
+                        exForce *= depthInfluence;
+
+                        force += exForce;
                     }
 
                     // 外力チームスケール倍率
@@ -794,7 +835,6 @@ namespace MagicaCloth
 
                 // 予定座標更新 ==============================================================
                 // 摩擦減衰
-                var friction = frictionList[index];
                 friction = friction * Define.Compute.FrictionDampingRate;
                 frictionList[index] = friction;
                 //frictionList[index] = 0;
@@ -806,9 +846,49 @@ namespace MagicaCloth
                 // 予測位置
                 nextPosList[index] = nextPos;
                 nextRotList[index] = nextRot;
+            }
 
-                // コリジョン用
-                //velocityList[index] = nextPos;
+            /// <summary>
+            /// 風の計算
+            /// </summary>
+            /// <param name="teamId"></param>
+            /// <param name="teamData"></param>
+            /// <param name="pos"></param>
+            /// <returns></returns>
+            float3 Wind(int teamId, in PhysicsManagerTeamData.TeamData teamData, in float3 pos)
+            {
+                var windInfo = teamWindInfoList[teamId];
+
+                // ノイズ起点
+                // ここをずらすと他のパーティクルと非同期になっていく
+                float sync = math.lerp(3.0f, 0.1f, teamData.forceWindSynchronization);
+                var noiseBasePos = new float2(pos.x, pos.z) * sync;
+
+                float3 externalForce = 0;
+                for (int i = 0; i < 4; i++)
+                {
+                    int windId = windInfo.windDataIndexList[i];
+                    if (windId < 0)
+                        continue;
+
+                    var windData = windDataList[windId];
+                    float3 windForce = PhysicsManagerWindData.CalcWindForce(
+                        teamData.time,
+                        noiseBasePos,
+                        windInfo.windDirectionList[i],
+                        windInfo.windMainList[i],
+                        windData.turbulence,
+                        windData.frequency,
+                        teamData.forceWindRandomScale
+                        );
+
+                    externalForce += windForce;
+                }
+
+                // チームの風の影響率
+                externalForce *= teamData.forceWindInfluence;
+
+                return externalForce;
             }
         }
 
@@ -817,10 +897,13 @@ namespace MagicaCloth
         {
             public float updatePower;
             public float updateDeltaTime;
+            public int runCount;
 
             // チーム
             [Unity.Collections.ReadOnly]
             public NativeArray<PhysicsManagerTeamData.TeamData> teamDataList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<CurveParam> teamMaxVelocityList;
 
             // パーティクルごと
             [Unity.Collections.ReadOnly]
@@ -828,28 +911,31 @@ namespace MagicaCloth
             [Unity.Collections.ReadOnly]
             public NativeArray<int> teamIdList;
             [Unity.Collections.ReadOnly]
+            public NativeArray<float> depthList;
+            [Unity.Collections.ReadOnly]
             public NativeArray<float3> nextPosList;
             [Unity.Collections.ReadOnly]
             public NativeArray<quaternion> nextRotList;
             [Unity.Collections.ReadOnly]
             public NativeArray<float> frictionList;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<float3> basePosList;
-            [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> baseRotList;
+            //[Unity.Collections.ReadOnly]
+            //public NativeArray<float3> basePosList;
+            //[Unity.Collections.ReadOnly]
+            //public NativeArray<quaternion> baseRotList;
 
-            // パーティクルごと
             public NativeArray<float3> velocityList;
             [Unity.Collections.WriteOnly]
             public NativeArray<quaternion> rotList;
 
             public NativeArray<float3> oldPosList;
             public NativeArray<quaternion> oldRotList;
-            public NativeArray<float3> oldSlowPosList;
 
             public NativeArray<float3> posList;
             [Unity.Collections.WriteOnly]
             public NativeArray<float3> localPosList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<float3> collisionNormalList;
+            public NativeArray<float> staticFrictionList;
 
             // パーティクルごと
             public void Execute(int index)
@@ -863,7 +949,7 @@ namespace MagicaCloth
                 var teamData = teamDataList[teamId];
 
                 // ここからは更新がある場合のみ実行
-                if (teamData.IsUpdate() == false)
+                if (teamData.IsUpdate(runCount) == false)
                     return;
 
                 // 速度更新(m/s)
@@ -876,21 +962,79 @@ namespace MagicaCloth
 
                     float3 velocity = 0;
 
-                    // 移動パーティクルのみ速度を更新する
+                    // posListには移動影響を考慮した最終座標が入っている
                     var pos = posList[index];
+                    var oldpos = oldPosList[index];
+
+                    // コライダー接触情報
+                    float friction = frictionList[index];
+                    var cn = collisionNormalList[index];
+                    bool isCollision = math.lengthsq(cn) > Define.Compute.Epsilon; // 接触の有無
+
+#if true
+                    // 静止摩擦
+                    float staticFriction = staticFrictionList[index];
+                    if (isCollision && friction > 0.0f)
+                    {
+                        // 接線方向の移動速度から計算する
+                        var v = nextPos - oldpos;
+                        v = v - MathUtility.Project(v, cn);
+                        float tangentVelocity = math.length(v) / updateDeltaTime; // 接線方向の移動速度
+                        float stopVelocity = teamData.staticFriction * teamData.scaleRatio; // 静止速度
+
+                        if (tangentVelocity < stopVelocity)
+                        {
+                            staticFriction = math.saturate(staticFriction + 0.02f * updatePower); // 係数増加
+                        }
+                        else
+                        {
+                            // 接線速度に応じて係数を減少
+                            var vel = tangentVelocity - stopVelocity;
+                            var value = math.max(vel / 0.2f, 0.05f) * updatePower;
+                            staticFriction = math.saturate(staticFriction - value);
+                        }
+
+                        // 現在の静止摩擦係数を使い接線方向の移動にブレーキをかける
+                        v *= staticFriction;
+                        nextPos -= v;
+                        pos -= v;
+                    }
+                    else
+                    {
+                        staticFriction = math.saturate(staticFriction - 0.05f * updatePower); // 係数減少
+                    }
+                    staticFrictionList[index] = staticFriction;
+#endif
 
                     // 速度更新(m/s)
                     velocity = (nextPos - pos) / updateDeltaTime;
                     velocity *= teamData.velocityWeight; // 安定化用の速度ウエイト
 
-                    // 摩擦による速度減衰
-                    float friction = frictionList[index];
-                    //friction *= teamData.friction; // チームごとの摩擦係数
+#if true
+                    // 動摩擦による速度減衰（衝突面との角度が大きいほど減衰が強くなる）
+                    if (friction > Define.Compute.Epsilon && isCollision && math.lengthsq(velocity) >= Define.Compute.Epsilon)
+                    {
+                        var dot = math.dot(cn, math.normalize(velocity));
+                        dot = 0.5f + 0.5f * dot; // 1.0(front) - 0.5(side) - 0.0(back)
+                        dot *= dot; // サイドを強めに
+                        dot = 1.0f - dot; // 0.0(front) - 0.75(side) - 1.0(back)
+                        velocity -= velocity * (dot * math.saturate(friction * teamData.dynamicFriction * 1.5f)); // 以前と同程度になるように補正
+                    }
+#else
+                    // 摩擦による速度減衰(旧)
+                    friction *= teamData.friction; // チームごとの摩擦係数
                     velocity *= math.pow(1.0f - math.saturate(friction), updatePower);
+#endif
+
+                    // 最大速度
+                    var depth = depthList[index];
+                    var maxVelocity = teamMaxVelocityList[teamId].Evaluate(depth);
+                    maxVelocity *= teamData.scaleRatio; // チームスケール
+                    velocity = MathUtility.ClampVector(velocity, 0.0f, maxVelocity);
 
                     // 実際の移動速度(localPosに格納)
-                    //posList[index] = (nextPos - oldPosList[index]) / updateDeltaTime;
-                    var realVelocity = (nextPos - oldPosList[index]) / updateDeltaTime;
+                    var realVelocity = (nextPos - oldpos) / updateDeltaTime;
+                    realVelocity = MathUtility.ClampVector(realVelocity, 0.0f, maxVelocity); // 最大速度は考慮する
                     localPosList[index] = realVelocity;
 
                     // 書き戻し
@@ -907,23 +1051,27 @@ namespace MagicaCloth
         /// <summary>
         /// 物理演算後処理
         /// </summary>
-        /// <param name="updateIntervalTime"></param>
-        void PostUpdatePhysics(float updateIntervalTime)
+        /// <param name="updateDeltaTime"></param>
+        void PostUpdatePhysics(float updateDeltaTime)
         {
             if (Particle.Count == 0)
                 return;
 
             var job = new PostUpdatePhysicsJob()
             {
-                updateIntervalTime = updateIntervalTime,
+                updateDeltaTime = updateDeltaTime,
 
                 teamDataList = Team.teamDataList.ToJobArray(),
 
                 flagList = Particle.flagList.ToJobArray(),
                 teamIdList = Particle.teamIdList.ToJobArray(),
 
+                snapBasePosList = Particle.snapBasePosList.ToJobArray(),
+                snapBaseRotList = Particle.snapBaseRotList.ToJobArray(),
                 basePosList = Particle.basePosList.ToJobArray(),
                 baseRotList = Particle.baseRotList.ToJobArray(),
+                oldBasePosList = Particle.oldBasePosList.ToJobArray(),
+                oldBaseRotList = Particle.oldBaseRotList.ToJobArray(),
 
                 oldPosList = Particle.oldPosList.ToJobArray(),
                 oldRotList = Particle.oldRotList.ToJobArray(),
@@ -934,6 +1082,7 @@ namespace MagicaCloth
                 posList = Particle.posList.ToJobArray(),
                 rotList = Particle.rotList.ToJobArray(),
                 nextPosList = Particle.InNextPosList.ToJobArray(),
+                nextRotList = Particle.InNextRotList.ToJobArray(),
 
                 oldSlowPosList = Particle.oldSlowPosList.ToJobArray(),
             };
@@ -943,7 +1092,7 @@ namespace MagicaCloth
         [BurstCompile]
         struct PostUpdatePhysicsJob : IJobParallelFor
         {
-            public float updateIntervalTime;
+            public float updateDeltaTime;
 
             // チーム
             [Unity.Collections.ReadOnly]
@@ -957,9 +1106,17 @@ namespace MagicaCloth
 
             // パーティクルごと
             [Unity.Collections.ReadOnly]
+            public NativeArray<float3> snapBasePosList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<quaternion> snapBaseRotList;
+            [Unity.Collections.ReadOnly]
             public NativeArray<float3> basePosList;
             [Unity.Collections.ReadOnly]
             public NativeArray<quaternion> baseRotList;
+            [Unity.Collections.WriteOnly]
+            public NativeArray<float3> oldBasePosList;
+            [Unity.Collections.WriteOnly]
+            public NativeArray<quaternion> oldBaseRotList;
             [Unity.Collections.ReadOnly]
             public NativeArray<float3> velocityList;
             [Unity.Collections.ReadOnly]
@@ -972,8 +1129,10 @@ namespace MagicaCloth
             public NativeArray<float3> posList;
             [Unity.Collections.WriteOnly]
             public NativeArray<quaternion> rotList;
-            [Unity.Collections.WriteOnly]
+            [Unity.Collections.ReadOnly]
             public NativeArray<float3> nextPosList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<quaternion> nextRotList;
 
             public NativeArray<float3> oldSlowPosList;
 
@@ -991,8 +1150,10 @@ namespace MagicaCloth
                 float3 viewPos = 0;
                 quaternion viewRot = quaternion.identity;
 
-                var basePos = basePosList[index];
-                var baseRot = baseRotList[index];
+                //var basePos = basePosList[index];
+                //var baseRot = baseRotList[index];
+                var snapBasePos = snapBasePosList[index];
+                var snapBaseRot = snapBaseRotList[index];
 
                 if (flag.IsFixed() == false)
                 {
@@ -1002,15 +1163,24 @@ namespace MagicaCloth
                     //var velocity = posList[index]; // 実際の速度（どうもこっちだとカクつき？があるぞ）
                     var velocity = localPosList[index]; // 実際の速度
 
-                    var futurePos = oldPosList[index] + velocity * updateIntervalTime;
+                    var futurePos = oldPosList[index] + velocity * updateDeltaTime;
                     var oldViewPos = oldSlowPosList[index];
-                    float oldTime = teamData.time - teamData.addTime;
-                    float futureTime = teamData.time + (updateIntervalTime - teamData.nowTime);
+                    float addTime = teamData.addTime;
+                    float oldTime = teamData.time - addTime;
+                    float futureTime = teamData.time + (updateDeltaTime - teamData.nowTime);
                     float interval = futureTime - oldTime;
-                    float ratio = teamData.addTime / interval;
-
-                    viewPos = math.lerp(oldViewPos, futurePos, ratio);
+                    //Debug.Log($"addTime:{teamData.addTime} interval:{interval}");
+                    if (addTime > 1e-06f && interval > 1e-06f)
+                    {
+                        float ratio = teamData.addTime / interval;
+                        viewPos = math.lerp(oldViewPos, futurePos, ratio);
+                    }
+                    else
+                    {
+                        viewPos = oldViewPos;
+                    }
                     viewRot = oldRotList[index];
+                    viewRot = math.normalize(viewRot); // 回転蓄積で精度が落ちていくので正規化しておく
 #if false
                     // 未来予測を切る
                     futurePos = oldPosList[index];
@@ -1022,31 +1192,45 @@ namespace MagicaCloth
                 else
                 {
                     // 固定パーティクルの表示位置は常にベース位置
-                    viewPos = basePos;
-                    viewRot = baseRot;
+                    //viewPos = basePos;
+                    //viewRot = baseRot;
+                    viewPos = snapBasePos;
+                    viewRot = snapBaseRot;
 
                     // 固定パーティクルは今回のbasePosを記録する（更新時のみ）
                     if (teamData.IsRunning())
                     {
-                        oldPosList[index] = viewPos;
-                        oldRotList[index] = viewRot;
+                        // 最終計算位置を格納する
+                        oldPosList[index] = nextPosList[index];
+                        oldRotList[index] = nextRotList[index];
                     }
                 }
 
                 // ブレンド
                 if (teamData.blendRatio < 0.99f)
                 {
-                    viewPos = math.lerp(basePos, viewPos, teamData.blendRatio);
-                    viewRot = math.slerp(baseRot, viewRot, teamData.blendRatio);
+                    //viewPos = math.lerp(basePos, viewPos, teamData.blendRatio);
+                    //viewRot = math.slerp(baseRot, viewRot, teamData.blendRatio);
+                    viewPos = math.lerp(snapBasePos, viewPos, teamData.blendRatio);
+                    viewRot = math.slerp(snapBaseRot, viewRot, teamData.blendRatio);
                     viewRot = math.normalize(viewRot); // 回転蓄積で精度が落ちていくので正規化しておく
                 }
+
+                // test
+                //viewPos = snapBasePos;
+                //viewRot = snapBaseRot;
+
 
                 // 表示位置
                 posList[index] = viewPos;
                 rotList[index] = viewRot;
 
-                // TriangleWorker計算用にnextPosにコピーする
-                nextPosList[index] = viewPos;
+                // １つ前の基準位置を記録
+                if (teamData.IsRunning())
+                {
+                    oldBasePosList[index] = basePosList[index];
+                    oldBaseRotList[index] = baseRotList[index];
+                }
             }
         }
 

@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using Unity.Burst;
@@ -137,11 +137,16 @@ namespace MagicaCloth
                 flagList = Manager.Particle.flagList.ToJobArray(),
                 particlePosList = Manager.Particle.posList.ToJobArray(),
                 particleRotList = Manager.Particle.rotList.ToJobArray(),
-                particleBasePosList = Manager.Particle.basePosList.ToJobArray(),
-                particleBaseRotList = Manager.Particle.baseRotList.ToJobArray(),
+                //particleBasePosList = Manager.Particle.basePosList.ToJobArray(),
+                //particleBaseRotList = Manager.Particle.baseRotList.ToJobArray(),
+                snapBasePosList = Manager.Particle.snapBasePosList.ToJobArray(),
+                snapBaseRotList = Manager.Particle.snapBaseRotList.ToJobArray(),
 
                 virtualPosList = Manager.Mesh.virtualPosList.ToJobArray(),
                 virtualVertexFlagList = Manager.Mesh.virtualVertexFlagList.ToJobArray(),
+                virtualVertexMeshIndexList = Manager.Mesh.virtualVertexMeshIndexList.ToJobArray(),
+
+                virtualMeshInfoList = Manager.Mesh.virtualMeshInfoList.ToJobArray(),
             };
             jobHandle = job.Schedule(springVertexList.Length, 64, jobHandle);
 
@@ -154,7 +159,11 @@ namespace MagicaCloth
             [Unity.Collections.ReadOnly]
             public NativeArray<int> springVertexList;
             [Unity.Collections.ReadOnly]
-            public NativeMultiHashMap<int, SpringData> springMap;
+#if MAGICACLOTH_USE_COLLECTIONS_130
+            public NativeParallelMultiHashMap<int, SpringData> springMap;
+#else
+            public NativeParallelMultiHashMap<int, SpringData> springMap;
+#endif
 
             [Unity.Collections.ReadOnly]
             public NativeArray<PhysicsManagerParticleData.ParticleFlag> flagList;
@@ -162,24 +171,46 @@ namespace MagicaCloth
             public NativeArray<float3> particlePosList;
             [Unity.Collections.ReadOnly]
             public NativeArray<quaternion> particleRotList;
+            //[Unity.Collections.ReadOnly]
+            //public NativeArray<float3> particleBasePosList;
+            //[Unity.Collections.ReadOnly]
+            //public NativeArray<quaternion> particleBaseRotList;
             [Unity.Collections.ReadOnly]
-            public NativeArray<float3> particleBasePosList;
+            public NativeArray<float3> snapBasePosList;
             [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> particleBaseRotList;
+            public NativeArray<quaternion> snapBaseRotList;
 
             [NativeDisableParallelForRestriction]
             public NativeArray<float3> virtualPosList;
             [Unity.Collections.WriteOnly]
             [NativeDisableParallelForRestriction]
             public NativeArray<byte> virtualVertexFlagList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<short> virtualVertexMeshIndexList;
 
-            NativeMultiHashMapIterator<int> iterator;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<PhysicsManagerMeshData.VirtualMeshInfo> virtualMeshInfoList;
+
+#if MAGICACLOTH_USE_COLLECTIONS_130
+            NativeParallelMultiHashMapIterator<int> iterator;
+#else
+            NativeParallelMultiHashMapIterator<int> iterator;
+#endif
 
             // スプリング対象頂点ごと
             public void Execute(int index)
             {
                 int vindex = springVertexList[index];
                 if (vindex < 0)
+                    return;
+
+                // 仮想インスタンスメッシュ情報
+                int mindex = virtualVertexMeshIndexList[vindex];
+                var m_minfo = virtualMeshInfoList[mindex - 1]; // (-1)するので注意！
+                if (m_minfo.IsUse() == false)
+                    return;
+                // 停止判定
+                if (m_minfo.IsPause())
                     return;
 
                 SpringData data;
@@ -214,8 +245,10 @@ namespace MagicaCloth
                         var prot = particleRotList[pindex];
 
                         // パーティクル原点姿勢
-                        var pbpos = particleBasePosList[pindex];
-                        var pbrot = particleBaseRotList[pindex];
+                        //var pbpos = particleBasePosList[pindex];
+                        //var pbrot = particleBaseRotList[pindex];
+                        var pbpos = snapBasePosList[pindex];
+                        var pbrot = snapBaseRotList[pindex];
                         var ivpbrot = math.inverse(pbrot);
 
                         // (1)パーティクルBaseからの相対位置

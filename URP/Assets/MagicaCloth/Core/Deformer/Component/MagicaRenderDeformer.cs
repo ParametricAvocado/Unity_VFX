@@ -1,10 +1,9 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
-using UnityEditor;
 #endif
 
 namespace MagicaCloth
@@ -37,6 +36,11 @@ namespace MagicaCloth
         [SerializeField]
         private int deformerVersion;
 
+        /// <summary>
+        /// カリングモードのキャッシュ(-1=キャッシュ無効)
+        /// </summary>
+        internal PhysicsTeam.TeamCullingMode cullModeCash { get; private set; } = (PhysicsTeam.TeamCullingMode)(-1);
+
         //=========================================================================================
         public override ComponentType GetComponentType()
         {
@@ -66,14 +70,6 @@ namespace MagicaCloth
         }
 
         //=========================================================================================
-        void Reset()
-        {
-#if UNITY_EDITOR
-            // 自動データ作成
-            CreateData();
-#endif
-        }
-
         void OnValidate()
         {
             Deformer.OnValidate();
@@ -102,6 +98,83 @@ namespace MagicaCloth
         protected override void OnInactive()
         {
             Deformer.OnDisable();
+        }
+
+        protected void OnBecameVisible()
+        {
+            //Debug.Log("RD Visible");
+            if (MagicaPhysicsManager.IsInstance())
+                UpdateCullingMode(this);
+        }
+
+        protected void OnBecameInvisible()
+        {
+            //Debug.Log("RD Invisible");
+            if (MagicaPhysicsManager.IsInstance())
+                UpdateCullingMode(this);
+        }
+
+
+        //=========================================================================================
+        internal override void UpdateCullingMode(CoreComponent caller)
+        {
+            // カリングモード（VirtualDeformerから収集する)
+            cullModeCash = 0;
+            foreach (var status in Status.parentStatusSet)
+            {
+                if (status != null)
+                {
+                    var owner = status.OwnerFunc() as MagicaVirtualDeformer;
+                    if (owner != null)
+                    {
+                        var ownerCull = owner.cullModeCash;
+                        if (ownerCull > cullModeCash)
+                            cullModeCash = ownerCull;
+                    }
+                }
+            }
+
+            // 表示状態
+            // クロスコンポーネントに非表示での停止が設定されている場合はレンダラーのIsVisibleフラグを参照する
+            // それ以外では常に表示状態として可動させる
+            var visible = true;
+            if (cullModeCash != PhysicsTeam.TeamCullingMode.Off)
+                visible = Deformer.IsRendererVisible;
+            IsVisible = visible;
+
+            // 計算状態
+            bool stopInvisible = cullModeCash != PhysicsTeam.TeamCullingMode.Off;
+            bool calc = true;
+            if (stopInvisible)
+            {
+                calc = visible;
+            }
+            var val = calc ? 1 : 0;
+            if (calculateValue != val)
+            {
+                calculateValue = val;
+                OnChangeCalculation();
+            }
+
+            // VirtualDeformerへ伝達
+            foreach (var status in Status.parentStatusSet)
+            {
+                var core = status?.OwnerFunc() as CoreComponent;
+                if (core && core != caller)
+                    core.UpdateCullingMode(this);
+            }
+        }
+
+        protected override void OnChangeCalculation()
+        {
+            //Debug.Log($"RD [{this.name}] Visible:{IsVisible} Calc:{IsCalculate} F:{Time.frameCount}");
+            Deformer.ChangeCalculation(IsCalculate);
+
+            if (IsCalculate && MagicaPhysicsManager.Instance.IsDelay && cullModeCash == PhysicsTeam.TeamCullingMode.Reset)
+            {
+                // メッシュ書き込みを１回スキップさせる
+                Deformer.IsWriteSkip = true;
+            }
         }
 
         //=========================================================================================
@@ -168,11 +241,33 @@ namespace MagicaCloth
         /// ボーンを置換する
         /// </summary>
         /// <param name="boneReplaceDict"></param>
-        public override void ReplaceBone(Dictionary<Transform, Transform> boneReplaceDict)
+        public override void ReplaceBone<T>(Dictionary<T, Transform> boneReplaceDict)
         {
             base.ReplaceBone(boneReplaceDict);
 
             Deformer.ReplaceBone(boneReplaceDict);
+        }
+
+        /// <summary>
+        /// 現在使用しているボーンを格納して返す
+        /// </summary>
+        /// <returns></returns>
+        public override HashSet<Transform> GetUsedBones()
+        {
+            var bones = base.GetUsedBones();
+            bones.UnionWith(Deformer.GetUsedBones());
+            return bones;
+        }
+
+        //=========================================================================================
+        /// <summary>
+        /// UnityPhyiscsでの更新の変更
+        /// 継承クラスは自身の使用するボーンの状態更新などを記述する
+        /// </summary>
+        /// <param name="sw"></param>
+        protected override void ChangeUseUnityPhysics(bool sw)
+        {
+            Deformer.ChangeUseUnityPhysics(sw);
         }
 
         //=========================================================================================
@@ -215,7 +310,7 @@ namespace MagicaCloth
         /// <returns></returns>
         public override List<int> GetUseList()
         {
-            return null;
+            return Deformer.GetEditorUseList();
         }
 
         //=========================================================================================
@@ -247,101 +342,5 @@ namespace MagicaCloth
 
             return null;
         }
-
-#if UNITY_EDITOR
-        //=========================================================================================
-        /// <summary>
-        /// 事前データ作成（エディット時のみ）
-        /// ※RenderDeformerはマルチ選択＋コンポーネントアタッチで自動生成する必要があるのでこちらに配置する
-        /// </summary>
-        public void CreateData()
-        {
-            Debug.Log("Started creating. [" + this.name + "]");
-
-            var serializedObject = new SerializedObject(this);
-
-            // ターゲットオブジェクト
-            serializedObject.FindProperty("deformer.targetObject").objectReferenceValue = gameObject;
-            serializedObject.FindProperty("deformer.dataHash").intValue = 0;
-
-            // 共有データ作成
-            var meshData = ShareDataObject.CreateShareData<MeshData>("RenderMeshData_" + this.name);
-
-            // renderer
-            var ren = GetComponent<Renderer>();
-            if (ren == null)
-            {
-                Debug.LogError("Creation failed. Renderer not found.");
-                return;
-            }
-
-            Mesh sharedMesh = null;
-            if (ren is SkinnedMeshRenderer)
-            {
-                meshData.isSkinning = true;
-                var sren = ren as SkinnedMeshRenderer;
-                sharedMesh = sren.sharedMesh;
-            }
-            else
-            {
-                meshData.isSkinning = false;
-                var meshFilter = ren.GetComponent<MeshFilter>();
-                if (meshFilter == null)
-                {
-                    Debug.LogError("Creation failed. MeshFilter not found.");
-                    return;
-                }
-                sharedMesh = meshFilter.sharedMesh;
-            }
-
-            // 設計時スケール
-            meshData.baseScale = transform.lossyScale;
-
-            // 頂点
-            meshData.vertexCount = sharedMesh.vertexCount;
-
-            // 頂点ハッシュ
-            var vlist = sharedMesh.vertices;
-            List<ulong> vertexHashList = new List<ulong>();
-            for (int i = 0; i < vlist.Length; i++)
-            {
-                var vhash = DataHashExtensions.GetVectorDataHash(vlist[i]);
-                //Debug.Log("[" + i + "] (" + (vlist[i] * 1000) + ") :" + vhash);
-                vertexHashList.Add(vhash);
-            }
-            meshData.vertexHashList = vertexHashList.ToArray();
-
-            // トライアングル
-            meshData.triangleCount = sharedMesh.triangles.Length / 3;
-
-            // レンダーデフォーマーのメッシュデータにはローカル座標、法線、接線、UV、トライアングルリストは保存しない
-            // 不要なため
-
-            // ボーン
-            int boneCount = meshData.isSkinning ? sharedMesh.bindposes.Length : 1;
-            meshData.boneCount = boneCount;
-
-            // メッシュデータの検証とハッシュ
-            meshData.CreateVerifyData();
-
-            serializedObject.FindProperty("deformer.sharedMesh").objectReferenceValue = sharedMesh;
-            serializedObject.FindProperty("deformer.meshData").objectReferenceValue = meshData;
-            serializedObject.FindProperty("deformer.meshOptimize").intValue = EditUtility.GetOptimizeMesh(sharedMesh);
-            serializedObject.ApplyModifiedProperties();
-
-            // デフォーマーデータの検証とハッシュ
-            Deformer.CreateVerifyData();
-            serializedObject.ApplyModifiedProperties();
-
-            // コアコンポーネントの検証とハッシュ
-            CreateVerifyData();
-            serializedObject.ApplyModifiedProperties();
-
-            EditorUtility.SetDirty(meshData);
-
-            // 変更後数
-            Debug.Log("Creation completed. [" + this.name + "]");
-        }
-#endif
     }
 }

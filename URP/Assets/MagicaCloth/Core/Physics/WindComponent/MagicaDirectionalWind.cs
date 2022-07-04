@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEngine;
 
@@ -12,58 +12,98 @@ namespace MagicaCloth
     [AddComponentMenu("MagicaCloth/MagicaDirectionalWind")]
     public partial class MagicaDirectionalWind : WindComponent
     {
-        [SerializeField]
-        [Range(0.0f, 50.0f)]
-        private float main = 5.0f;
-
-        [SerializeField]
-        [Range(0.0f, 1.0f)]
-        private float turbulence = 1.0f;
-
-        //=========================================================================================
-        private float oldMain = 0;
-        private float oldTurbulence = 0;
-
-        //=========================================================================================
         public override ComponentType GetComponentType()
         {
             return ComponentType.DirectionalWind;
         }
 
-        //=========================================================================================
-        //private void OnValidate()
-        //{
-        //    if (Application.isPlaying && windId >= 0)
-        //    {
-        //        MagicaPhysicsManager.Instance.Wind.SetParameter(windId, main, randomAngle);
-        //    }
-        //}
-
-        protected override void CreateWind()
+        /// <summary>
+        /// 風タイプを返す
+        /// </summary>
+        /// <returns></returns>
+        public override PhysicsManagerWindData.WindType GetWindType()
         {
-            windId = MagicaPhysicsManager.Instance.Wind.CreateWind(PhysicsManagerWindData.WindType.Direction, main, turbulence);
+            return PhysicsManagerWindData.WindType.Direction;
         }
 
-        protected override void OnUpdate()
+        /// <summary>
+        /// 形状タイプを返す
+        /// </summary>
+        /// <returns></returns>
+        public override PhysicsManagerWindData.ShapeType GetShapeType()
         {
-            base.OnUpdate();
+            return PhysicsManagerWindData.ShapeType.Box;
+        }
 
-            if (windId >= 0)
-            {
-                // パラメータ変更チェック
-                bool change = false;
-                if (main != oldMain)
-                    change = true;
-                if (turbulence != oldTurbulence)
-                    change = true;
+        /// <summary>
+        /// 風向きタイプを返す
+        /// </summary>
+        /// <returns></returns>
+        public override PhysicsManagerWindData.DirectionType GetDirectionType()
+        {
+            return PhysicsManagerWindData.DirectionType.OneDirection;
+        }
 
-                if (change)
-                {
-                    oldMain = main;
-                    oldTurbulence = turbulence;
-                    MagicaPhysicsManager.Instance.Wind.SetParameter(windId, main, turbulence);
-                }
-            }
+        /// <summary>
+        /// 風が加算モードか返す
+        /// </summary>
+        /// <returns></returns>
+        public override bool IsAddition()
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// エリアサイズを返す
+        /// </summary>
+        /// <returns></returns>
+        public override Vector3 GetAreaSize()
+        {
+            return new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+        }
+
+        /// <summary>
+        /// アンカー位置を返す
+        /// </summary>
+        /// <returns></returns>
+        //public override Vector3 GetAnchor()
+        //{
+        //    return Vector3.zero;
+        //}
+
+        /// <summary>
+        /// 風エリアの体積を返す
+        /// </summary>
+        /// <returns></returns>
+        public override float GetAreaVolume()
+        {
+            return 100000000;
+        }
+
+        /// <summary>
+        /// 風エリアの最大距離を返す
+        /// </summary>
+        /// <returns></returns>
+        public override float GetAreaLength()
+        {
+            return float.MaxValue;
+        }
+
+        //=========================================================================================
+        /// <summary>
+        /// パラメータ初期化
+        /// </summary>
+        protected override void ResetParams()
+        {
+            main = 5;
+            turbulence = 1;
+            frequency = 1;
+            areaSize = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            //anchor = Vector3.zero;
+            directionAngleX = 0;
+            directionAngleY = 0;
+            directionType = PhysicsManagerWindData.DirectionType.OneDirection;
+            attenuation.SetParam(1, 1, false, 0, false);
         }
     }
 }

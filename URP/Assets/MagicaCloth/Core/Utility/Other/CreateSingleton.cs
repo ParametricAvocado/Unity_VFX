@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEngine;
 
@@ -23,6 +23,20 @@ namespace MagicaCloth
         private static T initInstance;
 
         private static bool isDestroy;
+
+
+        /// <summary>
+        /// Reload Domain 対応
+        /// ※残念ながらジェネリッククラスでは[RuntimeInitializeOnLoadMethod]が利用できないため、
+        /// この初期化関数を派生元で[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        /// を使用して呼び出さなければならない
+        /// </summary>
+        protected static void InitMember()
+        {
+            instance = null;
+            initInstance = null;
+            isDestroy = false;
+        }
 
         public static T Instance
         {
@@ -82,7 +96,7 @@ namespace MagicaCloth
                 instance = this as T;
                 InitInstance();
             }
-            else
+            else if(instance != this)
             {
                 // ２つ目のコンポーネントを発見
                 var s = instance as CreateSingleton<T>;

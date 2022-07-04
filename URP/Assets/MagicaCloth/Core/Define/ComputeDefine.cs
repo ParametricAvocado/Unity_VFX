@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 
 namespace MagicaCloth
@@ -11,6 +11,11 @@ namespace MagicaCloth
         /// </summary>
         public static class Compute
         {
+            /// <summary>
+            /// 計算を省略する最小の浮動小数点数
+            /// </summary>
+            public const float Epsilon = 1e-6f;
+
             /// <summary>
             /// 摩擦係数を計算するコライダーとの距離
             /// </summary>
@@ -25,7 +30,7 @@ namespace MagicaCloth
             /// 摩擦係数による移動率
             /// 0.9f = 最大摩擦でも10%は移動する
             /// </summary>
-            public const float FrictionMoveRatio = 1.0f; // 0.5(v1.6.1) 0.9(v1.7.0) 1.0(v1.8.0)
+            public const float FrictionMoveRatio = 0.5f; // 0.5(v1.6.1) 0.9(v1.7.0) 1.0(v1.8.0)
 
             /// <summary>
             /// 摩擦係数の距離による減衰力
@@ -38,16 +43,6 @@ namespace MagicaCloth
             public const float ClampPositionMaxVelocity = 1.0f;
 
             /// <summary>
-            /// ClampRotation拘束でのパーティクル最大速度(m/s)
-            /// </summary>
-            public const float ClampRotationMaxVelocity = 1.0f;
-
-            /// <summary>
-            /// ベーススキニング最大ウエイト数
-            /// </summary>
-            public const int BaseSkinningWeightCount = 4; // 2?
-
-            /// <summary>
             /// グローバルコライダーの１ステップの最大移動距離
             /// </summary>
             public const float GlobalColliderMaxMoveDistance = 0.2f;
@@ -56,11 +51,6 @@ namespace MagicaCloth
             /// グローバルコライダーの１ステップの最大回転角度(deg)
             /// </summary>
             public const float GlobalColliderMaxRotationAngle = 10.0f;
-
-            /// <summary>
-            /// コライダー押し出し時に接触と判定するコライダーまでの距離
-            /// </summary>
-            public const float ColliderExtrusionDist = 0.04f; // 0.02(v1.8.4)
 
             /// <summary>
             /// コライダー押し出し時の最大移動距離
@@ -82,6 +72,39 @@ namespace MagicaCloth
             /// コライダー押し出し時の速度影響
             /// </summary>
             public const float ColliderExtrusionVelocityInfluence = 0.25f; // 0.5(v1.8.0) 0.25(v1.8.1)
+
+            /// <summary>
+            /// 最大風力
+            /// </summary>
+            public const float MaxWindMain = 100;
+
+            //=================================================================
+            // Algorithm 1
+            //=================================================================
+            /// <summary>
+            /// ClampRotation拘束でのパーティクル最大速度(m/s)
+            /// </summary>
+            public const float ClampRotationMaxVelocity = 1.0f;
+
+
+            //=================================================================
+            // Algorithm 2
+            //=================================================================
+            /// <summary>
+            /// ClampRotation2でのパーティクル最大速度(m/s)
+            /// </summary>
+            public const float ClampRotationMaxVelocity2 = 2.0f;
+
+            /// <summary>
+            /// ClampRotation2での親からの回転中心割合(0.0-1.0)
+            /// (0.4が安定)(0.3がぎりぎり)
+            /// </summary>
+            //public const float ClampRotationPivotRatio = 0.3f;
+
+            /// <summary>
+            /// TriangleBendの速度影響(0.0-1.0)
+            /// </summary>
+            public const float TriangleBendVelocityInfluence = 0.5f;
         }
     }
 }

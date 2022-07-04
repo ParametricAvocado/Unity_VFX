@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEditor;
 using UnityEngine;
@@ -12,6 +12,17 @@ namespace MagicaCloth
     [CustomEditor(typeof(MagicaRenderDeformer))]
     public class MagicaRenderDeformerInspector : Editor
     {
+        protected void OnEnable()
+        {
+            // 初期データ作成
+            MagicaRenderDeformer scr = target as MagicaRenderDeformer;
+            if (EditorApplication.isPlaying == false && scr.SaveDataHash == 0 && scr.SaveDataVersion == 0 && scr.GetComponent<Renderer>())
+            {
+                Debug.Log("Init Render Deformer data.");
+                BuildManager.CreateComponent(scr);
+            }
+        }
+
         public override void OnInspectorGUI()
         {
             MagicaRenderDeformer scr = target as MagicaRenderDeformer;
@@ -41,7 +52,7 @@ namespace MagicaCloth
                 if (GUILayout.Button("Create"))
                 {
                     Undo.RecordObject(scr, "CreateRenderMeshData");
-                    scr.CreateData();
+                    BuildManager.CreateComponent(scr);
                 }
                 GUI.backgroundColor = Color.white;
                 serializedObject.ApplyModifiedProperties();
@@ -58,13 +69,18 @@ namespace MagicaCloth
 
             var property1 = serializedObject.FindProperty("deformer.normalAndTangentUpdateMode");
             var value1 = property1.boolValue;
+            var property2 = serializedObject.FindProperty("deformer.boundsUpdateMode");
 
-            EditorGUILayout.PropertyField(property1);
+            using (new EditorGUI.DisabledScope(EditorApplication.isPlaying))
+            {
+                EditorGUILayout.PropertyField(property1);
+                EditorGUILayout.PropertyField(property2);
+            }
 
             serializedObject.ApplyModifiedProperties();
 
             if (property1.boolValue != value1)
-                scr.Deformer.IsChangeNormalTangent = true; // 再計算
+                scr.Deformer.ChangeNormalTangentUpdateMode(); // 変更を通知
         }
 
         //=========================================================================================

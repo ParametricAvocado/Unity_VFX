@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System;
 using System.Collections.Generic;
@@ -218,7 +218,8 @@ namespace MagicaCloth
         /// <param name="chunk"></param>
         public void RemoveChunk(ChunkData chunk)
         {
-            RemoveChunk(chunk.chunkNo);
+            if (chunk.IsValid())
+                RemoveChunk(chunk.chunkNo);
         }
 
         /// <summary>

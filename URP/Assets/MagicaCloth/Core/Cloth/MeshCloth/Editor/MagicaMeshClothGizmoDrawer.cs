@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEditor;
 
@@ -21,6 +21,9 @@ namespace MagicaCloth
             if (selected == false)
                 return;
 
+
+            // 常に表示
+            ClothGizmoDrawer.AlwaysDrawClothGizmo(scr, scr.Params);
 
             // デフォーマー状態表示
             //if (scr.Deformer != null && scr.Deformer.VerifyData())

@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -10,6 +10,7 @@ namespace MagicaCloth
 {
     /// <summary>
     /// トライアングル回転調整ワーカー
+    /// BoneClothでのMesh接続時にトライアングル法線からボーン姿勢を計算するのに使用する
     /// </summary>
     public class TriangleWorker : PhysicsManagerWorker
     {
@@ -173,9 +174,8 @@ namespace MagicaCloth
                 teamIdList = Manager.Particle.teamIdList.ToJobArray(),
                 flagList = Manager.Particle.flagList.ToJobArray(),
 
+                posList = Manager.Particle.posList.ToJobArray(),
                 rotList = Manager.Particle.rotList.ToJobArray(),
-
-                nextPosList = Manager.Particle.InNextPosList.ToJobArray(),
             };
             jobHandle = job1.Schedule(Manager.Particle.Length, 64, jobHandle);
 
@@ -205,8 +205,7 @@ namespace MagicaCloth
             public NativeArray<PhysicsManagerParticleData.ParticleFlag> flagList;
 
             [Unity.Collections.ReadOnly]
-            public NativeArray<float3> nextPosList;
-
+            public NativeArray<float3> posList;
             [Unity.Collections.WriteOnly]
             public NativeArray<quaternion> rotList;
 
@@ -223,6 +222,9 @@ namespace MagicaCloth
                 int teamIndex = teamIdList[index];
                 var team = teamDataList[teamIndex];
                 if (team.IsActive() == false || team.triangleWorkerGroupIndex < 0)
+                    return;
+                // 一時停止スキップ
+                if (team.IsPause())
                     return;
 
                 // 固定は回転させない判定(v1.5.2)
@@ -251,19 +253,18 @@ namespace MagicaCloth
                     int v2 = triangleIndexList[tbase + tindex + 2];
                     tindex += 3;
 
-                    var pos0 = nextPosList[pstart + v0];
-                    var pos1 = nextPosList[pstart + v1];
-                    var pos2 = nextPosList[pstart + v2];
+                    var pos0 = posList[pstart + v0];
+                    var pos1 = posList[pstart + v1];
+                    var pos2 = posList[pstart + v2];
 
                     var n = math.cross(pos1 - pos0, pos2 - pos0);
-                    //var n = math.cross(math.normalize(pos1 - pos0), math.normalize(pos2 - pos0));
                     nor += math.normalize(n);
                 }
                 nor = math.normalize(nor);
 
                 // パーティクル接線を計算する
-                var pos = nextPosList[index];
-                var tpos = nextPosList[pstart + data.targetIndex];
+                var pos = posList[index];
+                var tpos = posList[pstart + data.targetIndex];
                 var tan = math.normalize(tpos - pos);
 
                 // マイナススケール対応
@@ -272,7 +273,6 @@ namespace MagicaCloth
 
                 // パーティクル姿勢
                 var rot = quaternion.LookRotation(nor, tan);
-                //rot = math.mul(rot, data.localRot);
                 rot = math.mul(rot, new quaternion(data.localRot.value * team.quaternionScale)); // マイナススケール対応
 
                 rotList[index] = rot;

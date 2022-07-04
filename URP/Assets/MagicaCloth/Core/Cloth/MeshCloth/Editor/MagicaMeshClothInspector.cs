@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEditor;
@@ -41,12 +41,17 @@ namespace MagicaCloth
             // コライダー
             ColliderInspector();
 
+            // スキニング
+            SkinningInspector();
+
             // パラメータ
             EditorGUILayout.Space();
             EditorGUILayout.Space();
             EditorPresetUtility.DrawPresetButton(scr, scr.Params);
             {
                 var cparam = serializedObject.FindProperty("clothParams");
+                if (EditorInspectorUtility.AlgorithmInspector(cparam, scr.HasChangedParam(ClothParams.ParamType.Algorithm), ConvertToLatestAlgorithmParameters))
+                    scr.Params.SetChangeParam(ClothParams.ParamType.Algorithm);
                 if (EditorInspectorUtility.RadiusInspector(cparam))
                     scr.Params.SetChangeParam(ClothParams.ParamType.Radius);
                 if (EditorInspectorUtility.MassInspector(cparam))
@@ -67,13 +72,13 @@ namespace MagicaCloth
                     scr.Params.SetChangeParam(ClothParams.ParamType.ClampDistance);
                 if (EditorInspectorUtility.ClampPositionInspector(cparam, false, scr.HasChangedParam(ClothParams.ParamType.ClampPosition)))
                     scr.Params.SetChangeParam(ClothParams.ParamType.ClampPosition);
-                if (EditorInspectorUtility.ClampRotationInspector(cparam, scr.HasChangedParam(ClothParams.ParamType.ClampRotation)))
+                if (EditorInspectorUtility.ClampRotationInspector(cparam, scr.HasChangedParam(ClothParams.ParamType.ClampRotation), scr.ClothData))
                     scr.Params.SetChangeParam(ClothParams.ParamType.ClampRotation);
                 if (EditorInspectorUtility.RestoreDistanceInspector(cparam, scr.HasChangedParam(ClothParams.ParamType.RestoreDistance)))
                     scr.Params.SetChangeParam(ClothParams.ParamType.RestoreDistance);
-                if (EditorInspectorUtility.RestoreRotationInspector(cparam, scr.HasChangedParam(ClothParams.ParamType.RestoreRotation)))
+                if (EditorInspectorUtility.RestoreRotationInspector(cparam, scr.HasChangedParam(ClothParams.ParamType.RestoreRotation), scr.ClothData))
                     scr.Params.SetChangeParam(ClothParams.ParamType.RestoreRotation);
-                if (EditorInspectorUtility.TriangleBendInspector(cparam, scr.HasChangedParam(ClothParams.ParamType.TriangleBend)))
+                if (EditorInspectorUtility.TriangleBendInspector(cparam, scr.HasChangedParam(ClothParams.ParamType.TriangleBend), scr.ClothData))
                     scr.Params.SetChangeParam(ClothParams.ParamType.TriangleBend);
                 //if (EditorInspectorUtility.VolumeInspector(cparam))
                 //    scr.Params.SetChangeParam(ClothParams.ParamType.Volume);
@@ -100,7 +105,10 @@ namespace MagicaCloth
                 if (GUILayout.Button("Create"))
                 {
                     Undo.RecordObject(scr, "CreateMeshCloth");
-                    CreateData();
+                    // 共有選択データが存在しない場合は作成する
+                    if (scr.ClothSelection == null)
+                        InitSelectorData();
+                    BuildManager.CreateComponent(scr);
                 }
                 GUI.backgroundColor = Color.white;
 
@@ -169,8 +177,8 @@ namespace MagicaCloth
 
             EditorGUILayout.Space();
 
-            // ブレンド率
-            UserBlendInspector();
+            // チーム項目
+            TeamBasicInspector();
 
             // ポイント選択
             if (scr.Deformer != null)
@@ -180,6 +188,9 @@ namespace MagicaCloth
                 EditorGUI.EndDisabledGroup();
             }
             EditorGUILayout.Space();
+
+            // カリング
+            CullingInspector();
         }
 
         //=============================================================================================
@@ -226,63 +237,6 @@ namespace MagicaCloth
             var cdata = serializedObject.FindProperty("clothSelection");
             cdata.objectReferenceValue = sel;
             serializedObject.ApplyModifiedProperties();
-        }
-
-        //=========================================================================================
-        /// <summary>
-        /// データ作成
-        /// </summary>
-        void CreateData()
-        {
-            MagicaMeshCloth scr = target as MagicaMeshCloth;
-
-            Debug.Log("Started creating. [" + scr.name + "]");
-
-            // 共有選択データが存在しない場合は作成する
-            if (scr.ClothSelection == null)
-                InitSelectorData();
-
-            // チームハッシュを設定
-            scr.TeamData.ValidateColliderList();
-
-            // クロスデータ共有データ作成
-            string dataname = "MeshClothData_" + scr.name;
-            var cloth = ShareDataObject.CreateShareData<ClothData>(dataname);
-
-            // クロスデータ用にセレクションデータを拡張する
-            // （１）無効頂点の隣接が移動／固定頂点なら拡張に変更する
-            // （２）移動／固定頂点に影響する子頂点に接続する無効頂点は拡張に変更する
-            var selection = scr.Deformer.MeshData.ExtendSelection(
-                scr.ClothSelection.GetSelectionData(scr.Deformer.MeshData, scr.Deformer.GetRenderDeformerMeshList()),
-                true,
-                true
-                );
-
-            // クロスデータ作成
-            cloth.CreateData(
-                scr,
-                scr.Params,
-                scr.TeamData,
-                scr.Deformer.MeshData,
-                scr.Deformer,
-                selection
-                );
-
-            // クロスデータを設定
-            var cdata = serializedObject.FindProperty("clothData");
-            cdata.objectReferenceValue = cloth;
-            serializedObject.ApplyModifiedProperties();
-
-            // 検証
-            scr.CreateVerifyData();
-            serializedObject.ApplyModifiedProperties();
-
-            EditorUtility.SetDirty(cloth);
-
-            if (scr.VerifyData() == Define.Error.None)
-                Debug.Log("Creation completed. [" + scr.name + "]");
-            else
-                Debug.LogError("Creation failed.");
         }
     }
 }

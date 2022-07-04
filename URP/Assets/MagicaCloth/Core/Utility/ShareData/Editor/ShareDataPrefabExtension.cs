@@ -1,10 +1,14 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.Experimental.SceneManagement;
 using UnityEngine;
+#if UNITY_2021_2_OR_NEWER
+using UnityEditor.SceneManagement;
+#else
+using UnityEditor.Experimental.SceneManagement;
+#endif
 
 namespace MagicaCloth
 {
@@ -16,7 +20,13 @@ namespace MagicaCloth
     [InitializeOnLoad]
     internal class ShareDataPrefabExtension
     {
+        private enum Mode
+        {
+            Saving = 1,
+            Update = 2,
+        }
         static List<GameObject> prefabInstanceList = new List<GameObject>();
+        static List<Mode> prefabModeList = new List<Mode>();
 
         /// <summary>
         /// プレハブ更新コールバック登録
@@ -34,11 +44,17 @@ namespace MagicaCloth
         /// <param name="obj"></param>
         static void OnPrefabStageClosing(PrefabStage pstage)
         {
+            //#if UNITY_2020_1_OR_NEWER
+            //            Debug.Log($"OnPrefabStageClosing() root:[{pstage.prefabContentsRoot.name}] id:{pstage.prefabContentsRoot.GetInstanceID()} path:{pstage.assetPath}");
+            //#else
+            //            Debug.Log($"OnPrefabStageClosing() root:[{pstage.prefabContentsRoot.name}] id:{pstage.prefabContentsRoot.GetInstanceID()} path:{pstage.prefabAssetPath}");
+            //#endif
             if (prefabInstanceList.Count > 0)
             {
-                DelaySavePrefabAndConnect();
+                DelayAnalyze();
             }
         }
+
 
         /// <summary>
         /// プレハブモードでプレハブが保存される直前
@@ -46,14 +62,14 @@ namespace MagicaCloth
         /// <param name="instance"></param>
         static void OnPrefabSaving(GameObject instance)
         {
-            //Debug.Log("OnPrefabSaving()->" + instance.name);
+            //Debug.Log($"OnPrefabSaving() instance:[{instance.name}] id:{instance.GetInstanceID()}");
             if (prefabInstanceList.Contains(instance) == false)
             {
                 prefabInstanceList.Add(instance);
-                DelaySavePrefabAndConnect();
+                prefabModeList.Add(Mode.Saving);
+                DelayAnalyze();
             }
         }
-
 
         /// <summary>
         /// プレハブがApplyされた場合に呼ばれる
@@ -63,152 +79,247 @@ namespace MagicaCloth
         /// <param name="instance"></param>
         static void OnPrefabInstanceUpdate(GameObject instance)
         {
-            // プレハブモードではインスタンスが異なる
-            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
-            {
-                var pstage = PrefabStageUtility.GetCurrentPrefabStage();
-                instance = pstage.prefabContentsRoot;
-            }
-
+            //Debug.Log($"OnPrefabInstanceUpdate() instance:{instance.name} id:{instance.GetInstanceID()}");
             if (prefabInstanceList.Contains(instance))
                 return;
-
             prefabInstanceList.Add(instance);
-
-            EditorApplication.delayCall += DelaySavePrefabAndConnect;
+            prefabModeList.Add(Mode.Update);
+            EditorApplication.delayCall += DelayAnalyze;
         }
 
-        /// <summary>
-        /// プレハブのサブアセット更新
-        /// OnPrefabInstanceUpdate()内部でプレハブの操作を行うと謎のエラーが発生するので、
-        /// delayCallを使い画面更新後に遅延させて実行する
-        /// </summary>
-        static void DelaySavePrefabAndConnect()
+        static void DelayAnalyze()
         {
-            EditorApplication.delayCall -= DelaySavePrefabAndConnect;
+            //Debug.Log($"DelayAnalyze.start:{prefabInstanceList.Count}");
 
-            foreach (var instance in prefabInstanceList)
+            EditorApplication.delayCall -= DelayAnalyze;
+            for (int i = 0; i < prefabInstanceList.Count; i++)
             {
+                var instance = prefabInstanceList[i];
+                var mode = prefabModeList[i];
+
                 if (instance)
                 {
-                    GameObject prefab = null;
-                    string prefabPath = null;
+                    Analyze(instance, mode);
+                }
+            }
 
-                    if (PrefabStageUtility.GetCurrentPrefabStage() != null)
-                    {
-                        var pstage = PrefabStageUtility.GetCurrentPrefabStage();
+            prefabInstanceList.Clear();
+            prefabModeList.Clear();
+
+            //Debug.Log("DelayAnalyze.end.");
+        }
+
+        static void Analyze(GameObject instance, Mode mode)
+        {
+            var pstage = PrefabStageUtility.GetCurrentPrefabStage();
+            bool isVariant = PrefabUtility.IsPartOfVariantPrefab(instance);
+            bool onStage = pstage != null ? pstage.IsPartOfPrefabContents(instance) : false;
+            //Debug.Log($"Analyze instance:{instance.name} id:{instance.GetInstanceID()} IsVariant:{isVariant} Mode:{mode} PStage:{pstage != null} OnStage:{onStage}");
+
+            string pstageAssetPath = string.Empty;
+            if (pstage != null)
+            {
 #if UNITY_2020_1_OR_NEWER
-                        var path = pstage.assetPath;
+                pstageAssetPath = pstage.assetPath;
 #else
-                        var path = pstage.prefabAssetPath;
+                pstageAssetPath = pstage.prefabAssetPath;
 #endif
-                        prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                        prefabPath = path;
+                //Debug.Log($"pstage root:{pstage.prefabContentsRoot.name} id:{pstage.prefabContentsRoot.GetInstanceID()} path:{pstageAssetPath}");
+            }
+            else
+            {
+                //Debug.Log($"pstage = (null)");
+            }
+
+            string prefabAssetPath = string.Empty;
+            string baseAssetPath = string.Empty;
+
+            if (mode == Mode.Saving)
+            {
+                // 自身のプレハブアセット
+                prefabAssetPath = pstageAssetPath;
+                var prefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(prefabAssetPath);
+
+                // 派生元のプレハブアセット
+                var baseAsset = PrefabUtility.GetCorrespondingObjectFromSource(prefabAsset);
+                baseAssetPath = AssetDatabase.GetAssetPath(baseAsset);
+            }
+            else
+            {
+                if (pstage != null)
+                {
+                    if (pstage.prefabContentsRoot == instance)
+                    {
+                        // 自身のプレハブアセット
+                        prefabAssetPath = pstageAssetPath;
+                        var prefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(prefabAssetPath);
+
+                        // 派生元のプレハブアセット
+                        var baseAsset = PrefabUtility.GetCorrespondingObjectFromSource(prefabAsset);
+                        baseAssetPath = AssetDatabase.GetAssetPath(baseAsset);
                     }
                     else
                     {
-                        prefab = PrefabUtility.GetCorrespondingObjectFromSource(instance) as GameObject;
-                        prefabPath = AssetDatabase.GetAssetPath(prefab);
-                    }
-                    //Debug.Log("Prefab originPath=" + prefabPath);
+                        // 自身のプレハブアセット
+                        var prefabAsset = PrefabUtility.GetCorrespondingObjectFromSource(instance);
+                        prefabAssetPath = AssetDatabase.GetAssetPath(prefabAsset);
 
-                    if (prefab != null)
-                        PrefabUpdate(prefab, instance, prefabPath);
+                        // 派生元のプレハブアセット
+                        var baseAsset = PrefabUtility.GetCorrespondingObjectFromOriginalSource(prefabAsset);
+                        baseAssetPath = AssetDatabase.GetAssetPath(baseAsset);
+                    }
+                }
+                else
+                {
+                    // 自身のプレハブアセット
+                    var prefabAsset = PrefabUtility.GetCorrespondingObjectFromSource(instance);
+                    prefabAssetPath = AssetDatabase.GetAssetPath(prefabAsset);
+
+                    // 派生元のプレハブアセット
+                    if (prefabAsset)
+                    {
+                        var baseAsset = PrefabUtility.GetCorrespondingObjectFromSource(prefabAsset);
+                        baseAssetPath = AssetDatabase.GetAssetPath(baseAsset);
+                    }
                 }
             }
-            prefabInstanceList.Clear();
+            //Debug.Log($"prefabPath:{prefabAssetPath}");
+            //Debug.Log($"basePath:{baseAssetPath}");
+
+            // 判定
+            string saveAssetPath = prefabAssetPath;
+            if (pstage == null && isVariant)
+            {
+                //Debug.Log($"instance1[{instance.name}]の変更を->[{prefabAssetPath}]に反映する.");
+            }
+            else if (string.IsNullOrEmpty(prefabAssetPath))
+            {
+                //Debug.Log($"Skip1");
+                return;
+            }
+            else if (mode == Mode.Saving)
+            {
+                //Debug.Log($"instance2[{instance.name}]の変更を->[{prefabAssetPath}]に反映する.");
+            }
+            else
+            {
+                if (isVariant)
+                {
+                    //Debug.Log("Skip2");
+                    return;
+                }
+                else if (string.IsNullOrEmpty(baseAssetPath))
+                {
+                    //Debug.Log($"instance4[{instance.name}]の変更を->[{prefabAssetPath}]に反映する.");
+                }
+                else
+                {
+                    //Debug.Log($"instance5[{instance.name}]の変更を->[{baseAssetPath}]に反映する.");
+                    saveAssetPath = baseAssetPath;
+                }
+            }
+
+            // 強制保存判定
+            bool forceCopy = false;
+            if (isVariant && pstage != null && instance != pstage.prefabContentsRoot)
+                forceCopy = true;
+            if (pstage != null && prefabAssetPath == saveAssetPath && saveAssetPath != pstageAssetPath && onStage)
+                forceCopy = true;
+
+            // 保存実行
+            SavePrefab(instance, prefabAssetPath, saveAssetPath, isVariant, forceCopy, mode);
         }
 
-        /// <summary>
-        /// MagicaClothの共有データをサブアセットとしてプレハブに保存する
-        /// またすでに不要なサブアセットは削除する
-        /// </summary>
-        /// <param name="prefab"></param>
-        /// <param name="target"></param>
-        /// <param name="prefabPath"></param>
-        static void PrefabUpdate(GameObject prefab, GameObject target, string prefabPath)
+        static void SavePrefab(GameObject instance, string prefabPath, string savePrefabPath, bool isVariant, bool forceCopy, Mode mode)
         {
-            //Debug.Log("PrefabUpdate()");
-            //Debug.Log("prefab name:" + prefab.name);
-            //Debug.Log("prefab id:" + prefab.GetInstanceID());
-            //Debug.Log("target name:" + target.name);
-            //Debug.Log("target id:" + target.GetInstanceID());
-            //Debug.Log("prefab path:" + prefabPath);
-            //Debug.Log("IsPersistent:" + EditorUtility.IsPersistent(prefab));
-            //Debug.Log("AssetDatabase.Contains:" + AssetDatabase.Contains(prefab));
-            //Debug.Log("IsPartOfModelPrefab:" + PrefabUtility.IsPartOfModelPrefab(prefab));
-            //Debug.Log("IsPartOfPrefabThatCanBeAppliedTo:" + PrefabUtility.IsPartOfPrefabThatCanBeAppliedTo(prefab));
-            //Debug.Log("IsPartOfImmutablePrefab:" + PrefabUtility.IsPartOfImmutablePrefab(prefab));
+            //Debug.Log($"SavePrefab instance:{instance.name} forceCopy:{forceCopy} isVariant:{isVariant}\npath:{prefabPath}\nsavePath:{savePrefabPath} ");
 
+            // 保存先プレハブアセット
+            var savePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(savePrefabPath);
 
             // 編集不可のプレハブならば保存できないため処理を行わない
-            if (PrefabUtility.IsPartOfImmutablePrefab(prefab))
+            if (PrefabUtility.IsPartOfImmutablePrefab(savePrefab))
+            {
+                //Debug.Log("Skip3");
                 return;
-
-            AssetDatabase.StartAssetEditing();
+            }
 
             // 不要な共有データを削除するためのリスト
             bool change = false;
             List<ShareDataObject> removeDatas = new List<ShareDataObject>();
 
             // 現在アセットとして保存されているすべてのShareDataObjectサブアセットを削除対象としてリスト化する
-            UnityEngine.Object[] subassets = AssetDatabase.LoadAllAssetRepresentationsAtPath(prefabPath);
+            List<Object> subassets = new List<Object>(AssetDatabase.LoadAllAssetRepresentationsAtPath(savePrefabPath));
             if (subassets != null)
             {
                 foreach (var obj in subassets)
                 {
                     // ShareDataObjectのみ
                     ShareDataObject sdata = obj as ShareDataObject;
-                    if (sdata)
+                    if (sdata && removeDatas.Contains(sdata) == false)
                     {
-                        //Debug.Log("sub asset:" + obj.name + " type:" + obj + " test:" + AssetDatabase.IsSubAsset(sdata));
-
+                        //Debug.Log("remove reserve sub asset:" + obj.name + " type:" + obj + " test:" + AssetDatabase.IsSubAsset(sdata));
                         // 削除対象として一旦追加
                         removeDatas.Add(sdata);
                     }
                 }
             }
 
-            // プレハブ元の共有オブジェクトをサブアセットとして保存する
-            List<ShareDataObject> saveDatas = new List<ShareDataObject>();
-            var shareDataInterfaces = target.GetComponentsInChildren<IShareDataObject>(true);
-            if (shareDataInterfaces != null)
+            // データコンポーネント収集
+            var coreList = instance.GetComponentsInChildren<CoreComponent>(true);
+            if (coreList != null)
             {
-                foreach (var sdataInterface in shareDataInterfaces)
+                foreach (var core in coreList)
                 {
-                    List<ShareDataObject> shareDatas = sdataInterface.GetAllShareDataObject();
-                    if (shareDatas != null)
+                    // 共有データ収集
+                    var shareDataInterfaces = core.GetComponentsInChildren<IShareDataObject>(true);
+                    if (shareDataInterfaces != null)
                     {
-                        foreach (var sdata in shareDatas)
+                        foreach (var sdataInterface in shareDataInterfaces)
                         {
-                            if (sdata)
+                            List<ShareDataObject> shareDatas = sdataInterface.GetAllShareDataObject();
+                            if (shareDatas != null)
                             {
-                                //Debug.Log("share data->" + sdata.name + " prefab?:" + AssetDatabase.Contains(sdata));
-                                //Debug.Log("share data path:" + AssetDatabase.GetAssetPath(sdata));
-
-                                if (AssetDatabase.Contains(sdata) == false)
+                                foreach (var sdata in shareDatas)
                                 {
-                                    // サブアセットとして共有データを追加
-                                    //Debug.Log("save sub asset:" + sdata.name);
-                                    AssetDatabase.AddObjectToAsset(sdata, prefab);
-                                    change = true;
-                                }
-                                else if (prefabPath != AssetDatabase.GetAssetPath(sdata))
-                                {
-                                    // 保存先プレハブが変更されている
-                                    //Debug.Log("Change prefab!!");
-
-                                    // 共有データのクローンを作成（別データとする）
-                                    var newdata = sdataInterface.DuplicateShareDataObject(sdata);
-                                    if (newdata != null)
+                                    if (sdata)
                                     {
-                                        //Debug.Log("save new data! ->" + newdata);
-                                        AssetDatabase.AddObjectToAsset(newdata, prefab);
-                                        change = true;
+                                        //Debug.Log($"target shareData:{sdata.name}");
+
+                                        if (removeDatas.Contains(sdata))
+                                        {
+                                            //Debug.Log($"Ignore:{sdata.name}");
+                                            removeDatas.Remove(sdata);
+                                        }
+                                        else if (AssetDatabase.Contains(sdata))
+                                        {
+                                            // アセットのプレハブパスを取得
+                                            var sdataPrefabPath = AssetDatabase.GetAssetPath(sdata);
+                                            //Debug.Log($"sdataPrefabPath:{sdataPrefabPath}");
+
+                                            if (forceCopy || prefabPath != savePrefabPath)
+                                            {
+                                                var newdata = sdataInterface.DuplicateShareDataObject(sdata);
+                                                if (newdata != null)
+                                                {
+                                                    //Debug.Log($"+Duplicate sub asset:{newdata.name} -> [{savePrefab.name}]");
+                                                    AssetDatabase.AddObjectToAsset(newdata, savePrefab);
+                                                    change = true;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                removeDatas.Remove(sdata);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            //Debug.Log($"+Add sub asset:{sdata.name} -> [{savePrefab.name}]");
+                                            AssetDatabase.AddObjectToAsset(sdata, savePrefab);
+                                            change = true;
+                                        }
                                     }
                                 }
-
-                                removeDatas.Remove(sdata);
                             }
                         }
                     }
@@ -218,28 +329,111 @@ namespace MagicaCloth
             // 不要な共有データは削除する
             foreach (var sdata in removeDatas)
             {
-                //Debug.Log("Remove sub asset:" + sdata.name);
+                //Debug.Log($"-Remove sub asset:{sdata.name} path:{AssetDatabase.GetAssetPath(sdata)}");
                 UnityEngine.Object.DestroyImmediate(sdata, true);
                 change = true;
             }
 
-            AssetDatabase.StopAssetEditing();
-
-            // 変更を全体に反映
+            // 変更を反映する
             if (change)
             {
                 //Debug.Log("save!");
 
                 // どうもこの手順を踏まないと保存した共有データが正しくアタッチされない
-                if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+                if (mode == Mode.Saving)
                 {
-                    PrefabUtility.SaveAsPrefabAsset(target, prefabPath);
+                    PrefabUtility.SaveAsPrefabAsset(instance, savePrefabPath);
                 }
                 else
                 {
-                    PrefabUtility.SaveAsPrefabAssetAndConnect(target, prefabPath, InteractionMode.AutomatedAction);
+                    PrefabUtility.SaveAsPrefabAssetAndConnect(instance, savePrefabPath, InteractionMode.AutomatedAction);
                 }
             }
+        }
+
+        //=========================================================================================
+        public static bool CleanUpSubAssets(GameObject savePrefab, bool log = true)
+        {
+            // 編集不可のプレハブならば保存できないため処理を行わない
+            if (PrefabUtility.IsPartOfImmutablePrefab(savePrefab))
+            {
+                return false;
+            }
+
+            string savePrefabPath = AssetDatabase.GetAssetPath(savePrefab);
+            //Debug.Log($"PrefabPath:{savePrefabPath}");
+            if (string.IsNullOrEmpty(savePrefabPath))
+                return false;
+
+            // 不要な共有データを削除するためのリスト
+            List<ShareDataObject> removeDatas = new List<ShareDataObject>();
+
+            // 現在アセットとして保存されているすべてのShareDataObjectサブアセットを削除対象としてリスト化する
+            List<Object> subassets = new List<Object>(AssetDatabase.LoadAllAssetRepresentationsAtPath(savePrefabPath));
+            if (subassets != null)
+            {
+                foreach (var obj in subassets)
+                {
+                    // ShareDataObjectのみ
+                    ShareDataObject sdata = obj as ShareDataObject;
+                    if (sdata && removeDatas.Contains(sdata) == false)
+                    {
+                        //Debug.Log("remove reserve sub asset:" + obj.name + " type:" + obj + " test:" + AssetDatabase.IsSubAsset(sdata));
+                        // 削除対象として一旦追加
+                        removeDatas.Add(sdata);
+                    }
+                }
+            }
+
+            // データコンポーネント収集
+            var coreList = savePrefab.GetComponentsInChildren<CoreComponent>(true);
+            if (coreList != null)
+            {
+                foreach (var core in coreList)
+                {
+                    // 共有データ収集
+                    var shareDataInterfaces = core.GetComponentsInChildren<IShareDataObject>(true);
+                    if (shareDataInterfaces != null)
+                    {
+                        foreach (var sdataInterface in shareDataInterfaces)
+                        {
+                            List<ShareDataObject> shareDatas = sdataInterface.GetAllShareDataObject();
+                            if (shareDatas != null)
+                            {
+                                foreach (var sdata in shareDatas)
+                                {
+                                    if (sdata)
+                                    {
+                                        //Debug.Log($"target shareData:{sdata.name}");
+                                        if (removeDatas.Contains(sdata))
+                                        {
+                                            //Debug.Log($"Ignore:{sdata.name}");
+                                            removeDatas.Remove(sdata);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 不要な共有データは削除する
+            if (removeDatas.Count > 0)
+            {
+                foreach (var sdata in removeDatas)
+                {
+                    //Debug.Log($"-Remove sub asset:{sdata.name} path:{AssetDatabase.GetAssetPath(sdata)}");
+                    if (log)
+                        Debug.Log($"Remove sub-asset : {sdata.name}");
+                    UnityEngine.Object.DestroyImmediate(sdata, true);
+                }
+                AssetDatabase.SaveAssets();
+            }
+            if (log)
+                Debug.Log($"Remove Count : {removeDatas.Count}");
+
+            return true;
         }
     }
 }

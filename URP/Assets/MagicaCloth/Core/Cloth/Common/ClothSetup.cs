@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,7 +12,7 @@ namespace MagicaCloth
     public class ClothSetup
     {
         // チームのボーンインデックス
-        int teamBoneIndex;
+        int teamBoneIndex = -1;
 
         // 重力方向減衰ボーンインデックス
         //int teamDirectionalDampingBoneIndex;
@@ -46,23 +46,28 @@ namespace MagicaCloth
             // チームデータ設定
             manager.Team.SetMass(team.TeamId, param.GetMass());
             manager.Team.SetGravity(team.TeamId, param.GetGravity());
+            manager.Team.SetGravityDirection(team.TeamId, param.GravityDirection);
             manager.Team.SetDrag(team.TeamId, param.GetDrag());
             manager.Team.SetMaxVelocity(team.TeamId, param.GetMaxVelocity());
-            manager.Team.SetFriction(team.TeamId, param.Friction);
-            manager.Team.SetExternalForce(team.TeamId, param.MassInfluence, param.WindInfluence, param.WindRandomScale);
+            manager.Team.SetDepthInfluence(team.TeamId, param.GetDepthInfluence());
+            manager.Team.SetFriction(team.TeamId, param.DynamicFriction, param.StaticFriction);
+            manager.Team.SetExternalForce(team.TeamId, param.MassInfluence, param.WindInfluence, param.WindRandomScale, param.WindSynchronization);
             //manager.Team.SetDirectionalDamping(team.TeamId, param.GetDirectionalDamping());
 
             // ワールド移動影響
             manager.Team.SetWorldInfluence(
                 team.TeamId,
                 param.MaxMoveSpeed,
+                param.MaxRotationSpeed,
                 param.GetWorldMoveInfluence(),
                 param.GetWorldRotationInfluence(),
                 param.UseResetTeleport,
                 param.TeleportDistance,
                 param.TeleportRotation,
                 param.ResetStabilizationTime,
-                param.TeleportResetMode
+                param.TeleportResetMode,
+                param.UseClampRotation,
+                param.GetClampRotationAngle(clothData.clampRotationAlgorithm)
                 );
 
             int vcnt = clothData.VertexUseCount;
@@ -199,37 +204,80 @@ namespace MagicaCloth
                 manager.Team.teamDataList[team.TeamId] = teamData;
             }
 
-            // 回転復元拘束
-            if (param.UseRestoreRotation && clothData.RestoreRotationConstraintCount > 0)
+            // 回転復元拘束[Algorithm 1]
+            if (clothData.restoreRotationAlgorithm == ClothParams.Algorithm.Algorithm_1)
             {
-                // 拘束データ
-                int group = compute.RestoreRotation.AddGroup(
-                    team.TeamId,
-                    param.UseRestoreRotation,
-                    param.GetRotationPower(),
-                    param.RestoreRotationVelocityInfluence,
-                    clothData.restoreRotationDataList,
-                    clothData.restoreRotationReferenceList
-                    );
-                var teamData = manager.Team.teamDataList[team.TeamId];
-                teamData.restoreRotationGroupIndex = (short)group;
-                manager.Team.teamDataList[team.TeamId] = teamData;
+                if (param.UseRestoreRotation && clothData.RestoreRotationConstraintCount > 0)
+                {
+                    // 拘束データ
+                    int group = compute.RestoreRotation.AddGroup(
+                        team.TeamId,
+                        param.UseRestoreRotation,
+                        param.GetRestoreRotationPower(clothData.restoreRotationAlgorithm),
+                        param.GetRestoreRotationVelocityInfluence(clothData.restoreRotationAlgorithm),
+                        clothData.restoreRotationDataList,
+                        clothData.restoreRotationReferenceList
+                        );
+                    var teamData = manager.Team.teamDataList[team.TeamId];
+                    teamData.restoreRotationGroupIndex = (short)group;
+                    manager.Team.teamDataList[team.TeamId] = teamData;
+                }
             }
 
-            // 最大回転復元拘束
-            if (param.UseClampRotation && clothData.ClampRotationConstraintDataCount > 0)
+            // 最大回転復元拘束[Algorithm 1]
+            if (clothData.clampRotationAlgorithm == ClothParams.Algorithm.Algorithm_1)
+            {
+                if (param.UseClampRotation)
+                {
+                    // 拘束データ
+                    int group = compute.ClampRotation.AddGroup(
+                        team.TeamId,
+                        param.UseClampRotation,
+                        param.GetClampRotationAngle(clothData.clampRotationAlgorithm),
+                        param.ClampRotationVelocityInfluence,
+                        clothData.clampRotationDataList,
+                        clothData.clampRotationRootInfoList
+                        );
+                    var teamData = manager.Team.teamDataList[team.TeamId];
+                    teamData.clampRotationGroupIndex = (short)group;
+                    manager.Team.teamDataList[team.TeamId] = teamData;
+                }
+            }
+
+            // 複合回転拘束[Algorithm 2]
+            if (param.UseClampRotation || param.UseRestoreRotation)
+            {
+                if (clothData.CompositeRotationCount > 0)
+                {
+                    int group = compute.CompositeRotation.AddGroup(
+                        team.TeamId,
+                        param.UseClampRotation,
+                        param.GetClampRotationAngle(ClothParams.Algorithm.Algorithm_2),
+                        param.UseRestoreRotation,
+                        param.GetRestoreRotationPower(ClothParams.Algorithm.Algorithm_2),
+                        param.GetRestoreRotationVelocityInfluence(ClothParams.Algorithm.Algorithm_2),
+                        clothData.compositeRotationDataList,
+                        clothData.compositeRotationRootInfoList
+                        );
+                    var teamData = manager.Team.teamDataList[team.TeamId];
+                    teamData.compositeRotationGroupIndex = (short)group;
+                    manager.Team.teamDataList[team.TeamId] = teamData;
+                }
+            }
+
+            // ねじれ拘束
+            if (clothData.TwistConstraintCount > 0 && clothData.triangleBendAlgorithm == ClothParams.Algorithm.Algorithm_2)
             {
                 // 拘束データ
-                int group = compute.ClampRotation.AddGroup(
+                int group = compute.Twist.AddGroup(
                     team.TeamId,
-                    param.UseClampRotation,
-                    param.GetClampRotationAngle(),
-                    param.ClampRotationVelocityInfluence,
-                    clothData.clampRotationDataList,
-                    clothData.clampRotationRootInfoList
+                    param.UseTriangleBend && param.GetUseTwistCorrection(clothData.triangleBendAlgorithm),
+                    param.TwistRecoveryPower,
+                    clothData.twistDataList,
+                    clothData.twistReferenceList
                     );
                 var teamData = manager.Team.teamDataList[team.TeamId];
-                teamData.clampRotationGroupIndex = (short)group;
+                teamData.twistGroupIndex = (short)group;
                 manager.Team.teamDataList[team.TeamId] = teamData;
             }
 
@@ -239,7 +287,9 @@ namespace MagicaCloth
                 int group = compute.TriangleBend.AddGroup(
                     team.TeamId,
                     param.UseTriangleBend,
-                    param.GetTriangleBendStiffness(),
+                    clothData.triangleBendAlgorithm,
+                    param.GetTriangleBendStiffness(clothData.triangleBendAlgorithm),
+                    //param.UseTrianlgeBendIncludeFixed,
                     clothData.triangleBendDataList,
                     clothData.triangleBendReferenceList,
                     clothData.triangleBendWriteBufferCount
@@ -255,7 +305,7 @@ namespace MagicaCloth
                 var teamData = manager.Team.teamDataList[team.TeamId];
 
                 // 形状維持フラグ
-                teamData.SetFlag(PhysicsManagerTeamData.Flag_Collision_KeepShape, param.KeepInitialShape);
+                //teamData.SetFlag(PhysicsManagerTeamData.Flag_Collision_KeepShape, param.KeepInitialShape);
                 teamData.SetFlag(PhysicsManagerTeamData.Flag_Collision, param.UseCollision);
 
 #if false
@@ -287,22 +337,26 @@ namespace MagicaCloth
                     clothData.penetrationMode, // データ作成時のモード
                     param.GetPenetrationDistance(),
                     param.GetPenetrationRadius(),
+                    param.PenetrationMaxDepth,
                     clothData.penetrationDataList,
-                    clothData.penetrationReferenceList
+                    clothData.penetrationReferenceList,
+                    clothData.penetrationDirectionDataList
                     );
                 var teamData = manager.Team.teamDataList[team.TeamId];
                 teamData.penetrationGroupIndex = (short)group;
                 manager.Team.teamDataList[team.TeamId] = teamData;
             }
 
-#if false
+#if false // 一旦休眠
             // ベーススキニング（ワーカー）
-            if (param.UseBaseSkinning && clothData.BaseSkinningCount > 0)
+            if (team.SkinningMode == PhysicsTeam.TeamSkinningMode.GenerateFromBones && clothData.BaseSkinningCount > 0)
             {
                 int group = compute.BaseSkinningWorker.AddGroup(
                     team.TeamId,
-                    param.UseBaseSkinning,
-                    clothData.baseSkinningDataList
+                    true,
+                    team.SkinningUpdateFixed,
+                    clothData.baseSkinningDataList,
+                    clothData.baseSkinningBindPoseList
                     );
                 var teamData = manager.Team.teamDataList[team.TeamId];
                 teamData.baseSkinningGroupIndex = (short)group;
@@ -397,9 +451,6 @@ namespace MagicaCloth
 
             // パーティクル解放
             team.RemoveAllParticle();
-
-            // 自身の登録ボーン開放
-            //MagicaPhysicsManager.Instance.Bone.RemoveBone(teamBoneIndex);
         }
 
         //=========================================================================================
@@ -413,18 +464,9 @@ namespace MagicaCloth
             manager.Team.SetBoneIndex(team.TeamId, teamBoneIndex, clothData.initScale);
             team.InfluenceTarget = influenceTarget;
 
-            // 重力方向減衰ボーンを登録
-            //Debug.Log("Damp dir:" + clothData.directionalDampingUpDir);
-            //influenceTarget = param.DirectionalDampingObject ? param.DirectionalDampingObject : team.transform;
-            //teamDirectionalDampingBoneIndex = manager.Bone.AddBone(influenceTarget);
-            //manager.Team.SetDirectionalDampingBoneIndex(team.TeamId, param.UseDirectionalDamping, teamDirectionalDampingBoneIndex, clothData.directionalDampingUpDir);
-
             // ベーススキニング用ボーンを登録
-            //foreach (var bone in team.TeamData.SkinningBoneList)
-            //{
-            //    var boneIndex = manager.Bone.AddBone(bone);
-            //    manager.Team.AddSkinningBoneIndex(team.TeamId, boneIndex);
-            //}
+            // 一旦休眠
+            //manager.Team.AddSkinningBoneIndex(team.TeamId, team.TeamData.SkinningBoneList);
         }
 
         public void ClothInactive(PhysicsTeam team)
@@ -438,27 +480,46 @@ namespace MagicaCloth
             manager.Bone.RemoveBone(teamBoneIndex);
             manager.Team.SetBoneIndex(team.TeamId, -1, Vector3.zero);
 
-            //manager.Bone.RemoveBone(teamDirectionalDampingBoneIndex);
-            //manager.Team.SetDirectionalDampingBoneIndex(team.TeamId, false, -1, 0);
-
             // ベーススキニング用ボーンを解除
-            //manager.Team.RemoveSkinningBoneIndex(team.TeamId);
+            manager.Team.RemoveSkinningBoneIndex(team.TeamId);
         }
 
         /// <summary>
         /// アバター着せ替えによるボーン置換
         /// </summary>
         /// <param name="boneReplaceDict"></param>
-        public void ReplaceBone(PhysicsTeam team, ClothParams param, Dictionary<Transform, Transform> boneReplaceDict)
+        internal void ReplaceBone<T>(PhysicsTeam team, ClothParams param, Dictionary<T, Transform> boneReplaceDict) where T : class
         {
             // この呼び出しは ClothActive() の前なので注意！
 
             // ワールド移動影響ボーン切り替え
             Transform influenceTarget = param.GetInfluenceTarget();
-            if (influenceTarget && boneReplaceDict.ContainsKey(influenceTarget))
-            {
-                param.SetInfluenceTarget(boneReplaceDict[influenceTarget]);
-            }
+            if (influenceTarget)
+                param.SetInfluenceTarget(MeshUtility.GetReplaceBone(influenceTarget, boneReplaceDict));
+            //if (influenceTarget && boneReplaceDict.ContainsKey(influenceTarget))
+            //{
+            //    param.SetInfluenceTarget(boneReplaceDict[influenceTarget]);
+            //}
+        }
+
+        /// <summary>
+        /// 現在使用しているボーンを格納して返す
+        /// </summary>
+        /// <returns></returns>
+        internal HashSet<Transform> GetUsedBones(PhysicsTeam team, ClothParams param)
+        {
+            var bones = new HashSet<Transform>();
+            bones.Add(param.GetInfluenceTarget());
+            return bones;
+        }
+
+        /// <summary>
+        /// UnityPhysicsでの更新の変更
+        /// </summary>
+        /// <param name="sw"></param>
+        public void ChangeUseUnityPhysics(bool sw)
+        {
+            MagicaPhysicsManager.Instance.Bone.ChangeUnityPhysicsCount(teamBoneIndex, sw);
         }
 
         //=========================================================================================
@@ -481,7 +542,7 @@ namespace MagicaCloth
         /// <summary>
         /// ランタイムデータ変更
         /// </summary>
-        public void ChangeData(PhysicsTeam team, ClothParams param)
+        public void ChangeData(PhysicsTeam team, ClothParams param, ClothData clothData)
         {
             if (Application.isPlaying == false)
                 return;
@@ -521,6 +582,7 @@ namespace MagicaCloth
             if (param.ChangedParam(ClothParams.ParamType.Gravity))
             {
                 manager.Team.SetGravity(team.TeamId, param.GetGravity());
+                manager.Team.SetGravityDirection(team.TeamId, param.GravityDirection);
                 //manager.Team.SetDirectionalDamping(team.TeamId, param.GetDirectionalDamping());
                 //manager.Team.SetFlag(team.TeamId, PhysicsManagerTeamData.Flag_DirectionalDamping, param.UseDirectionalDamping);
             }
@@ -540,12 +602,13 @@ namespace MagicaCloth
             // 外力
             if (param.ChangedParam(ClothParams.ParamType.ExternalForce))
             {
-                manager.Team.SetExternalForce(team.TeamId, param.MassInfluence, param.WindInfluence, param.WindRandomScale);
+                manager.Team.SetExternalForce(team.TeamId, param.MassInfluence, param.WindInfluence, param.WindRandomScale, param.WindSynchronization);
+                manager.Team.SetDepthInfluence(team.TeamId, param.GetDepthInfluence());
             }
 
             // チームの摩擦係数変更
             if (param.ChangedParam(ClothParams.ParamType.ColliderCollision))
-                manager.Team.SetFriction(team.TeamId, param.Friction);
+                manager.Team.SetFriction(team.TeamId, param.DynamicFriction, param.StaticFriction);
 
             // チームワールド移動影響変更
             if (param.ChangedParam(ClothParams.ParamType.WorldInfluence))
@@ -553,13 +616,16 @@ namespace MagicaCloth
                 manager.Team.SetWorldInfluence(
                     team.TeamId,
                     param.MaxMoveSpeed,
+                    param.MaxRotationSpeed,
                     param.GetWorldMoveInfluence(),
                     param.GetWorldRotationInfluence(),
                     param.UseResetTeleport,
                     param.TeleportDistance,
                     param.TeleportRotation,
                     param.ResetStabilizationTime,
-                    param.TeleportResetMode
+                    param.TeleportResetMode,
+                    param.UseClampRotation,
+                    param.GetClampRotationAngle(clothData.clampRotationAlgorithm)
                     );
             }
 
@@ -581,7 +647,18 @@ namespace MagicaCloth
             // トライアングルベンド拘束パラメータ再設定
             if (param.ChangedParam(ClothParams.ParamType.TriangleBend))
             {
-                compute.TriangleBend.ChangeParam(team.TeamId, param.UseTriangleBend, param.GetTriangleBendStiffness());
+                compute.TriangleBend.ChangeParam(
+                    team.TeamId,
+                    param.UseTriangleBend,
+                    param.GetTriangleBendStiffness(clothData.triangleBendAlgorithm)
+                    //param.UseTrianlgeBendIncludeFixed
+                    );
+
+                compute.Twist.ChangeParam(
+                    team.TeamId,
+                    param.UseTriangleBend && param.GetUseTwistCorrection(clothData.triangleBendAlgorithm),
+                    param.TwistRecoveryPower
+                    );
             }
 
             // ボリューム拘束パラメータ再設定
@@ -613,18 +690,63 @@ namespace MagicaCloth
             // 回転復元拘束パラメータ再設定
             if (param.ChangedParam(ClothParams.ParamType.RestoreRotation))
             {
-                compute.RestoreRotation.ChangeParam(team.TeamId, param.UseRestoreRotation, param.GetRotationPower(), param.RestoreRotationVelocityInfluence);
+                var algo = clothData.clampRotationAlgorithm;
+                if (algo == ClothParams.Algorithm.Algorithm_1)
+                {
+                    // [Algorithm 1]
+                    compute.RestoreRotation.ChangeParam(
+                    team.TeamId,
+                    param.UseRestoreRotation,
+                    param.GetRestoreRotationPower(clothData.restoreRotationAlgorithm),
+                    param.GetRestoreRotationVelocityInfluence(clothData.restoreRotationAlgorithm)
+                    );
+                }
+                else if (algo == ClothParams.Algorithm.Algorithm_2)
+                {
+                    // [Algorithm 2]
+                    compute.CompositeRotation.ChangeParam(
+                        team.TeamId,
+                        param.UseClampRotation,
+                        param.GetClampRotationAngle(algo),
+                        param.UseRestoreRotation,
+                        param.GetRestoreRotationPower(algo),
+                        param.GetRestoreRotationVelocityInfluence(algo)
+                        );
+                }
             }
 
             // 最大回転拘束パラメータ再設定
             if (param.ChangedParam(ClothParams.ParamType.ClampRotation))
             {
-                compute.ClampRotation.ChangeParam(
+                var algo = clothData.clampRotationAlgorithm;
+                if (algo == ClothParams.Algorithm.Algorithm_1)
+                {
+                    // [Algorithm 1]
+                    compute.ClampRotation.ChangeParam(
+                        team.TeamId,
+                        param.UseClampRotation,
+                        param.GetClampRotationAngle(algo),
+                        param.ClampRotationVelocityInfluence
+                        );
+                }
+                else if (algo == ClothParams.Algorithm.Algorithm_2)
+                {
+                    // [Algorithm 2]
+                    compute.CompositeRotation.ChangeParam(
+                        team.TeamId,
+                        param.UseClampRotation,
+                        param.GetClampRotationAngle(algo),
+                        param.UseRestoreRotation,
+                        param.GetRestoreRotationPower(algo),
+                        param.GetRestoreRotationVelocityInfluence(algo)
+                        );
+                }
+
+                // Algorithm共通
+                manager.Team.SetClampRotation(
                     team.TeamId,
                     param.UseClampRotation,
-                    param.GetClampRotationAngle(),
-                    //param.GetClampRotationStiffness(),
-                    param.ClampRotationVelocityInfluence
+                    param.GetClampRotationAngle(algo)
                     );
             }
 
@@ -637,7 +759,7 @@ namespace MagicaCloth
             // コリジョン有無
             if (param.ChangedParam(ClothParams.ParamType.ColliderCollision))
             {
-                manager.Team.SetFlag(team.TeamId, PhysicsManagerTeamData.Flag_Collision_KeepShape, param.KeepInitialShape);
+                //manager.Team.SetFlag(team.TeamId, PhysicsManagerTeamData.Flag_Collision_KeepShape, param.KeepInitialShape);
                 compute.Collision.ChangeParam(team.TeamId, param.UseCollision);
                 //compute.EdgeCollision.ChangeParam(team.TeamId, param.UseCollision && param.UseEdgeCollision, param.EdgeCollisionRadius);
             }
@@ -658,16 +780,21 @@ namespace MagicaCloth
             // 浸透制限
             if (param.ChangedParam(ClothParams.ParamType.Penetration))
             {
-                compute.Penetration.ChangeParam(team.TeamId, param.UsePenetration, param.GetPenetrationDistance(), param.GetPenetrationRadius());
+                compute.Penetration.ChangeParam(
+                    team.TeamId,
+                    param.UsePenetration,
+                    param.GetPenetrationDistance(),
+                    param.GetPenetrationRadius(),
+                    param.PenetrationMaxDepth
+                    );
             }
 
-#if false
             // ベーススキニング
-            if (param.ChangedParam(ClothParams.ParamType.BaseSkinning))
-            {
-                compute.BaseSkinningWorker.ChangeParam(team.TeamId, param.UseBaseSkinning);
-            }
-#endif
+            // 一旦休眠
+            //if (param.ChangedParam(ClothParams.ParamType.BaseSkinning))
+            //{
+            //    compute.BaseSkinningWorker.ChangeParam(team.TeamId, team.SkinningUpdateFixed);
+            //}
 
             //変更フラグクリア
             param.ClearChangeParam();

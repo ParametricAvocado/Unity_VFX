@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEditor;
@@ -22,6 +22,19 @@ namespace MagicaCloth
         private static int EditInstanceId = 0;
         private static UnityEngine.Object EditObject = null;
 
+        //=========================================================================================
+        /// <summary>
+        /// Reload Domain 対応
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void Init()
+        {
+            EditEnable = false;
+            EditInstanceId = 0;
+            EditObject = null;
+        }
+
+        //=========================================================================================
         /// <summary>
         /// ポイントタイプ情報
         /// </summary>
@@ -108,11 +121,7 @@ namespace MagicaCloth
         {
             // データは毎回クリアする
             //Clear();
-            //#if UNITY_2018
-            //            SceneView.onSceneGUIDelegate += OnSceneView;
-            //#else
             //            SceneView.duringSceneGui += OnSceneView;
-            //#endif
             //            SceneView.RepaintAll();
         }
 
@@ -123,11 +132,7 @@ namespace MagicaCloth
         {
             EndEdit(obj);
             //Clear();
-            //#if UNITY_2018
-            //            SceneView.onSceneGUIDelegate -= OnSceneView;
-            //#else
             //            SceneView.duringSceneGui -= OnSceneView;
-            //#endif
             //            SceneView.RepaintAll();
         }
 
@@ -146,11 +151,7 @@ namespace MagicaCloth
             pointSize = EditorPrefs.GetFloat("PointSelector_PointSize", 0.01f);
             selectNearest = EditorPrefs.GetBool("PointSelector_SelectNearest", false);
 
-#if UNITY_2018
-            SceneView.onSceneGUIDelegate += OnSceneView;
-#else
             SceneView.duringSceneGui += OnSceneView;
-#endif
             SceneView.RepaintAll();
         }
 
@@ -171,11 +172,7 @@ namespace MagicaCloth
             EditorPrefs.SetFloat("PointSelector_PointSize", pointSize);
             EditorPrefs.SetBool("PointSelector_SelectNearest", selectNearest);
 
-#if UNITY_2018
-            SceneView.onSceneGUIDelegate -= OnSceneView;
-#else
             SceneView.duringSceneGui -= OnSceneView;
-#endif
             SceneView.RepaintAll();
         }
 

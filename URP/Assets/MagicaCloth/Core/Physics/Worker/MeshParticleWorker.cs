@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using Unity.Burst;
@@ -109,14 +109,20 @@ namespace MagicaCloth
 
             var job = new VertexToParticleJob()
             {
+                virtualMeshInfoList = Manager.Mesh.virtualMeshInfoList.ToJobArray(),
+
                 vertexToParticleList = vertexToParticleList.ToJobArray(),
                 vertexToParticleMap = vertexToParticleMap.Map,
 
                 posList = Manager.Mesh.virtualPosList.ToJobArray(),
                 rotList = Manager.Mesh.virtualRotList.ToJobArray(),
 
-                basePosList = Manager.Particle.basePosList.ToJobArray(),
-                baseRotList = Manager.Particle.baseRotList.ToJobArray(),
+                virtualVertexMeshIndexList = Manager.Mesh.virtualVertexMeshIndexList.ToJobArray(),
+
+                //basePosList = Manager.Particle.basePosList.ToJobArray(),
+                //baseRotList = Manager.Particle.baseRotList.ToJobArray(),
+                snapBasePosList = Manager.Particle.snapBasePosList.ToJobArray(),
+                snapBaseRotList = Manager.Particle.snapBaseRotList.ToJobArray(),
             };
             jobHandle = job.Schedule(vertexToParticleList.Length, 64, jobHandle);
 
@@ -127,29 +133,54 @@ namespace MagicaCloth
         private struct VertexToParticleJob : IJobParallelFor
         {
             [Unity.Collections.ReadOnly]
+            public NativeArray<PhysicsManagerMeshData.VirtualMeshInfo> virtualMeshInfoList;
+
+            [Unity.Collections.ReadOnly]
             public NativeArray<int> vertexToParticleList;
             [Unity.Collections.ReadOnly]
-            public NativeMultiHashMap<int, int> vertexToParticleMap;
+#if MAGICACLOTH_USE_COLLECTIONS_130
+            public NativeParallelMultiHashMap<int, int> vertexToParticleMap;
+#else
+            public NativeParallelMultiHashMap<int, int> vertexToParticleMap;
+#endif
 
             [Unity.Collections.ReadOnly]
             public NativeArray<float3> posList;
             [Unity.Collections.ReadOnly]
             public NativeArray<quaternion> rotList;
 
-            [Unity.Collections.WriteOnly]
-            [NativeDisableParallelForRestriction]
-            public NativeArray<float3> basePosList;
-            [Unity.Collections.WriteOnly]
-            [NativeDisableParallelForRestriction]
-            public NativeArray<quaternion> baseRotList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<short> virtualVertexMeshIndexList;
 
-            private NativeMultiHashMapIterator<int> iterator;
+            [Unity.Collections.WriteOnly]
+            [NativeDisableParallelForRestriction]
+            public NativeArray<float3> snapBasePosList;
+            //public NativeArray<float3> basePosList;
+            [Unity.Collections.WriteOnly]
+            [NativeDisableParallelForRestriction]
+            public NativeArray<quaternion> snapBaseRotList;
+            //public NativeArray<quaternion> baseRotList;
+
+#if MAGICACLOTH_USE_COLLECTIONS_130
+            private NativeParallelMultiHashMapIterator<int> iterator;
+#else
+            private NativeParallelMultiHashMapIterator<int> iterator;
+#endif
 
             // パーティクル連動頂点ごと
             public void Execute(int index)
             {
                 int vindex = vertexToParticleList[index];
                 if (vindex < 0)
+                    return;
+
+                // 仮想インスタンスメッシュ情報
+                int mindex = virtualVertexMeshIndexList[vindex];
+                var m_minfo = virtualMeshInfoList[mindex - 1]; // (-1)するので注意！
+                if (m_minfo.IsUse() == false)
+                    return;
+                // 停止判定
+                if (m_minfo.IsPause())
                     return;
 
                 int pindex;
@@ -165,10 +196,12 @@ namespace MagicaCloth
                     do
                     {
                         // base pos
-                        basePosList[pindex] = pos;
+                        //basePosList[pindex] = pos;
+                        snapBasePosList[pindex] = pos;
 
                         // base rot
-                        baseRotList[pindex] = rot;
+                        //baseRotList[pindex] = rot;
+                        snapBaseRotList[pindex] = rot;
                     }
                     while (vertexToParticleMap.TryGetNextValue(out pindex, ref iterator));
                 }
@@ -195,6 +228,9 @@ namespace MagicaCloth
                 virtualPosList = Manager.Mesh.virtualPosList.ToJobArray(),
                 virtualRotList = Manager.Mesh.virtualRotList.ToJobArray(),
                 virtualVertexFlagList = Manager.Mesh.virtualVertexFlagList.ToJobArray(),
+                virtualVertexMeshIndexList = Manager.Mesh.virtualVertexMeshIndexList.ToJobArray(),
+
+                virtualMeshInfoList = Manager.Mesh.virtualMeshInfoList.ToJobArray(),
 
                 teamDataList = Manager.Team.teamDataList.ToJobArray(),
                 teamIdList = Manager.Particle.teamIdList.ToJobArray(),
@@ -214,7 +250,11 @@ namespace MagicaCloth
             [Unity.Collections.ReadOnly]
             public NativeArray<int> vertexToParticleList;
             [Unity.Collections.ReadOnly]
-            public NativeMultiHashMap<int, int> vertexToParticleMap;
+#if MAGICACLOTH_USE_COLLECTIONS_130
+            public NativeParallelMultiHashMap<int, int> vertexToParticleMap;
+#else
+            public NativeParallelMultiHashMap<int, int> vertexToParticleMap;
+#endif
 
             [Unity.Collections.WriteOnly]
             [NativeDisableParallelForRestriction]
@@ -225,6 +265,11 @@ namespace MagicaCloth
             [Unity.Collections.WriteOnly]
             [NativeDisableParallelForRestriction]
             public NativeArray<byte> virtualVertexFlagList;
+            [Unity.Collections.ReadOnly]
+            public NativeArray<short> virtualVertexMeshIndexList;
+
+            [Unity.Collections.ReadOnly]
+            public NativeArray<PhysicsManagerMeshData.VirtualMeshInfo> virtualMeshInfoList;
 
             [Unity.Collections.ReadOnly]
             public NativeArray<PhysicsManagerTeamData.TeamData> teamDataList;
@@ -237,7 +282,11 @@ namespace MagicaCloth
             [Unity.Collections.ReadOnly]
             public NativeArray<quaternion> particleRotList;
 
-            private NativeMultiHashMapIterator<int> iterator;
+#if MAGICACLOTH_USE_COLLECTIONS_130
+            private NativeParallelMultiHashMapIterator<int> iterator;
+#else
+            private NativeParallelMultiHashMapIterator<int> iterator;
+#endif
 
             // パーティクル連動頂点ごと
             public void Execute(int index)
@@ -246,47 +295,16 @@ namespace MagicaCloth
                 if (vindex < 0)
                     return;
 
+                // 仮想インスタンスメッシュ情報
+                int mindex = virtualVertexMeshIndexList[vindex];
+                var m_minfo = virtualMeshInfoList[mindex - 1]; // (-1)するので注意！
+                if (m_minfo.IsUse() == false)
+                    return;
+                // 停止判定
+                if (m_minfo.IsPause())
+                    return;
+
                 int pindex;
-                //#if !UNITY_2018_4
-#if false
-                // v1.5.2
-                // こちらのクォータニオン補間の方が安全
-                int cnt = vertexToParticleMap.CountValuesForKey(vindex);
-                if (cnt > 0)
-                {
-                    if (vertexToParticleMap.TryGetFirstValue(vindex, out pindex, out iterator))
-                    {
-                        float3 pos = particlePosList[pindex];
-                        quaternion rot = particleRotList[pindex];
-                        var flag = particleFlagList[pindex];
-                        int fixcnt = flag.IsKinematic() ? 1 : 0;
-                        float ratio = 1.0f / cnt;
-
-                        while (vertexToParticleMap.TryGetNextValue(out pindex, ref iterator))
-                        {
-                            float3 ppos = particlePosList[pindex];
-                            quaternion prot = particleRotList[pindex];
-                            flag = particleFlagList[pindex];
-
-                            pos += ppos;
-                            rot = math.slerp(rot, prot, ratio);
-                            fixcnt += flag.IsKinematic() ? 1 : 0;
-                        }
-                        pos = pos / cnt;
-
-                        virtualPosList[vindex] = pos;
-                        virtualRotList[vindex] = rot;
-
-                        // 仮想メッシュの法線／接線計算フラグ
-                        //virtualVertexFlagList[vindex] = 1;
-                        byte vflag = (byte)(PhysicsManagerMeshData.VirtualVertexFlag_Use
-                            | (fixcnt > 0 ? PhysicsManagerMeshData.VirtualVertexFlag_Fix : 0x0));
-                        //virtualVertexFlagList[vindex] = (byte)(fixcnt == cnt ? 0 : 1);
-                        virtualVertexFlagList[vindex] = vflag;
-                    }
-                }
-#else
-
                 if (vertexToParticleMap.TryGetFirstValue(vindex, out pindex, out iterator))
                 {
                     float3 pos = 0;
@@ -332,7 +350,6 @@ namespace MagicaCloth
                         virtualVertexFlagList[vindex] = PhysicsManagerMeshData.VirtualVertexFlag_Use;
                     }
                 }
-#endif
             }
         }
     }

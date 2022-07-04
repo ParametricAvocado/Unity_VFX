@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,6 +28,11 @@ namespace MagicaReductionMesh
             /// 共有頂点に属するメッシュ頂点ウエイトの平均値
             /// </summary>
             Average = 1,
+
+            /// <summary>
+            /// 共有頂点からの距離によりウエイト（改良版）
+            /// </summary>
+            DistanceAverage = 2,
         }
         public ReductionWeightMode WeightMode { get; set; } = ReductionWeightMode.Distance;
 

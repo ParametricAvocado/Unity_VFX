@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -194,7 +194,7 @@ namespace MagicaCloth
         /// <param name="dtime"></param>
         /// <param name="jobHandle"></param>
         /// <returns></returns>
-        public override JobHandle SolverConstraint(float dtime, float updatePower, int iteration, JobHandle jobHandle)
+        public override JobHandle SolverConstraint(int runCount, float dtime, float updatePower, int iteration, JobHandle jobHandle)
         {
             if (groupList.Count == 0)
                 return jobHandle;
@@ -203,6 +203,8 @@ namespace MagicaCloth
             var job = new EdgeCollisionCalcJob()
             {
                 updatePower = updatePower,
+                runCount = runCount,
+
                 groupDataList = groupList.ToJobArray(),
                 dataList = dataList.ToJobArray(),
                 groupIndexList = groupIndexList.ToJobArray(),
@@ -231,6 +233,8 @@ namespace MagicaCloth
             // ステップ２：コリジョン結果の集計
             var job2 = new EdgeCollisionSumJob()
             {
+                runCount = runCount,
+
                 groupDataList = groupList.ToJobArray(),
                 refDataList = refDataList.ToJobArray(),
                 writeBuffer = writeBuffer.ToJobArray(),
@@ -252,6 +256,7 @@ namespace MagicaCloth
         struct EdgeCollisionCalcJob : IJobParallelFor
         {
             public float updatePower;
+            public int runCount;
 
             [Unity.Collections.ReadOnly]
             public NativeArray<GroupData> groupDataList;
@@ -310,7 +315,7 @@ namespace MagicaCloth
                 if (tdata.IsActive() == false)
                     return;
                 // 更新確認
-                if (tdata.IsUpdate() == false)
+                if (tdata.IsUpdate(runCount) == false)
                     return;
 
                 int pstart = tdata.particleChunk.startIndex;
@@ -533,6 +538,8 @@ namespace MagicaCloth
         [BurstCompile]
         struct EdgeCollisionSumJob : IJobParallelFor
         {
+            public int runCount;
+
             [Unity.Collections.ReadOnly]
             public NativeArray<GroupData> groupDataList;
             [Unity.Collections.ReadOnly]
@@ -567,7 +574,7 @@ namespace MagicaCloth
                     return;
 
                 // 更新確認
-                if (team.IsUpdate() == false)
+                if (team.IsUpdate(runCount) == false)
                     return;
 
                 // グループデータ

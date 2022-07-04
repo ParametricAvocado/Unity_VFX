@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -214,8 +214,10 @@ namespace MagicaCloth
                 teamIdList = Manager.Particle.teamIdList.ToJobArray(),
 
                 flagList = Manager.Particle.flagList.ToJobArray(),
-                basePosList = Manager.Particle.basePosList.ToJobArray(),
-                baseRotList = Manager.Particle.baseRotList.ToJobArray(),
+                //basePosList = Manager.Particle.basePosList.ToJobArray(),
+                //baseRotList = Manager.Particle.baseRotList.ToJobArray(),
+                snapBasePosList = Manager.Particle.snapBasePosList.ToJobArray(),
+                snapBaseRotList = Manager.Particle.snapBaseRotList.ToJobArray(),
                 posList = Manager.Particle.posList.ToJobArray(),
 
                 rotList = Manager.Particle.rotList.ToJobArray(),
@@ -237,7 +239,11 @@ namespace MagicaCloth
             [Unity.Collections.ReadOnly]
             public NativeArray<GroupData> groupList;
             [Unity.Collections.ReadOnly]
-            public NativeMultiHashMap<int, int> particleMap;
+#if MAGICACLOTH_USE_COLLECTIONS_130
+            public NativeParallelMultiHashMap<int, int> particleMap;
+#else
+            public NativeParallelMultiHashMap<int, int> particleMap;
+#endif
 
             [Unity.Collections.ReadOnly]
             public NativeArray<PhysicsManagerTeamData.TeamData> teamDataList;
@@ -246,10 +252,14 @@ namespace MagicaCloth
 
             [Unity.Collections.ReadOnly]
             public NativeArray<PhysicsManagerParticleData.ParticleFlag> flagList;
+            //[Unity.Collections.ReadOnly]
+            //public NativeArray<float3> basePosList;
+            //[Unity.Collections.ReadOnly]
+            //public NativeArray<quaternion> baseRotList;
             [Unity.Collections.ReadOnly]
-            public NativeArray<float3> basePosList;
+            public NativeArray<float3> snapBasePosList;
             [Unity.Collections.ReadOnly]
-            public NativeArray<quaternion> baseRotList;
+            public NativeArray<quaternion> snapBaseRotList;
             [Unity.Collections.ReadOnly]
             public NativeArray<float3> posList;
 
@@ -270,6 +280,9 @@ namespace MagicaCloth
                 var team = teamDataList[teamIdList[index]];
                 if (team.IsActive() == false || team.adjustRotationGroupIndex < 0)
                     return;
+                // 一時停止スキップ
+                if (team.IsPause())
+                    return;
                 int start = team.particleChunk.startIndex;
 
                 // グループデータ
@@ -278,7 +291,8 @@ namespace MagicaCloth
                     return;
 
                 // 情報
-                quaternion baserot = baseRotList[index]; // 常に本来の回転から算出する
+                //quaternion baserot = baseRotList[index]; // 常に本来の回転から算出する
+                quaternion baserot = snapBaseRotList[index]; // 常に本来の回転から算出する
                 var nextrot = baserot;
 
                 // 回転調整
@@ -292,7 +306,8 @@ namespace MagicaCloth
                 {
                     // 移動ベクトルベース
                     // 移動ローカルベクトル
-                    var lpos = nextpos - basePosList[index];
+                    //var lpos = nextpos - basePosList[index];
+                    var lpos = nextpos - snapBasePosList[index];
                     lpos /= team.scaleRatio; // チームスケール倍率
                     lpos = math.mul(math.inverse(baserot), lpos);
 

@@ -1,11 +1,7 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 
-using System.Collections.Generic;
-using Unity.Burst;
-using Unity.Collections;
-using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -23,12 +19,33 @@ namespace MagicaCloth
         {
             None = 0,
             Direction,
+            Area,
         }
+
+        /// <summary>
+        /// 形状タイプ
+        /// </summary>
+        public enum ShapeType
+        {
+            Box = 0,
+            Sphere = 1,
+        }
+
+        /// <summary>
+        /// 風向き
+        /// </summary>
+        public enum DirectionType
+        {
+            OneDirection = 0,   // 一定方向
+            Radial = 1,         // 放射状
+        }
+
 
         /// <summary>
         /// 風フラグビット
         /// </summary>
         public const uint Flag_Enable = 0x00000001; // 有効フラグ
+        public const uint Flag_Addition = 0x00000002; // 加算モード
 
         /// <summary>
         /// 風データ
@@ -36,19 +53,30 @@ namespace MagicaCloth
         public struct WindData
         {
             /// <summary>
-            /// 風タイプ
-            /// </summary>
-            public WindType windType;
-
-            /// <summary>
             /// フラグビットデータ
             /// </summary>
             public uint flag;
 
             /// <summary>
+            /// 風タイプ
+            /// </summary>
+            public WindType windType;
+
+            /// <summary>
+            /// 形状
+            /// </summary>
+            public ShapeType shapeType;
+
+            /// <summary>
             /// 連動トランスフォームインデックス
             /// </summary>
             public int transformIndex;
+
+            /// <summary>
+            /// 風エリアのサイズ（トランスフォームのローカル軸サイズ）
+            /// 球形の場合はxに半径
+            /// </summary>
+            public float3 areaSize;
 
             /// <summary>
             /// 風量
@@ -61,9 +89,39 @@ namespace MagicaCloth
             public float turbulence;
 
             /// <summary>
-            /// 現在の風の方向（ここが計算で使用される）
+            /// 振動の周期(1.0が基準)
+            /// </summary>
+            public float frequency;
+
+            /// <summary>
+            /// 風の中心位置（-1.0 - +1.0)
+            /// </summary>
+            //public float3 anchor;
+
+            /// <summary>
+            /// 現在の風の方向（ローカル）
             /// </summary>
             public float3 direction;
+
+            /// <summary>
+            /// 風向きのタイプ
+            /// </summary>
+            public DirectionType directionType;
+
+            /// <summary>
+            /// 風エリアの体積
+            /// </summary>
+            public float areaVolume;
+
+            /// <summary>
+            /// 風エリアの最大距離
+            /// </summary>
+            public float areaLength;
+
+            /// <summary>
+            /// 減衰カーブ
+            /// </summary>
+            public CurveParam attenuation;
 
             /// <summary>
             /// フラグ判定
@@ -116,11 +174,6 @@ namespace MagicaCloth
         /// </summary>
         public FixedNativeList<WindData> windDataList;
 
-        /// <summary>
-        /// 方向風のリスト
-        /// </summary>
-        private List<int> directionalWindList = new List<int>();
-
         //=========================================================================================
         /// <summary>
         /// 初期設定
@@ -142,21 +195,31 @@ namespace MagicaCloth
         }
 
         //=========================================================================================
-        public int CreateWind(WindType windType, float main, float turbulence)
+        public int CreateWind(
+            WindType windType, ShapeType shapeType, float3 areaSize, bool addition, float main, float turbulence, float frequency,
+            float3 direction, DirectionType directinType, float areaVolume, float areaLength, BezierParam attenuation
+            )
         {
             var data = new WindData();
 
             uint flag = Flag_Enable;
+            flag |= addition ? Flag_Addition : 0;
             data.flag = flag;
             data.windType = windType;
+            data.shapeType = shapeType;
             data.transformIndex = -1;
+            data.areaSize = areaSize;
             data.main = main;
             data.turbulence = turbulence;
+            data.frequency = frequency;
+            //data.anchor = math.clamp(anchor, -1, 1);
+            data.direction = direction; // local
+            data.directionType = directinType;
+            data.areaVolume = areaVolume;
+            data.areaLength = areaLength;
+            data.attenuation.Setup(attenuation);
 
             int windId = windDataList.Add(data);
-
-            if (windType == WindType.Direction)
-                directionalWindList.Add(windId);
 
             return windId;
         }
@@ -166,8 +229,6 @@ namespace MagicaCloth
             if (windId >= 0)
             {
                 windDataList.Remove(windId);
-
-                directionalWindList.Remove(windId);
             }
         }
 
@@ -232,34 +293,97 @@ namespace MagicaCloth
             windDataList[windId] = data;
         }
 
-        public void SetParameter(int windId, float main, float turbulence)
+        public void SetParameter(
+            int windId, float3 areaSize, bool addition, float main, float turbulence, float frequency,
+            float3 direction, float areaVolume, float areaLength, BezierParam attenuation
+            )
         {
             if (windId < 0)
                 return;
             WindData data = windDataList[windId];
+            data.SetFlag(Flag_Addition, addition);
+            data.areaSize = areaSize;
             data.main = main;
             data.turbulence = turbulence;
+            data.frequency = frequency;
+            //data.anchor = math.clamp(anchor, -1, 1);
+            data.direction = direction; // local
+            data.areaVolume = areaVolume;
+            data.areaLength = areaLength;
+            data.attenuation.Setup(attenuation);
             windDataList[windId] = data;
         }
 
-        /// <summary>
-        /// 方向風のID
-        /// </summary>
-        public int DirectionalWindId
+        public int Count
         {
             get
             {
-                if (directionalWindList.Count > 0)
-                {
-                    // 後から追加されたものを優先する
-                    return directionalWindList[directionalWindList.Count - 1];
-                }
-
-                return -1;
+                if (windDataList == null)
+                    return 0;
+                return windDataList.Count;
             }
         }
 
         //=========================================================================================
+        /// <summary>
+        /// 座標をもとに風の力を計算して返す
+        /// </summary>
+        /// <param name="time"></param>
+        /// <param name="noiseBasePos"></param>
+        /// <param name="mainDir"></param>
+        /// <param name="main"></param>
+        /// <param name="turbulence"></param>
+        /// <param name="frequency"></param>
+        /// <param name="randomScale"></param>
+        /// <returns></returns>
+        internal static float3 CalcWindForce(float time, float2 noiseBasePos, float3 mainDir, float main, float turbulence, float frequency, float randomScale)
+        {
+            // 風量による計算比率
+            float ratio = main / 30.0f; // 風速30を基準
+
+            // 風向きのランダム角度（風量に比例する）
+            float rang = 15.0f + 15.0f * ratio;
+
+            // 風向きの周期
+            float dirFreq = 1.0f + 2.0f * ratio; // 1.0 - 3.0
+            dirFreq *= frequency;
+
+            // 方向ノイズ
+            var noisePos1 = noiseBasePos.xy;
+            var noisePos2 = noiseBasePos.yx;
+            noisePos1.x += time * dirFreq; // 周期（数値を高くするとランダム性が増す）2.0f?
+            noisePos2.y += time * dirFreq; // 周期（数値を高くするとランダム性が増す）2.0f?
+            var nv1 = noise.snoise(noisePos1); // -1.0f～1.0f
+            var nv2 = noise.snoise(noisePos2); // -1.0f～1.0f
+
+            // 方向のランダム性
+            var ang1 = math.radians(nv1 * rang);
+            var ang2 = math.radians(nv2 * rang);
+            ang1 *= turbulence; // 乱流率
+            ang2 *= turbulence; // 乱流率
+            var rq = quaternion.Euler(ang1, ang2, 0.0f); // XY
+            var dirq = MathUtility.AxisQuaternion(mainDir);
+            float3 wdir = math.forward(math.mul(dirq, rq));
+
+            // 風力ノイズ
+            var noisePos3 = noiseBasePos * 6.36913f;
+            //noisePos3.x += time * frequency;
+            noisePos3.x += time * (1.0f + 1.0f * ratio) * frequency;
+            //float nv = noise.snoise(noisePos3); // -1.0f～1.0f
+            float nv = noise.cnoise(noisePos3); // -1.0f～1.0f
+
+            // 風力のランダム性
+            float scl = math.max(nv * randomScale, -1.0f); // scale
+            main += main * scl;
+
+            // 最終合成
+            float3 force = wdir * main;
+
+            return force;
+        }
+
+        //=========================================================================================
+#if false // 風の計算はすべてチーム処理へ移動
         /// <summary>
         /// 風の更新
         /// </summary>
@@ -275,7 +399,7 @@ namespace MagicaCloth
 
                 windData = windDataList.ToJobArray(),
             };
-            Compute.MasterJob = job.Schedule(windDataList.Length, 8, Compute.MasterJob);
+            Compute.MasterJob = job.Schedule(windDataList.Length, 1, Compute.MasterJob);
         }
 
         [BurstCompile]
@@ -332,5 +456,6 @@ namespace MagicaCloth
                 windData[index] = wdata;
             }
         }
+#endif
     }
 }

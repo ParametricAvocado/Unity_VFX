@@ -1,7 +1,8 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace MagicaCloth
 {
@@ -15,7 +16,12 @@ namespace MagicaCloth
         /// これは初期化の成否に関係なく無条件で登録されるので注意！
         /// 初期化完了の有無は comp.Status.IsInitSuccess で判定する
         /// </summary>
-        private HashSet<CoreComponent> componentSet = new HashSet<CoreComponent>();
+        private readonly HashSet<CoreComponent> componentSet = new HashSet<CoreComponent>();
+
+        /// <summary>
+        /// データ更新が必要なパーティクルコンポーネントセット
+        /// </summary>
+        private HashSet<ParticleComponent> dataUpdateParticleSet = new HashSet<ParticleComponent>();
 
         //=========================================================================================
         /// <summary>
@@ -42,6 +48,16 @@ namespace MagicaCloth
             {
                 return componentSet.Count;
             }
+        }
+
+        /// <summary>
+        /// 登録コンポーネントのコピーをリストで返す.
+        /// Returns a list of copies of the registration component.
+        /// </summary>
+        /// <returns></returns>
+        public List<CoreComponent> GetComponentList()
+        {
+            return new List<CoreComponent>(componentSet);
         }
 
         /// <summary>
@@ -86,6 +102,31 @@ namespace MagicaCloth
             //Debug.Log($"RemoveComponent:{comp.name}");
             if (componentSet.Contains(comp))
                 componentSet.Remove(comp);
+        }
+
+        //=========================================================================================
+        /// <summary>
+        /// パーティクルコンポーネントをデータ更新予約に追加する
+        /// </summary>
+        /// <param name="comp"></param>
+        internal void ReserveDataUpdateParticleComponent(ParticleComponent comp)
+        {
+            dataUpdateParticleSet.Add(comp);
+        }
+
+        /// <summary>
+        /// 予約されたパーティクルコンポーネントのデータを変更し予約リストをクリアする
+        /// </summary>
+        internal void DataUpdateParticleComponent()
+        {
+            if (dataUpdateParticleSet.Count > 0)
+            {
+                foreach (var comp in dataUpdateParticleSet)
+                {
+                    comp?.DataUpdate();
+                }
+                dataUpdateParticleSet.Clear();
+            }
         }
     }
 }

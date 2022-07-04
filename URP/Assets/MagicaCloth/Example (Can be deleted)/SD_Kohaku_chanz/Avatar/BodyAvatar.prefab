@@ -974,6 +974,12 @@ MonoBehaviour:
   dataHash: 0
   dataVersion: 0
   dataReset: 1
+  OnAttachParts:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDetachParts:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1068489558667610381
 GameObject:
   m_ObjectHideFlags: 0

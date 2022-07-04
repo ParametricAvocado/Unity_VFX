@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,6 +33,11 @@ namespace MagicaCloth
         private int deformerHash;
         [SerializeField]
         private int deformerVersion;
+
+        /// <summary>
+        /// カリングモードのキャッシュ(-1=キャッシュ無効)
+        /// </summary>
+        internal PhysicsTeam.TeamCullingMode cullModeCash { get; private set; } = (PhysicsTeam.TeamCullingMode)(-1);
 
         //=========================================================================================
         public override ComponentType GetComponentType()
@@ -120,6 +125,90 @@ namespace MagicaCloth
             }
         }
 
+        /// <summary>
+        /// UnityPhyiscsでの更新の変更
+        /// 継承クラスは自身の使用するボーンの状態更新などを記述する
+        /// </summary>
+        /// <param name="sw"></param>
+        protected override void ChangeUseUnityPhysics(bool sw)
+        {
+            Deformer.ChangeUseUnityPhysics(sw);
+
+            // レンダーデフォーマに伝達
+            for (int i = 0; i < Deformer.RenderDeformerCount; i++)
+            {
+                Deformer.GetRenderDeformer(i)?.SetUseUnityPhysics(sw);
+            }
+        }
+
+        //=========================================================================================
+        internal override void UpdateCullingMode(CoreComponent caller)
+        {
+            // カリングモード（クロスコンポーネントから収集する）
+            cullModeCash = 0;
+            foreach (var status in Status.childStatusSet)
+            {
+                if (status != null)
+                {
+                    var owner = status.OwnerFunc() as BaseCloth;
+                    if (owner != null)
+                    {
+                        var ownerCull = owner.CullingMode;
+                        if (ownerCull > cullModeCash)
+                            cullModeCash = ownerCull;
+                    }
+                }
+            }
+
+            // 表示状態（レンダーデフォーマから収集する）
+            bool visible = false;
+            if (cullModeCash == PhysicsTeam.TeamCullingMode.Off)
+            {
+                visible = true;
+            }
+            else
+            {
+                for (int i = 0; i < Deformer.RenderDeformerCount; i++)
+                {
+                    var rd = Deformer.GetRenderDeformer(i);
+                    if (rd && rd.IsVisible)
+                    {
+                        visible = true;
+                        break;
+                    }
+                }
+            }
+            IsVisible = visible;
+
+            // 計算状態
+            bool stopInvisible = cullModeCash != PhysicsTeam.TeamCullingMode.Off;
+            bool calc = true;
+            if (stopInvisible)
+            {
+                calc = visible;
+            }
+            var val = calc ? 1 : 0;
+            if (calculateValue != val)
+            {
+                calculateValue = val;
+                OnChangeCalculation();
+            }
+
+            // 接続するクロスコンポーネントとレンダーデフォーマに伝達
+            foreach (var status in Status.childStatusSet)
+            {
+                var core = status?.OwnerFunc() as CoreComponent;
+                if (core && core != caller)
+                    core.UpdateCullingMode(this);
+            }
+        }
+
+        protected override void OnChangeCalculation()
+        {
+            //Debug.Log($"VD [{this.name}] Visible:{IsVisible} Calc:{IsCalculate} F:{Time.frameCount}");
+            Deformer.ChangeCalculation(IsCalculate);
+        }
+
         //=========================================================================================
         public override int GetVersion()
         {
@@ -185,11 +274,22 @@ namespace MagicaCloth
         /// ボーンを置換する
         /// </summary>
         /// <param name="boneReplaceDict"></param>
-        public override void ReplaceBone(Dictionary<Transform, Transform> boneReplaceDict)
+        public override void ReplaceBone<T>(Dictionary<T, Transform> boneReplaceDict)
         {
             base.ReplaceBone(boneReplaceDict);
 
             Deformer.ReplaceBone(boneReplaceDict);
+        }
+
+        /// <summary>
+        /// 現在使用しているボーンを格納して返す
+        /// </summary>
+        /// <returns></returns>
+        public override HashSet<Transform> GetUsedBones()
+        {
+            var bones = base.GetUsedBones();
+            bones.UnionWith(Deformer.GetUsedBones());
+            return bones;
         }
 
         //=========================================================================================

@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Runtime.CompilerServices;
 using Unity.Mathematics;
@@ -14,11 +14,21 @@ namespace MagicaCloth
         /// <param name="a"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Clamp01(float a)
+        public static float Clamp1(float a)
         {
             return math.clamp(a, -1.0f, 1.0f);
         }
 
+        /// <summary>
+        /// 数値を(0.0f～1.0f)にクランプする
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Clamp01(float a)
+        {
+            return math.clamp(a, 0.0f, 1.0f);
+        }
 
         /// <summary>
         /// 投影ベクトルを求める
@@ -46,7 +56,7 @@ namespace MagicaCloth
 
             float cos_sita = math.dot(v1, v2) / (len1 * len2);
 
-            float sita = math.acos(Clamp01(cos_sita));
+            float sita = math.acos(Clamp1(cos_sita));
 
             //return degrees(sita);
             return sita;
@@ -73,6 +83,25 @@ namespace MagicaCloth
                 {
                     v *= (minlength / len);
                 }
+            }
+
+            return v;
+        }
+
+        /// <summary>
+        /// ベクトルの長さをクランプする
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="minlength"></param>
+        /// <param name="maxlength"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 ClampVector(float3 v, float maxlength)
+        {
+            float len = math.length(v);
+            if (len > 1e-06f && len > maxlength)
+            {
+                v *= (maxlength / len);
             }
 
             return v;
@@ -108,7 +137,7 @@ namespace MagicaCloth
             float3 v1 = math.normalize(dir);
             float3 v2 = math.normalize(basedir);
 
-            float c = Clamp01(math.dot(v1, v2));
+            float c = Clamp1(math.dot(v1, v2));
             float angle = math.acos(c);
 
             //if (c > 0.9995f || angle <= maxAngle)
@@ -162,7 +191,7 @@ namespace MagicaCloth
             float3 v1 = math.normalize(from);
             float3 v2 = math.normalize(to);
 
-            float c = Clamp01(math.dot(v1, v2));
+            float c = Clamp1(math.dot(v1, v2));
             float angle = math.acos(c);
             float3 axis = math.cross(v1, v2);
 
@@ -194,12 +223,11 @@ namespace MagicaCloth
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
-        /// <param name="t">補間率(0.0-1.0)</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static quaternion FromToRotation(quaternion from, quaternion to, float t = 1.0f)
+        public static quaternion FromToRotation(quaternion from, quaternion to)
         {
-            return FromToRotation(math.forward(from), math.forward(to), t);
+            return math.mul(to, math.inverse(from));
         }
 
         /// <summary>
@@ -207,16 +235,16 @@ namespace MagicaCloth
         /// </summary>
         /// <param name="q"></param>
         /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Angle(quaternion q)
-        {
-            //float3 v1 = new float3(0, 0, 1);
-            float3 v2 = math.forward(q);
-            //float c = math.dot(v1, v2);
-            float c = v2.z;
-            float angle = math.acos(Clamp01(c));
-            return angle;
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static float Angle(quaternion q)
+        //{
+        //    //float3 v1 = new float3(0, 0, 1);
+        //    float3 v2 = math.forward(q);
+        //    //float c = math.dot(v1, v2);
+        //    float c = v2.z;
+        //    float angle = math.acos(Clamp01(c));
+        //    return angle;
+        //}
 
         /// <summary>
         /// ２つのクォータニオンの角度を返します（ラジアン）
@@ -227,7 +255,9 @@ namespace MagicaCloth
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Angle(quaternion a, quaternion b)
         {
-            return math.acos(Clamp01(math.dot(a, b)));
+            const float PI2 = math.PI * 2.0f;
+            var ang = math.acos(Clamp1(math.dot(a, b))) * 2.0f; // x2.0が必要
+            return ang > math.PI ? PI2 - ang : ang;
         }
 
         /// <summary>
@@ -250,6 +280,32 @@ namespace MagicaCloth
         }
 
         /// <summary>
+        /// 方向ベクトルをXY回転角度(ラジアン)に分離する、Z角度は常に０である
+        /// </summary>
+        /// <param name="axis"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 AxisToEuler(float3 axis)
+        {
+            float angy = math.atan2(axis.x, axis.z);
+            float angx = math.atan2(-axis.y, math.length(axis - new float3(0, axis.y, 0)));
+            return new float3(angx, angy, 0);
+        }
+
+        /// <summary>
+        /// 方向ベクトルからクォータニオンを作成して返す
+        /// ベクトルは一旦オイラー角に分解されてからクォータニオンへ組み立て直される
+        /// XYの回転軸を安定させるため
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static quaternion AxisQuaternion(float3 dir)
+        {
+            return quaternion.Euler(AxisToEuler(dir));
+        }
+
+        /// <summary>
         /// 与えられた線分abおよび点cに対して、ab上の最近接点t(0.0-1.0)を計算して返す
         /// </summary>
         /// <param name="c"></param>
@@ -268,6 +324,22 @@ namespace MagicaCloth
         }
 
         /// <summary>
+        /// 与えられた線分abおよび点cに対して、ab上の最近接点tを計算して返す。tはクランプされない
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float ClosestPtPointSegmentRatioNoClamp(float3 c, float3 a, float3 b)
+        {
+            float3 ab = b - a;
+            // パラメータ化されている位置d(t) = a + t * (b - a) の計算によりabにcを射影
+            float t = math.dot(c - a, ab) / math.dot(ab, ab);
+            return t;
+        }
+
+        /// <summary>
         /// 与えられた線分abおよび点cに対して、ab上の最近接点座標dを計算して返す
         /// </summary>
         /// <param name="c"></param>
@@ -282,6 +354,23 @@ namespace MagicaCloth
             float t = math.dot(c - a, ab) / math.dot(ab, ab);
             // 線分の外側にある場合、t(従ってd)を最近接点までクランプ
             t = math.saturate(t);
+            // クランプされているtからの射影されている位置を計算
+            return a + t * ab;
+        }
+
+        /// <summary>
+        /// 与えられた線分abおよび点cに対して、ab上の最近接点座標dを計算して返す。dはクランプされない
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 ClosestPtPointSegmentNoClamp(float3 c, float3 a, float3 b)
+        {
+            float3 ab = b - a;
+            // パラメータ化されている位置d(t) = a + t * (b - a) の計算によりabにcを射影
+            float t = math.dot(c - a, ab) / math.dot(ab, ab);
             // クランプされているtからの射影されている位置を計算
             return a + t * ab;
         }
@@ -1345,6 +1434,68 @@ namespace MagicaCloth
             // distが点とトライアングルの最近接点距離を表すので、触れていななら終了させる
             //return dist <= radius;
             return dist;
+        }
+
+        /// <summary>
+        /// トライアングルの重心を返す
+        /// </summary>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 TriangleCenter(float3 p0, float3 p1, float3 p2)
+        {
+            return (p0 + p1 + p2) / 3.0f;
+        }
+
+        /// <summary>
+        /// トライアングルの法線を返す
+        /// </summary>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float3 TriangleNormal(float3 p0, float3 p1, float3 p2)
+        {
+            return math.normalize(math.cross(p1 - p0, p2 - p0));
+        }
+
+        /// <summary>
+        /// トライアングルの回転姿勢を返す
+        /// 法線と(重心-p0)の軸からなるクォータニオン
+        /// </summary>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static quaternion TriangleRotation(float3 p0, float3 p1, float3 p2)
+        {
+            var n = TriangleNormal(p0, p1, p2);
+            var cen = TriangleCenter(p0, p1, p2);
+            var tan = math.normalize(p0 - cen);
+            return quaternion.LookRotation(tan, n);
+        }
+
+        /// <summary>
+        /// 隣接する２つのトライアングルの回転姿勢を返す
+        /// 法線の平均と共通エッジからなるクォータニオン
+        /// </summary>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <param name="p3"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static quaternion TriangleCenterRotation(float3 p0, float3 p1, float3 p2, float3 p3)
+        {
+            var n0 = TriangleNormal(p0, p2, p3);
+            var n1 = TriangleNormal(p1, p3, p2);
+            var n = (n0 + n1) * 0.5f;
+            var tan = math.normalize(p3 - p2);
+            return quaternion.LookRotation(tan, n);
         }
 
         /// <summary>

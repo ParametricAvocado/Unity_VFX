@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,11 @@ namespace MagicaCloth
         where TKey : struct, IEquatable<TKey>
         where TValue : struct
     {
-        NativeHashMap<TKey, TValue> nativeHashMap;
+#if MAGICACLOTH_USE_COLLECTIONS_130
+        NativeParallelHashMap<TKey, TValue> nativeHashMap;
+#else
+        NativeParallelHashMap<TKey, TValue> nativeHashMap;
+#endif
 
         /// <summary>
         /// ネイティブリストの配列数
@@ -32,7 +36,11 @@ namespace MagicaCloth
         //=========================================================================================
         public ExNativeHashMap()
         {
-            nativeHashMap = new NativeHashMap<TKey, TValue>(1, Allocator.Persistent);
+#if MAGICACLOTH_USE_COLLECTIONS_130
+            nativeHashMap = new NativeParallelHashMap<TKey, TValue>(1, Allocator.Persistent);
+#else
+            nativeHashMap = new NativeParallelHashMap<TKey, TValue>(1, Allocator.Persistent);
+#endif
             nativeLength = NativeCount;
         }
 
@@ -48,11 +56,7 @@ namespace MagicaCloth
         {
             get
             {
-#if UNITY_2019_3_OR_NEWER
                 return nativeHashMap.Count();
-#else
-                return nativeHashMap.Length;
-#endif
             }
         }
 
@@ -172,7 +176,11 @@ namespace MagicaCloth
         /// 内部のNativeHashMapを取得する
         /// </summary>
         /// <returns></returns>
-        public NativeHashMap<TKey, TValue> Map
+#if MAGICACLOTH_USE_COLLECTIONS_130
+        public NativeParallelHashMap<TKey, TValue> Map
+#else
+        public NativeParallelHashMap<TKey, TValue> Map
+#endif
         {
             get
             {

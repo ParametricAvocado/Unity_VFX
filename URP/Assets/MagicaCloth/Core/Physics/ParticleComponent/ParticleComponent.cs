@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -96,7 +96,8 @@ namespace MagicaCloth
         /// <param name="vcnt"></param>
         void Init()
         {
-            status.updateStatusAction = OnUpdateStatus;
+            status.UpdateStatusAction = OnUpdateStatus;
+            status.OwnerFunc = () => this;
             if (status.IsInitComplete || status.IsInitStart)
                 return;
             status.SetInitStart();
@@ -239,6 +240,28 @@ namespace MagicaCloth
                 );
         }
 
+        /// <summary>
+        /// パーティクルのデータ更新を予約する
+        /// </summary>
+        protected void ReserveDataUpdate()
+        {
+            if (MagicaPhysicsManager.IsInstance())
+                MagicaPhysicsManager.Instance.Component.ReserveDataUpdateParticleComponent(this);
+        }
+
+        /// <summary>
+        /// パーティクルのデータ更新処理
+        /// </summary>
+        internal virtual void DataUpdate() { }
+
+        /// <summary>
+        /// 状態の更新
+        /// </summary>
+        internal void UpdateStatus()
+        {
+            status.UpdateStatus();
+        }
+
         //=========================================================================================
         /// <summary>
         /// 指定チームのパーティクルを１つ作成
@@ -259,18 +282,24 @@ namespace MagicaCloth
             float3 localPos
             )
         {
-            var t = transform;
+            // すでに登録済みならば無効(v1.9.3)
+            if (particleDict.ContainsKey(teamId))
+            {
+                return new ChunkData();
+            }
 
+            // 自動追加フラグ
+            if (MagicaPhysicsManager.Instance.Team.IsFlag(teamId, PhysicsManagerTeamData.Flag_UpdatePhysics))
+                flag |= PhysicsManagerParticleData.Flag_Transform_UnityPhysics;
+
+            var t = transform;
             var c = MagicaPhysicsManager.Instance.Particle.CreateParticle(
                 flag,
                 teamId,
                 t.position,
                 t.rotation,
-                //t.localPosition,
-                //t.localRotation,
                 depth,
                 radius,
-                //t,
                 localPos
                 );
             particleDict.Add(teamId, c);

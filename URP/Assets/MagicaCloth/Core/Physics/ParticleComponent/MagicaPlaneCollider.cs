@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEngine;
 
@@ -22,14 +22,22 @@ namespace MagicaCloth
         private void OnValidate()
         {
             if (Application.isPlaying)
+                DataUpdate();
+        }
+
+        /// <summary>
+        /// パーティクルのデータ更新処理
+        /// </summary>
+        internal override void DataUpdate()
+        {
+            base.DataUpdate();
+
+            // localPos
+            foreach (var c in particleDict.Values)
             {
-                // localPos
-                foreach (var c in particleDict.Values)
+                for (int i = 0; i < c.dataLength; i++)
                 {
-                    for (int i = 0; i < c.dataLength; i++)
-                    {
-                        MagicaPhysicsManager.Instance.Particle.SetLocalPos(c.startIndex + i, Center);
-                    }
+                    MagicaPhysicsManager.Instance.Particle.SetLocalPos(c.startIndex + i, Center);
                 }
             }
         }
@@ -55,7 +63,8 @@ namespace MagicaCloth
                 Center
                 );
 
-            MagicaPhysicsManager.Instance.Team.AddCollider(teamId, c.startIndex);
+            if (c.IsValid())
+                MagicaPhysicsManager.Instance.Team.AddCollider(teamId, c.startIndex);
 
             return c;
         }

@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using UnityEditor;
 using UnityEngine;
@@ -38,11 +38,19 @@ namespace MagicaCloth
         /// <param name="core"></param>
         public static void DispVersionStatus(CoreComponent core)
         {
-            var code = core.VerityDataVersion();
-            if (Define.IsNormal(code))
-                return;
+            // Data Version
+            var code = core.VerifyDataVersion();
+            if (Define.IsNormal(code) == false)
+                EditorGUILayout.HelpBox(Define.GetErrorMessage(code), MessageType.Warning);
 
-            EditorGUILayout.HelpBox(Define.GetErrorMessage(code), MessageType.Warning);
+            // Algorithm Version
+            var cloth = core as BaseCloth;
+            if (cloth != null)
+            {
+                code = cloth.VerifyAlgorithmVersion();
+                if (Define.IsNormal(code) == false)
+                    EditorGUILayout.HelpBox(Define.GetErrorMessage(code), MessageType.Warning);
+            }
         }
 
         //===============================================================================
@@ -247,6 +255,26 @@ namespace MagicaCloth
             }
         }
 
+        /// <summary>
+        /// タイトルバーのみ表示
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="warning"></param>
+        public static void TitleBar(string title, bool warning)
+        {
+            var style = new GUIStyle("ShurikenModuleTitle");
+            style.font = new GUIStyle(EditorStyles.label).font;
+            style.border = new RectOffset(15, 7, 4, 4);
+            style.fixedHeight = 22;
+            style.contentOffset = new Vector2(20f, -2f);
+
+            var rect = GUILayoutUtility.GetRect(16f, 22f, style);
+
+            GUI.backgroundColor = warning ? Color.yellow : Color.white;
+            GUI.Box(rect, title, style);
+            GUI.backgroundColor = Color.white;
+        }
+
         //===============================================================================
         static bool MinMaxCurveInspector(string title, string valueName, SerializedProperty bval, float minval, float maxval)
         {
@@ -406,6 +434,66 @@ namespace MagicaCloth
         }
 
         //===============================================================================
+        public static bool AlgorithmInspector(SerializedProperty cparam, bool changed, System.Action convertAction)
+        {
+            EditorGUI.BeginChangeCheck();
+
+            //TitleBar("Algorithm", changed);
+
+            var algo = cparam.FindPropertyRelative("algorithm");
+            var algoType = (ClothParams.Algorithm)algo.enumValueIndex;
+
+            bool isPlaying = EditorApplication.isPlaying;
+
+            const string title = "Algorithm";
+            StaticStringBuilder.Clear();
+            StaticStringBuilder.Append(title, " [", algoType, "]");
+            Foldout(title, StaticStringBuilder.ToString(),
+                () =>
+                {
+                    EditorGUI.BeginDisabledGroup(isPlaying);
+                    EditorGUILayout.PropertyField(algo, new GUIContent("Algorithm"));
+                    EditorGUI.EndDisabledGroup();
+                    switch (algoType)
+                    {
+                        case ClothParams.Algorithm.Algorithm_1:
+                            EditorGUILayout.HelpBox("This algorithm is deprecated.\nPlease use the more stable algorithm 2.\nAlgorithm 1 will be removed in the future.", MessageType.Warning);
+                            break;
+                        case ClothParams.Algorithm.Algorithm_2:
+                            EditorGUILayout.HelpBox("Algorithm 2 was introduced from v1.11.0.\nClampRotation / RestoreRotation / TriangleBend will be more stable.\nHowever, the parameters need to be readjusted.", MessageType.Info);
+                            break;
+                    }
+
+                    // Convert
+                    if (algoType == ClothParams.Algorithm.Algorithm_2)
+                    {
+                        EditorGUI.BeginDisabledGroup(isPlaying);
+                        EditorGUILayout.Space();
+                        using (var horizontalScope = new GUILayout.HorizontalScope())
+                        {
+                            EditorGUILayout.Space();
+                            if (GUILayout.Button("Convert To Latest Algorithm Parameters", GUILayout.Width(300)))
+                            {
+                                if (EditorUtility.DisplayDialog("Parameter conversion", "Converts the parameters of an old algorithm to the latest algorithm.", "Ok", "Cancel"))
+                                {
+                                    //Debug.Log("OK!");
+                                    convertAction?.Invoke();
+                                }
+                            }
+                            EditorGUILayout.Space();
+                        }
+                        EditorGUILayout.Space();
+                        EditorGUILayout.HelpBox("Parameters of old algorithms can be converted to the latest algorithms.\nNote, however, that the same parameter may work slightly differently depending on the algorithm.", MessageType.Info);
+                        EditorGUILayout.Space();
+                        EditorGUI.EndDisabledGroup();
+                    }
+                },
+                warning: changed
+                );
+
+            return EditorGUI.EndChangeCheck();
+        }
+
         public static bool WorldInfluenceInspector(SerializedProperty cparam, bool changed)
         {
             EditorGUI.BeginChangeCheck();
@@ -414,6 +502,7 @@ namespace MagicaCloth
             var moveInfluence = cparam.FindPropertyRelative("worldMoveInfluence");
             var rotInfluence = cparam.FindPropertyRelative("worldRotationInfluence");
             var maxSpeed = cparam.FindPropertyRelative("maxMoveSpeed");
+            var maxRotationSpeed = cparam.FindPropertyRelative("maxRotationSpeed");
 
             var useTeleport = cparam.FindPropertyRelative("useResetTeleport");
             var teleportDistance = cparam.FindPropertyRelative("teleportDistance");
@@ -422,20 +511,23 @@ namespace MagicaCloth
 
             var stabilizationTime = cparam.FindPropertyRelative("resetStabilizationTime");
 
-            //float sv, ev, cv;
-            //GetBezierValue(worldInfluence, out sv, out ev, out cv);
+            float ms, me, mc;
+            GetBezierValue(moveInfluence, out ms, out me, out mc);
+            float rs, re, rc;
+            GetBezierValue(rotInfluence, out rs, out re, out rc);
 
             const string title = "World Influence";
             StaticStringBuilder.Clear();
-            StaticStringBuilder.Append(title);
-            //StaticStringBuilder.Append(title, " [", sv, "/", ev, "]");
+            StaticStringBuilder.Append(title, " [", ms, "/", me, "] [", rs, "/", re, "]");
             Foldout(title, StaticStringBuilder.ToString(),
                 () =>
                 {
                     EditorGUILayout.PropertyField(influenceTarget);
-                    EditorGUILayout.Slider(maxSpeed, 0.0f, 30.0f, "Max Move Speed");
+                    EditorGUILayout.Slider(maxSpeed, 0.0f, 20.0f, "Max Move Speed");
                     EditorGUILayout.LabelField("Movement Influence");
                     BezierInspector("Move Influence", moveInfluence, 0.0f, 1.0f);
+
+                    EditorGUILayout.Slider(maxRotationSpeed, 0.0f, 720.0f, "Max Rotation Speed");
                     EditorGUILayout.LabelField("Rotation Influence");
                     BezierInspector("Rotation Influence", rotInfluence, 0.0f, 1.0f);
 
@@ -499,9 +591,11 @@ namespace MagicaCloth
         {
             EditorGUI.BeginChangeCheck();
 
-            var massInfluence = cparam.FindPropertyRelative("massInfluence");
+            //var massInfluence = cparam.FindPropertyRelative("massInfluence");
+            var depthInfluence = cparam.FindPropertyRelative("depthInfluence");
             var windInfluence = cparam.FindPropertyRelative("windInfluence");
             var windRandomScale = cparam.FindPropertyRelative("windRandomScale");
+            var windSynchronization = cparam.FindPropertyRelative("windSynchronization");
 
             const string title = "External Force";
             StaticStringBuilder.Clear();
@@ -509,11 +603,14 @@ namespace MagicaCloth
             Foldout(title, StaticStringBuilder.ToString(),
                 () =>
                 {
-                    EditorGUILayout.Slider(massInfluence, 0.0f, 1.0f, "Mass Influence");
+                    //EditorGUILayout.Slider(massInfluence, 0.0f, 1.0f, "Mass Influence");
                     //EditorGUILayout.LabelField("Wind");
+                    EditorGUILayout.LabelField("Depth Influence");
+                    BezierInspector("Depth Influence", depthInfluence, 0.0f, 1.0f, "F2");
                     EditorGUILayout.Space();
-                    EditorGUILayout.Slider(windInfluence, 0.0f, 3.0f, "Wind Influence");
-                    EditorGUILayout.Slider(windRandomScale, 0.0f, 2.0f, "Wind Random Scale");
+                    EditorGUILayout.Slider(windInfluence, 0.0f, 2.0f, "Wind Influence");
+                    EditorGUILayout.Slider(windSynchronization, 0.0f, 1.0f, "Wind Synchronization");
+                    EditorGUILayout.Slider(windRandomScale, 0.0f, 1.0f, "Wind Random Scale");
                 }
                 );
 
@@ -522,7 +619,7 @@ namespace MagicaCloth
 
         public static bool RadiusInspector(SerializedProperty cparam)
         {
-            return MinMaxCurveInspector("Radius", "Radius", cparam.FindPropertyRelative("radius"), 0.001f, 0.1f);
+            return MinMaxCurveInspector("Radius", "Radius", cparam.FindPropertyRelative("radius"), 0.001f, 0.3f);
         }
 
         public static bool MassInspector(SerializedProperty cparam)
@@ -538,6 +635,7 @@ namespace MagicaCloth
 
             var useGravity = cparam.FindPropertyRelative("useGravity");
             var gravity = cparam.FindPropertyRelative("gravity");
+            var gravityDirection = cparam.FindPropertyRelative("gravityDirection");
             //var useDirectional = cparam.FindPropertyRelative("useDirectionalDamping");
             //var refObject = cparam.FindPropertyRelative("directionalDampingObject");
             //var directionaDamping = cparam.FindPropertyRelative("directionalDamping");
@@ -554,7 +652,8 @@ namespace MagicaCloth
                 {
                     EditorGUI.BeginDisabledGroup(!wuse);
                     EditorGUILayout.LabelField("Gravity Acceleration");
-                    BezierInspector("Gravity", gravity, -20.0f, 0.0f, "F2");
+                    BezierInspector("Gravity", gravity, -10.0f, 0.0f, "F2");
+                    EditorGUILayout.PropertyField(gravityDirection, true);
 
                     //useDirectional.boolValue = EditorGUILayout.Toggle("Directional Damping", useDirectional.boolValue);
                     //refObject.objectReferenceValue = EditorGUILayout.ObjectField("Reference Object", refObject.objectReferenceValue, typeof(Transform), true);
@@ -585,9 +684,66 @@ namespace MagicaCloth
             return UseMinMaxCurveInspector("Max Velocity", cparam.FindPropertyRelative("useMaxVelocity"), "Max Velocity", cparam.FindPropertyRelative("maxVelocity"), 0.01f, 10.0f);
         }
 
-        public static bool TriangleBendInspector(SerializedProperty cparam, bool changed)
+        public static bool TriangleBendInspector(SerializedProperty cparam, bool changed, ClothData clothData)
         {
-            return UseMinMaxCurveInspector("Triangle Bend", cparam.FindPropertyRelative("useTriangleBend"), "Bend Power", cparam.FindPropertyRelative("triangleBend"), 0.0f, 1.0f, warning: changed);
+            EditorGUI.BeginChangeCheck();
+
+            var use = cparam.FindPropertyRelative("useTriangleBend");
+            //var useIncludeFixed = cparam.FindPropertyRelative("useTriangleBendIncludeFixed");
+            var useTiwstCorrection = cparam.FindPropertyRelative("useTwistCorrection");
+            var tiwstPower = cparam.FindPropertyRelative("twistRecoveryPower");
+
+            var algo = cparam.FindPropertyRelative("algorithm");
+            var algoType = EditorApplication.isPlaying ? clothData.triangleBendAlgorithm : (ClothParams.Algorithm)algo.enumValueIndex;
+
+            string powerStr = string.Empty;
+            switch (algoType)
+            {
+                case ClothParams.Algorithm.Algorithm_1:
+                    powerStr = "triangleBend";
+                    break;
+                case ClothParams.Algorithm.Algorithm_2:
+                    powerStr = "triangleBend2";
+                    break;
+            }
+            var power = cparam.FindPropertyRelative(powerStr);
+
+            const string title = "Triangle Bend";
+            StaticStringBuilder.Clear();
+            float sv = 0, ev = 0, cv = 0;
+            GetBezierValue(power, out sv, out ev, out cv);
+            StaticStringBuilder.Append("Triangle Bend", " [", sv, "/", ev, "]");
+            StaticStringBuilder.Append(" (", algoType, ")");
+
+            bool isPlaying = EditorApplication.isPlaying;
+
+            Foldout(title, StaticStringBuilder.ToString(),
+                () =>
+                {
+                    EditorGUI.BeginDisabledGroup(!use.boolValue);
+                    //useIncludeFixed.boolValue = EditorGUILayout.Toggle("Include Fixed", useIncludeFixed.boolValue);
+                    EditorGUILayout.LabelField("Bend Power");
+                    BezierInspector("Triangle Bend", power, 0.0f, 1.0f);
+                    EditorGUI.EndDisabledGroup();
+
+                    // Twist
+                    if (algoType == ClothParams.Algorithm.Algorithm_2)
+                    {
+                        EditorGUI.BeginDisabledGroup(isPlaying);
+                        useTiwstCorrection.boolValue = EditorGUILayout.Toggle("Twist Correction (Experimental)", useTiwstCorrection.boolValue);
+                        EditorGUI.EndDisabledGroup();
+                        EditorGUILayout.Slider(tiwstPower, 0.0f, 1.0f, "Twist Recovery Power");
+                    }
+                },
+                (sw) =>
+                {
+                    use.boolValue = sw;
+                },
+                use.boolValue,
+                changed
+                );
+
+            return EditorGUI.EndChangeCheck();
         }
 
         public static bool DirectionMoveLimitInspector(SerializedProperty cparam)
@@ -595,19 +751,35 @@ namespace MagicaCloth
             return UseMinMaxCurveInspector("Limit Move To Hits", cparam.FindPropertyRelative("useDirectionMoveLimit"), "Move Limit", cparam.FindPropertyRelative("directionMoveLimit"), -0.2f, 0.2f);
         }
 
-        public static bool RestoreRotationInspector(SerializedProperty cparam, bool changed)
+        public static bool RestoreRotationInspector(SerializedProperty cparam, bool changed, ClothData clothData)
         {
             EditorGUI.BeginChangeCheck();
 
             var use = cparam.FindPropertyRelative("useRestoreRotation");
-            var power = cparam.FindPropertyRelative("restoreRotation");
-            var influence = cparam.FindPropertyRelative("restoreRotationVelocityInfluence");
+            var algo = cparam.FindPropertyRelative("algorithm");
+            var algoType = EditorApplication.isPlaying ? clothData.restoreRotationAlgorithm : (ClothParams.Algorithm)algo.enumValueIndex;
+
+            string powerStr = string.Empty;
+            string influenceStr = string.Empty;
+            switch (algoType)
+            {
+                case ClothParams.Algorithm.Algorithm_1:
+                    powerStr = "restoreRotation";
+                    influenceStr = "restoreRotationVelocityInfluence";
+                    break;
+                case ClothParams.Algorithm.Algorithm_2:
+                    powerStr = "restoreRotation2";
+                    influenceStr = "restoreRotationVelocityInfluence2";
+                    break;
+            }
+            var power = cparam.FindPropertyRelative(powerStr);
+            var influence = cparam.FindPropertyRelative(influenceStr);
 
             const string title = "Restore Rotation";
             float sv, ev, cv;
             GetBezierValue(power, out sv, out ev, out cv);
             StaticStringBuilder.Clear();
-            StaticStringBuilder.Append("Restore Rotation", " [", sv, "/", ev, "]");
+            StaticStringBuilder.Append("Restore Rotation", " [", sv, "/", ev, "] (", algoType, ")");
 
             Foldout(title, StaticStringBuilder.ToString(),
                 () =>
@@ -631,31 +803,45 @@ namespace MagicaCloth
             return EditorGUI.EndChangeCheck();
         }
 
-        public static bool ClampRotationInspector(SerializedProperty cparam, bool changed)
+        public static bool ClampRotationInspector(SerializedProperty cparam, bool changed, ClothData clothData)
         {
             EditorGUI.BeginChangeCheck();
 
             var use = cparam.FindPropertyRelative("useClampRotation");
-            var angle = cparam.FindPropertyRelative("clampRotationAngle");
-            //var stiffness = cparam.FindPropertyRelative("clampRotationStiffness");
+            var algo = cparam.FindPropertyRelative("algorithm");
+            var algoType = EditorApplication.isPlaying ? clothData.clampRotationAlgorithm : (ClothParams.Algorithm)algo.enumValueIndex;
+
+            string angleStr = string.Empty;
+            switch (algoType)
+            {
+                case ClothParams.Algorithm.Algorithm_1:
+                    angleStr = "clampRotationAngle";
+                    break;
+                case ClothParams.Algorithm.Algorithm_2:
+                    angleStr = "clampRotationAngle2";
+                    break;
+            }
+            var angle = cparam.FindPropertyRelative(angleStr);
             var influence = cparam.FindPropertyRelative("clampRotationVelocityInfluence");
+            var limit = cparam.FindPropertyRelative("clampRotationVelocityLimit");
 
             const string title = "Clamp Rotation";
             float sv, ev, cv;
             GetBezierValue(angle, out sv, out ev, out cv);
             StaticStringBuilder.Clear();
-            StaticStringBuilder.Append("Clamp Rotation", " [", sv, "/", ev, "]");
+            StaticStringBuilder.Append("Clamp Rotation", " [", sv, "/", ev, "] (", algoType, ")");
 
             Foldout(title, StaticStringBuilder.ToString(),
                 () =>
                 {
                     EditorGUI.BeginDisabledGroup(!use.boolValue);
-
                     EditorGUILayout.LabelField("Clamp Angle");
                     BezierInspector("Angle", angle, 0.0f, 180.0f);
-                    //EditorGUILayout.LabelField("Stiffness");
-                    //BezierInspector("Stiffness", stiffness, 0.0f, 1.0f);
-                    EditorGUILayout.Slider(influence, 0.0f, 1.0f, "Velocity Influence");
+                    if (algoType == ClothParams.Algorithm.Algorithm_1)
+                    {
+                        EditorGUILayout.Slider(limit, 0.0f, 2.0f, "Velocity Limit");
+                        EditorGUILayout.Slider(influence, 0.0f, 1.0f, "Velocity Influence");
+                    }
 
                     EditorGUI.EndDisabledGroup();
                 },
@@ -675,30 +861,18 @@ namespace MagicaCloth
             EditorGUI.BeginChangeCheck();
 
             var use = cparam.FindPropertyRelative("useCollision");
-            var friction = cparam.FindPropertyRelative("friction");
-            var keepShape = cparam.FindPropertyRelative("keepInitialShape");
-            //var dampingRate = cparam.FindPropertyRelative("frictionDampingRate");
-            //var useEdgeCollision = cparam.FindPropertyRelative("useEdgeCollision");
-            //var edgeRadius = cparam.FindPropertyRelative("edgeCollisionRadius");
+            var dynamicFriction = cparam.FindPropertyRelative("friction");
+            var staticFriction = cparam.FindPropertyRelative("staticFriction");
 
             const string title = "Collider Collision";
-            Foldout(title, title,
+            StaticStringBuilder.Clear();
+            StaticStringBuilder.Append(title, " [", dynamicFriction.floatValue, ", ", staticFriction.floatValue, "]");
+            Foldout(title, StaticStringBuilder.ToString(),
                 () =>
                 {
                     EditorGUI.BeginDisabledGroup(!use.boolValue);
-
-                    keepShape.boolValue = EditorGUILayout.Toggle("Keep Shape", keepShape.boolValue);
-                    if (keepShape.boolValue)
-                    {
-                        // 警告：Keep Shapeオプションはメッシュが手足の変形に追従してスキニングされていることが前提です。
-                        EditorGUILayout.HelpBox("The Keep Shape option assumes that the mesh has been skinned to follow the deformation of the limbs.", MessageType.Info);
-                    }
-
-                    //useEdgeCollision.boolValue = EditorGUILayout.Toggle("Edge Collision", useEdgeCollision.boolValue);
-                    //EditorGUILayout.Slider(edgeRadius, 0.0f, 0.1f, "Edge Radius");
-                    EditorGUILayout.Slider(friction, 0.0f, 1.0f, "Friction");
-                    //EditorGUILayout.Slider(dampingRate, 0.0f, 0.95f, "Friction Damping Rate");
-
+                    EditorGUILayout.Slider(dynamicFriction, 0.0f, 0.5f, "Dynamic Friction");
+                    EditorGUILayout.Slider(staticFriction, 0.0f, 0.5f, "Static Friction");
                     EditorGUI.EndDisabledGroup();
                 },
                 (sw) =>
@@ -726,11 +900,15 @@ namespace MagicaCloth
             var ignoreCollider = team.FindProperty("teamData.penetrationIgnoreColliderList");
             var distance = cparam.FindPropertyRelative("penetrationDistance");
 
+            bool isPlaying = EditorApplication.isPlaying;
+
             const string title = "Penetration";
             Foldout(title, title,
                 () =>
                 {
                     EditorGUI.BeginDisabledGroup(!use.boolValue);
+
+                    EditorGUI.BeginDisabledGroup(isPlaying);
 
                     EditorGUILayout.PropertyField(mode);
 
@@ -738,6 +916,8 @@ namespace MagicaCloth
                     {
                         EditorGUILayout.Slider(maxDepth, 0.0f, 1.0f, "Max Connection Depth");
                         EditorGUILayout.PropertyField(axis);
+                        EditorGUI.EndDisabledGroup();
+
                         EditorGUILayout.LabelField("Penetration Distance");
                         BezierInspector("Penetration Distance", distance, 0.0f, 1.0f);
                         EditorGUILayout.LabelField("Moving Radius");
@@ -748,15 +928,37 @@ namespace MagicaCloth
                         EditorGUILayout.Slider(maxDepth, 0.0f, 1.0f, "Max Connection Depth");
                         EditorGUILayout.LabelField("Connection Distance");
                         BezierInspector("Connection Distance", connectDistance, 0.0f, 1.0f);
+                        EditorGUI.EndDisabledGroup();
+
                         //EditorGUILayout.LabelField("Stiffness");
                         //BezierInspector("Connection Stiffness", stiffness, 0.0f, 1.0f);
                         EditorGUILayout.LabelField("Penetration Distance");
                         BezierInspector("Penetration Distance", distance, 0.0f, 1.0f);
                         EditorGUILayout.LabelField("Moving Radius");
                         BezierInspector("Moving Radius", radius, 0.0f, 5.0f);
+
+                        EditorGUI.BeginDisabledGroup(isPlaying);
                         //EditorGUILayout.LabelField("Ignore Collider List");
                         EditorGUILayout.PropertyField(ignoreCollider, true);
+                        EditorGUI.EndDisabledGroup();
                     }
+#if false // 一旦休眠
+                    else if (mode.enumValueIndex == (int)ClothParams.PenetrationMode.BonePenetration)
+                    {
+                        // help
+                        EditorGUI.EndDisabledGroup();
+                        EditorGUILayout.HelpBox("Bone Penetration controls the penetration in the direction of the bones registered in the [Skinning Bone List].\nThe particles must be skinning by[User Animation] or[Generate From Bones].", MessageType.Info);
+
+                        //EditorGUI.BeginDisabledGroup(isPlaying);
+                        EditorGUILayout.Slider(maxDepth, 0.0f, 1.0f, "Max Connection Depth");
+                        //EditorGUI.EndDisabledGroup();
+
+                        EditorGUILayout.LabelField("Penetration Distance");
+                        BezierInspector("Penetration Distance", distance, 0.0f, 1.0f);
+                        EditorGUILayout.LabelField("Moving Radius");
+                        BezierInspector("Moving Radius", radius, 0.0f, 5.0f);
+                    }
+#endif
 
                     EditorGUI.EndDisabledGroup();
                 },
@@ -894,6 +1096,8 @@ namespace MagicaCloth
             var springDistanceAtten = cparam.FindPropertyRelative("springDistanceAtten");
             var springIntensity = cparam.FindPropertyRelative("springIntensity");
 
+            bool isPlaying = EditorApplication.isPlaying;
+
             const string title = "Spring";
             StaticStringBuilder.Clear();
             StaticStringBuilder.Append(title, " [", springPower.floatValue, "]");
@@ -901,16 +1105,24 @@ namespace MagicaCloth
                 () =>
                 {
                     EditorGUI.BeginDisabledGroup(!useSpring.boolValue);
-                    EditorGUILayout.Slider(springRadius, 0.01f, 0.5f, "Spring Radius");
-                    EditorGUILayout.Slider(springScaleX, 0.01f, 1.0f, "Spring Radius Scale X");
-                    EditorGUILayout.Slider(springScaleY, 0.01f, 1.0f, "Spring Radius Scale Y");
-                    EditorGUILayout.Slider(springScaleZ, 0.01f, 1.0f, "Spring Radius Scale Z");
+                    {
+                        EditorGUI.BeginDisabledGroup(isPlaying);
+                        EditorGUILayout.Slider(springRadius, 0.01f, 0.5f, "Spring Radius");
+                        EditorGUILayout.Slider(springScaleX, 0.01f, 1.0f, "Spring Radius Scale X");
+                        EditorGUILayout.Slider(springScaleY, 0.01f, 1.0f, "Spring Radius Scale Y");
+                        EditorGUILayout.Slider(springScaleZ, 0.01f, 1.0f, "Spring Radius Scale Z");
+                        EditorGUI.EndDisabledGroup();
+                    }
                     EditorGUILayout.Slider(springPower, 0.0f, 0.1f, "Spring Power");
-                    EditorGUILayout.LabelField("Spring Direction Atten");
-                    BezierInspector("Spring Direction Atten", springDirectionAtten, 0.0f, 1.0f);
-                    EditorGUILayout.LabelField("Spring Distance Atten");
-                    BezierInspector("Spring Distance Atten", springDistanceAtten, 0.0f, 1.0f);
-                    EditorGUILayout.Slider(springIntensity, 0.1f, 3.0f, "Spring Atten Intensity");
+                    {
+                        EditorGUI.BeginDisabledGroup(isPlaying);
+                        EditorGUILayout.LabelField("Spring Direction Atten");
+                        BezierInspector("Spring Direction Atten", springDirectionAtten, 0.0f, 1.0f);
+                        EditorGUILayout.LabelField("Spring Distance Atten");
+                        BezierInspector("Spring Distance Atten", springDistanceAtten, 0.0f, 1.0f);
+                        EditorGUILayout.Slider(springIntensity, 0.1f, 3.0f, "Spring Atten Intensity");
+                        EditorGUI.EndDisabledGroup();
+                    }
                     EditorGUI.EndDisabledGroup();
                 },
                 (sw) =>
@@ -1080,6 +1292,59 @@ namespace MagicaCloth
         }
 
         //===============================================================================
+        public static void WindComponentInspector(WindComponent wind, SerializedObject so)
+        {
+            var areaWind = wind as MagicaAreaWind;
+            var windType = wind.GetWindType();
+            var shapeType = wind.GetShapeType();
+            var dirType = wind.GetDirectionType();
+
+            EditorGUILayout.PropertyField(so.FindProperty("main"));
+            EditorGUILayout.PropertyField(so.FindProperty("turbulence"));
+            EditorGUILayout.PropertyField(so.FindProperty("frequency"));
+            if (windType == PhysicsManagerWindData.WindType.Area)
+            {
+                if (areaWind)
+                {
+                    EditorGUILayout.PropertyField(so.FindProperty("shapeType"));
+                }
+
+                switch (shapeType)
+                {
+                    case PhysicsManagerWindData.ShapeType.Box:
+                        EditorGUILayout.PropertyField(so.FindProperty("areaSize"));
+                        break;
+                    case PhysicsManagerWindData.ShapeType.Sphere:
+                        EditorGUILayout.PropertyField(so.FindProperty("areaRadius"));
+                        break;
+                }
+                //EditorGUILayout.PropertyField(so.FindProperty("anchor"));
+            }
+
+            if (windType == PhysicsManagerWindData.WindType.Area && shapeType == PhysicsManagerWindData.ShapeType.Sphere)
+            {
+                EditorGUILayout.PropertyField(so.FindProperty("directionType"));
+            }
+
+            if (windType == PhysicsManagerWindData.WindType.Direction || dirType == PhysicsManagerWindData.DirectionType.OneDirection)
+            {
+                EditorGUILayout.PropertyField(so.FindProperty("directionAngleX"));
+                EditorGUILayout.PropertyField(so.FindProperty("directionAngleY"));
+            }
+
+            if (windType == PhysicsManagerWindData.WindType.Area && shapeType == PhysicsManagerWindData.ShapeType.Sphere && dirType == PhysicsManagerWindData.DirectionType.Radial)
+            {
+                EditorGUILayout.LabelField("Attenuation");
+                BezierInspector("Attenuation", so.FindProperty("attenuation"), 0.0f, 1.0f);
+            }
+
+            if (areaWind)
+            {
+                EditorGUILayout.PropertyField(so.FindProperty("isAddition"));
+            }
+        }
+
+        //===============================================================================
         /// <summary>
         /// 水平線を引く
         /// </summary>
@@ -1093,7 +1358,10 @@ namespace MagicaCloth
         /// </summary>
         /// <param name="dlist"></param>
         /// <param name="obj"></param>
-        public static void DrawObjectList<T>(SerializedProperty dlist, GameObject obj, bool allselect, bool allclear)
+        public static void DrawObjectList<T>(
+            SerializedProperty dlist, GameObject obj, bool allselect, bool allclear, System.Func<T[]> func,
+            string allSelectName = null, string allClearName = null
+            )
             where T : UnityEngine.Object
         {
             // リスト表示
@@ -1106,9 +1374,10 @@ namespace MagicaCloth
                 GUILayout.FlexibleSpace();
                 if (allselect)
                 {
-                    if (GUILayout.Button("All Select", GUILayout.Width(70), GUILayout.Height(16)))
+                    if (GUILayout.Button(allSelectName ?? "All Select", GUILayout.Width(80), GUILayout.Height(16)))
                     {
-                        var newlist = obj.transform.root.GetComponentsInChildren<T>();
+                        //var newlist = obj.transform.root.GetComponentsInChildren<T>();
+                        var newlist = func();
                         int cnt = newlist == null ? 0 : newlist.Length;
                         dlist.arraySize = cnt;
                         for (int i = 0; i < cnt; i++)
@@ -1120,7 +1389,7 @@ namespace MagicaCloth
 
                 if (allclear)
                 {
-                    if (GUILayout.Button("Clear", GUILayout.Width(70), GUILayout.Height(16)))
+                    if (GUILayout.Button(allClearName ?? "Clear", GUILayout.Width(70), GUILayout.Height(16)))
                     {
                         dlist.arraySize = 0;
                     }

@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using Unity.Burst;
 using Unity.Collections;
@@ -185,7 +185,7 @@ namespace MagicaCloth
         /// <param name="dtime"></param>
         /// <param name="jobHandle"></param>
         /// <returns></returns>
-        public override JobHandle SolverConstraint(float dtime, float updatePower, int iteration, JobHandle jobHandle)
+        public override JobHandle SolverConstraint(int runCount, float dtime, float updatePower, int iteration, JobHandle jobHandle)
         {
             if (groupList.Count == 0)
                 return jobHandle;
@@ -193,6 +193,8 @@ namespace MagicaCloth
             // 最大距離拘束（ルートラインごと）
             var job1 = new ClampDistance2Job()
             {
+                runCount = runCount,
+
                 dataList = dataList.ToJobArray(),
                 rootInfoList = rootInfoList.ToJobArray(),
                 rootTeamList = rootTeamList.ToJobArray(),
@@ -217,6 +219,8 @@ namespace MagicaCloth
         [BurstCompile]
         struct ClampDistance2Job : IJobParallelFor
         {
+            public int runCount;
+
             [Unity.Collections.ReadOnly]
             public NativeArray<ClampDistance2Data> dataList;
             [Unity.Collections.ReadOnly]
@@ -253,7 +257,7 @@ namespace MagicaCloth
                     return;
 
                 // 更新確認
-                if (team.IsUpdate() == false)
+                if (team.IsUpdate(runCount) == false)
                     return;
 
                 // グループデータ

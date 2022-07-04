@@ -1,9 +1,10 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -47,6 +48,13 @@ namespace MagicaCloth
         private int clothSelectionVersion;
 
         /// <summary>
+        /// カリング用レンダラーリスト
+        /// BoneCloth / BoneSpring で使用
+        /// </summary>
+        [SerializeField]
+        private List<Renderer> cullRendererList = new List<Renderer>();
+
+        /// <summary>
         /// ランタイムクロス設定
         /// </summary>
         protected ClothSetup setup = new ClothSetup();
@@ -54,7 +62,9 @@ namespace MagicaCloth
 
         //=========================================================================================
         private float oldBlendRatio = -1.0f;
-
+        private TeamUpdateMode oldUpdateMode = 0;
+        private TeamCullingMode oldCullingMode = 0;
+        private bool oldUseAnimatedDistance = false;
 
         //=========================================================================================
         /// <summary>
@@ -142,7 +152,7 @@ namespace MagicaCloth
                 return;
 
             // クロスパラメータのラインタイム変更
-            setup.ChangeData(this, clothParams);
+            setup.ChangeData(this, clothParams, clothData);
         }
 
         //=========================================================================================
@@ -157,6 +167,8 @@ namespace MagicaCloth
             base.OnActive();
             // パーティクル有効化
             EnableParticle(UserTransform, UserTransformLocalPosition, UserTransformLocalRotation);
+            // コライダー状態更新
+            TeamData.UpdateStatus();
             SetUseMesh(true);
             ClothActive();
         }
@@ -177,13 +189,127 @@ namespace MagicaCloth
         }
 
         //=========================================================================================
+        internal override void UpdateCullingMode(CoreComponent caller)
+        {
+            //Debug.Log($"UpdateCullingMode [{this.name}]");
+
+            // カリングモード
+            bool isBoneCloth = GetComponentType() == ComponentType.BoneCloth || GetComponentType() == ComponentType.BoneSpring;
+            if (CullingMode != TeamCullingMode.Off && isBoneCloth && cullRendererList.Count == 0)
+            {
+                // BoneCloth/BoneSpringだが参照レンダラーが設定されていないので強制的にカリングをOFFに設定する
+                CullingMode = TeamCullingMode.Off;
+            }
+
+            // deformer
+            CoreComponent vd = GetDeformer()?.Parent;
+
+            // 表示状態
+            bool visible = false;
+            if (CullingMode == TeamCullingMode.Off)
+            {
+                visible = true;
+            }
+            else if (IsActive()) // 起動中のみ
+            {
+                if (isBoneCloth)
+                {
+                    // カリング用レンダラーリストから判定する
+                    if (cullRendererList.Count > 0)
+                    {
+                        foreach (var ren in cullRendererList)
+                        {
+                            if (ren && ren.isVisible)
+                            {
+                                visible = true;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // 未設定は念の為動作させておく
+                        visible = true;
+                    }
+                }
+                else
+                {
+                    // デフォーマーの表示状態から判定する
+                    visible = vd ? vd.IsVisible : false;
+                }
+            }
+            IsVisible = visible;
+
+            // 計算状態
+            bool stopInvisible = (CullingMode != TeamCullingMode.Off);
+            bool calc = true;
+            if (stopInvisible)
+            {
+                calc = visible;
+            }
+            int val = calc ? 1 : 0;
+
+            // コンポーネントアクティブ状態
+            val = Status.IsActive ? val : 0;
+
+            // 最終判定
+            if (calculateValue != val)
+            {
+                calculateValue = val;
+                OnChangeCalculation();
+            }
+
+            // デフォーマーへ伝達
+            if (vd && vd != caller)
+                GetDeformer()?.Parent?.UpdateCullingMode(this);
+        }
+
+        protected override void OnChangeCalculation()
+        {
+            //Debug.Log($"Cloth [{this.name}] Visible:{IsVisible} Calc:{IsCalculate} F:{Time.frameCount}");
+            MagicaPhysicsManager.Instance.Team.SetFlag(teamId, PhysicsManagerTeamData.Flag_Pause, !IsCalculate);
+
+            if (IsCalculate)
+            {
+                // 一時停止再開によるリセット
+                if (CullingMode == TeamCullingMode.Reset)
+                {
+                    //Debug.Log($"Reset cloth! [{this.name}] F:{Time.frameCount}");
+                    ResetCloth(ClothParams.TeleportMode.Reset);
+                }
+
+                // デフォーマの未来予測をリセットする
+                // 遅延実行＋再アクティブ時のみ
+                //if (MagicaPhysicsManager.Instance.IsDelay && ActiveCount > 1)
+                if (MagicaPhysicsManager.Instance.IsDelay)
+                {
+                    GetDeformer()?.ResetFuturePrediction();
+                }
+
+                // コライダーボーンの未来予測をリセットする
+                // 遅延実行＋再アクティブ時のみ
+                //if (MagicaPhysicsManager.Instance.IsDelay && ActiveCount > 1)
+                if (MagicaPhysicsManager.Instance.IsDelay)
+                {
+                    MagicaPhysicsManager.Instance.Team.ResetFuturePredictionCollidere(TeamId);
+                }
+            }
+        }
+
+        public int GetCullRenderListCount()
+        {
+            if (cullRendererList == null)
+                return 0;
+            return cullRendererList.Count(x => x != null);
+        }
+
+        //=========================================================================================
         void BaseClothInit()
         {
             // デフォーマー初期化
-            int dcount = GetDeformerCount();
-            for (int i = 0; i < dcount; i++)
+            if (IsRequiresDeformer())
             {
-                var deformer = GetDeformer(i);
+                var deformer = GetDeformer();
                 if (deformer == null)
                 {
                     Status.SetInitError();
@@ -191,7 +317,7 @@ namespace MagicaCloth
                 }
 
                 // デフォーマーと状態を連動
-                var component = deformer.Parent as CoreComponent;
+                var component = deformer.Parent;
                 Status.LinkParentStatus(component.Status); // デフォーマーが親、クロスコンポーネントが子
 
                 component.Init();
@@ -216,6 +342,15 @@ namespace MagicaCloth
 
             // 頂点有効化
             SetUseVertex(true);
+
+            // 更新モード記録
+            oldUpdateMode = UpdateMode;
+            oldCullingMode = CullingMode;
+            oldUseAnimatedDistance = UseAnimatedPose;
+
+            // UnityPhysics更新モードによる各種設定
+            if (UpdateMode == TeamUpdateMode.UnityPhysics)
+                SetUseUnityPhysics(true);
         }
 
         void BaseClothDispose()
@@ -224,15 +359,11 @@ namespace MagicaCloth
                 return;
 
             // デフォーマとの状態の連動を解除
-            int dcount = GetDeformerCount();
-            for (int i = 0; i < dcount; i++)
+            var deformer = GetDeformer();
+            if (deformer != null)
             {
-                var deformer = GetDeformer(i);
-                if (deformer != null)
-                {
-                    var component = deformer.Parent as CoreComponent;
-                    Status.UnlinkParentStatus(component.Status);
-                }
+                var component = deformer.Parent;
+                Status.UnlinkParentStatus(component.Status);
             }
 
             if (Status.IsInitSuccess)
@@ -260,20 +391,8 @@ namespace MagicaCloth
         {
             setup.ClothActive(this, clothParams, ClothData);
 
-            // デフォーマの未来予測をリセットする
-            // 遅延実行＋再アクティブ時のみ
-            if (MagicaPhysicsManager.Instance.IsDelay && ActiveCount > 1)
-            {
-                int dcount = GetDeformerCount();
-                for (int i = 0; i < dcount; i++)
-                {
-                    var deformer = GetDeformer(i);
-                    if (deformer != null)
-                    {
-                        deformer.ResetFuturePrediction();
-                    }
-                }
-            }
+            // アニメーションされた距離の使用設定
+            MagicaPhysicsManager.Instance.Team.SetFlag(TeamId, PhysicsManagerTeamData.Flag_AnimatedPose, UseAnimatedPose);
         }
 
         protected virtual void ClothInactive()
@@ -314,17 +433,17 @@ namespace MagicaCloth
         protected abstract quaternion UserTransformLocalRotation(int vindex);
 
         /// <summary>
-        /// デフォーマーの数を返す
+        /// デフォーマーが必須か返す
         /// </summary>
         /// <returns></returns>
-        public abstract int GetDeformerCount();
+        public abstract bool IsRequiresDeformer();
 
         /// <summary>
         /// デフォーマーを返す
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public abstract BaseMeshDeformer GetDeformer(int index);
+        public abstract BaseMeshDeformer GetDeformer();
 
         /// <summary>
         /// クロス初期化時に必要なMeshDataを返す（不要ならnull）
@@ -351,17 +470,13 @@ namespace MagicaCloth
             if (Status.IsInitSuccess == false)
                 return;
 
-            int dcount = GetDeformerCount();
-            for (int i = 0; i < dcount; i++)
+            var deformer = GetDeformer();
+            if (deformer != null)
             {
-                var deformer = GetDeformer(i);
-                if (deformer != null)
-                {
-                    if (sw)
-                        deformer.AddUseMesh(this);
-                    else
-                        deformer.RemoveUseMesh(this);
-                }
+                if (sw)
+                    deformer.AddUseMesh(this);
+                else
+                    deformer.RemoveUseMesh(this);
             }
         }
 
@@ -374,25 +489,33 @@ namespace MagicaCloth
             if (MagicaPhysicsManager.IsInstance() == false)
                 return;
 
-            int dcount = GetDeformerCount();
-            for (int i = 0; i < dcount; i++)
+            var deformer = GetDeformer();
+            if (deformer != null)
             {
-                var deformer = GetDeformer(i);
-                if (deformer != null)
-                {
-                    SetDeformerUseVertex(sw, deformer, i);
-                }
+                SetDeformerUseVertex(sw, deformer);
             }
         }
 
         /// <summary>
-        /// デフォーマーごとの使用頂点設定
+        /// デフォーマーの使用頂点設定
         /// 使用頂点に対して AddUseVertex() / RemoveUseVertex() を実行する
         /// </summary>
         /// <param name="sw"></param>
         /// <param name="deformer"></param>
-        /// <param name="deformerIndex"></param>
-        protected abstract void SetDeformerUseVertex(bool sw, BaseMeshDeformer deformer, int deformerIndex);
+        protected abstract void SetDeformerUseVertex(bool sw, BaseMeshDeformer deformer);
+
+        /// <summary>
+        /// デフォーマーに対してアクションを実行する
+        /// </summary>
+        /// <param name="act"></param>
+        internal void DeformerForEach(System.Action<BaseMeshDeformer> act)
+        {
+            var deformer = GetDeformer();
+            if (deformer != null)
+            {
+                act(deformer);
+            }
+        }
 
         //=========================================================================================
         /// <summary>
@@ -417,9 +540,39 @@ namespace MagicaCloth
                 MagicaPhysicsManager.Instance.Team.SetBlendRatio(teamId, blend);
 
                 // コンポーネント有効化判定
-                SetUserEnable(blend > 0.01f);
+                SetUserEnable(blend >= 1e-03f);
 
                 oldBlendRatio = blend;
+            }
+
+            // カリングモード変更
+            if (CullingMode != oldCullingMode)
+            {
+                // 反映
+                UpdateCullingMode(this);
+                oldCullingMode = CullingMode;
+            }
+
+            // 更新モード変更
+            if (UpdateMode != oldUpdateMode)
+            {
+                // チームデータへ反映
+                //Debug.Log($"Change Update Mode:{UpdateMode}");
+                MagicaPhysicsManager.Instance.Team.SetUpdateMode(TeamId, UpdateMode);
+
+                // チームのパーティクルおよびボーンに反映
+                SetUseUnityPhysics(UpdateMode == TeamUpdateMode.UnityPhysics);
+
+                oldUpdateMode = UpdateMode;
+            }
+
+            // アニメーションされた距離の使用
+            if (UseAnimatedPose != oldUseAnimatedDistance)
+            {
+                // チームデータへ反映
+                MagicaPhysicsManager.Instance.Team.SetFlag(TeamId, PhysicsManagerTeamData.Flag_AnimatedPose, UseAnimatedPose);
+
+                oldUseAnimatedDistance = UseAnimatedPose;
             }
         }
 
@@ -428,12 +581,41 @@ namespace MagicaCloth
         /// ボーンを置換する
         /// </summary>
         /// <param name="boneReplaceDict"></param>
-        public override void ReplaceBone(Dictionary<Transform, Transform> boneReplaceDict)
+        public override void ReplaceBone<T>(Dictionary<T, Transform> boneReplaceDict)
         {
             base.ReplaceBone(boneReplaceDict);
 
             // セットアップデータのボーン置換
             setup.ReplaceBone(this, clothParams, boneReplaceDict);
+        }
+
+        /// <summary>
+        /// 現在使用しているボーンを格納して返す
+        /// </summary>
+        /// <returns></returns>
+        public override HashSet<Transform> GetUsedBones()
+        {
+            var bones = base.GetUsedBones();
+
+            // セットアップデータのボーン取得
+            bones.UnionWith(setup.GetUsedBones(this, clothParams));
+
+            return bones;
+        }
+
+        //=========================================================================================
+        /// <summary>
+        /// UnityPhyiscsでの更新の変更
+        /// 継承クラスは自身の使用するボーンの状態更新などを記述する
+        /// </summary>
+        /// <param name="sw"></param>
+        protected override void ChangeUseUnityPhysics(bool sw)
+        {
+            if (teamId <= 0)
+                return;
+
+            setup.ChangeUseUnityPhysics(sw);
+            MagicaPhysicsManager.Instance.Team.ChangeUseUnityPhysics(TeamId, sw);
         }
 
         //=========================================================================================
@@ -504,15 +686,57 @@ namespace MagicaCloth
         public bool HasChangedParam(ClothParams.ParamType ptype)
         {
             int index = (int)ptype;
+            if (clothParamDataHashList.Count == 0)
+                return false;
             if (index >= clothParamDataHashList.Count)
             {
-                return false;
+                return true;
             }
             int hash = clothParams.GetParamHash(this, ptype);
             if (hash == 0)
                 return false;
 
             return clothParamDataHashList[index] != hash;
+        }
+
+        /// <summary>
+        /// アルゴリズムバージョンチェック
+        /// </summary>
+        /// <returns></returns>
+        public Define.Error VerifyAlgorithmVersion()
+        {
+            if (clothData == null)
+                return Define.Error.None;
+
+            if (clothData.clampRotationAlgorithm != ClothParams.Algorithm.Algorithm_2)
+                return Define.Error.OldAlgorithm;
+            if (clothData.restoreRotationAlgorithm != ClothParams.Algorithm.Algorithm_2)
+                return Define.Error.OldAlgorithm;
+            if (clothData.triangleBendAlgorithm != ClothParams.Algorithm.Algorithm_2)
+                return Define.Error.OldAlgorithm;
+
+            return Define.Error.None;
+        }
+
+        /// <summary>
+        /// データフォーマットを最新に更新する
+        /// 主に古いパラメータを最新のパラメータに変換する
+        /// </summary>
+        /// <returns>true=更新あり, false=更新なし</returns>
+        public override bool UpgradeFormat()
+        {
+            bool change = false;
+
+            // アルゴリズム
+            if (clothParams.AlgorithmType == ClothParams.Algorithm.Algorithm_1)
+            {
+                // アルゴリズム[2]へアップグレード
+                clothParams.AlgorithmType = ClothParams.Algorithm.Algorithm_2;
+                clothParams.ConvertToLatestAlgorithmParameter();
+                change = true;
+            }
+
+            return change;
         }
 
         //=========================================================================================

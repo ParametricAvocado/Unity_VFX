@@ -1,5 +1,5 @@
 ﻿// Magica Cloth.
-// Copyright (c) MagicaSoft, 2020.
+// Copyright (c) MagicaSoft, 2020-2022.
 // https://magicasoft.jp
 
 using System.Text;
@@ -13,12 +13,14 @@ namespace MagicaCloth
         /// </summary>
         public enum Error
         {
-            None = 0, // なし
+            None = 0, // なし(成功)
+            Cancel = 1,
 
             // エラー
             EmptyData = 100,
             InvalidDataHash = 101,
             TooOldDataVersion = 102,
+            HigherDataVersion = 103,
 
             MeshDataNull = 200,
             MeshDataHashMismatch = 201,
@@ -62,12 +64,39 @@ namespace MagicaCloth
 
             SharedMeshNull = 1400,
             SharedMeshCannotRead = 1401,
+            SharedMeshDifferent = 1402,
+            SharedMeshDifferentVertexCount = 1403,
 
             MeshOptimizeMismatch = 1500,
             MeshVertexCount65535Over = 1501,
+            MeshKeepQuads = 1502,
 
             BoneListZero = 1600,
             BoneListNull = 1601,
+
+            RendererNotFound = 1700,
+            MeshFilterNotFound = 1701,
+
+            BuildNoTransformList = 8000,
+            BuildReadOnlyPrefab = 8001,
+            BuildFailedSaveAssets = 8002,
+            BuildPrefabCannotSaved = 8003,
+            BuildNotSceneObject = 8004,
+
+            BuildInvalidComponent = 8100,
+            BuildInvalidData = 8101,
+            BuildInvalidMeshData = 8102,
+            BuildInvalidGameObject = 8103,
+            BuildInvalidPrefab = 8104,
+            BuildInvalidRenderDeformer = 8105,
+            BuildInvalidScene = 8106,
+            BuildInvalidSelection = 8107,
+
+            BuildMissingDeformer = 8200,
+            BuildMissingSelection = 8201,
+            BuildMissingMesh = 8202,
+            BuildMissingScriptOnPrefab = 8203,
+
 
             // ここからはランタイムエラー(10000～)
 
@@ -75,6 +104,7 @@ namespace MagicaCloth
             OverlappingTransform = 20000,
             AddOverlappingTransform = 20001,
             OldDataVersion = 20002,
+            OldAlgorithm = 20003,
         }
 
         /// <summary>
@@ -94,7 +124,7 @@ namespace MagicaCloth
         /// <returns></returns>
         public static bool IsError(Error err)
         {
-            return err != Error.None && (int)err < 20000;
+            return err != Error.None && (int)err >= 100 && (int)err < 20000;
         }
 
         /// <summary>
@@ -128,7 +158,7 @@ namespace MagicaCloth
             {
                 case Error.SharedMeshCannotRead:
                     sb.AppendLine();
-                    sb.Append("Please turn On the [Read/Write Enabled] flag of the mesh importer.");
+                    sb.Append("Please turn On the [Read/Write Enabled] flag of the model importer.");
                     break;
                 case Error.OldDataVersion:
                     sb.Clear();
@@ -141,6 +171,30 @@ namespace MagicaCloth
                 case Error.EmptyData:
                     sb.Clear();
                     sb.Append("No Data.");
+                    break;
+                case Error.OldAlgorithm:
+                    sb.Clear();
+                    sb.Append("Old algorithms.");
+                    sb.AppendLine();
+                    sb.Append("Old algorithms will be removed in the future.");
+                    sb.AppendLine();
+                    sb.Append("Please use a more stable and up-to-date algorithm.");
+                    sb.AppendLine();
+                    sb.Append("The settings can be made from the [Algorithm] panel.");
+                    break;
+                case Error.MeshKeepQuads:
+                    sb.AppendLine();
+                    sb.Append("Keep Quads configuration is not supported.");
+                    sb.AppendLine();
+                    sb.Append("Please turn Off the [Keep Quads] flag of the model importer.");
+                    break;
+                case Error.RendererNotFound:
+                    sb.AppendLine();
+                    sb.Append("Creation failed. Renderer not found.");
+                    break;
+                case Error.MeshFilterNotFound:
+                    sb.AppendLine();
+                    sb.Append("Creation failed. MeshFilter not found.");
                     break;
             }
 
